@@ -16,6 +16,15 @@
 *.dylib
 *.dll
 
+# Dictionary source files
+G__*.cxx
+G__*.h
+etc/allDict.cxx
+etc/allDict.h
+*_dictContent.h
+*_dictUmbrella.h
+*_rdict.pcm
+
 # Fortran module files
 *.mod
 *.smod
@@ -30,3 +39,7 @@
 *.exe
 *.out
 *.app
+
+
+# Otheres
+*~
