@@ -330,51 +330,133 @@ int main (int ac, char** av) {
       nGoodFatJet++;
     }
 
-    if ( nGoodFatJet == 0 ) {
+    AK4Arr->Clear();
+    AK4Br->GetEntry(i);
+    
+    for (int j=0; j<AK4Arr->GetEntries(); j++) {
+      const baconhep::TJet *ak4jet = (baconhep::TJet*)((*AK4Arr)[j]);
       
-      AK4Arr->Clear();
-      AK4Br->GetEntry(i);
+      //jet energy scale variations
+      if ( ak4jet->pt <= AK4_PT_CUT ) continue;
+      // don't apply ETA cut so the same jet collection can be used for
+      // dijet bosons and VBF jets
+      //if ( fabs(ak4jet->eta) <= AK4_ETA_CUT ) continue;
+      
+      bool isClean=true;
+      // object cleaning
 
-      for (int j=0; j<AK4Arr->GetEntries(); j++) {
-	const baconhep::TJet *ak4jet = (baconhep::TJet*)((*AK4Arr)[j]);
-
-	//jet energy scale variations
-	if ( ak4jet->pt <= AK4_PT_VETO_CUT ) continue;
-	if ( fabs(ak4jet->eta) <= AK4_ETA_CUT ) continue;
-
-	bool isClean=true;
-	// object cleaning
-	for ( std::size_t k=0; k<goodAK4Jets.size(); k++) {
-	  if (deltaR(goodAK4Jets.at(k).Eta(), goodAK4Jets.at(k).Phi(),
-		     ak4jet->eta, ak4jet->phi) < AK4_DR_CUT) {
-	    isClean = false;
-	  }
+      if (nGoodFatJet>0) {
+	if (deltaR(WVJJTree->bos_PuppiAK8_eta_ungroomed, WVJJTree->bos_PuppiAK8_phi_ungroomed,
+		   ak4jet->eta, ak4jet->phi) < AK4_AK8_DR_CUT) {
+	  isClean = false;
 	}
-	for ( std::size_t k=0; k<tightEle.size(); k++) {
-	  if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
-		     ak4jet->eta,   ak4jet->phi) < AK4_DR_CUT) {
-	    isClean = false;
-	  }
-	}
-	for ( std::size_t k=0; k<tightMuon.size(); k++) {
-	  if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
-		     ak4jet->eta,   ak4jet->phi) < AK4_DR_CUT) {
-	    isClean = false;
-	  }
-	}
+      }
 
-	if ( isClean == false ) continue;
-
-	goodAK4Jets.push_back(TLorentzVector(0,0,0,0));
-	goodAK4Jets.back().SetPtEtaPhiM(ak4jet->pt, ak4jet->eta, ak4jet->phi, ak4jet->mass);
-	
+      for ( std::size_t k=0; k<goodAK4Jets.size(); k++) {
+	if (deltaR(goodAK4Jets.at(k).Eta(), goodAK4Jets.at(k).Phi(),
+		   ak4jet->eta, ak4jet->phi) < AK4_DR_CUT) {
+	  isClean = false;
+	}
+      }
+      for ( std::size_t k=0; k<tightEle.size(); k++) {
+	if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
+		   ak4jet->eta,   ak4jet->phi) < AK4_DR_CUT) {
+	  isClean = false;
+	}
+      }
+      for ( std::size_t k=0; k<tightMuon.size(); k++) {
+	if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
+		   ak4jet->eta,   ak4jet->phi) < AK4_DR_CUT) {
+	  isClean = false;
+	}
       }
       
-
-
+      if ( isClean == false ) continue;
+      
+      goodAK4Jets.push_back(TLorentzVector(0,0,0,0));
+      goodAK4Jets.back().SetPtEtaPhiM(ak4jet->pt, ak4jet->eta, ak4jet->phi, ak4jet->mass);
+      
     }
     
+    int nGoodDijet=0;
 
+    if (nGoodFatJet==0) {
+      TLorentzVector tmpV1, tmpV2;
+      int sel1=-1, sel2=-1;
+      for (uint j=0; j<goodAK4Jets.size(); j++) {
+	if ( fabs(goodAK4Jets.at(j).Eta()) < AK4_ETA_CUT ) continue;
+        for(uint k=j+1; k<goodAK4Jets.size(); k++) {
+	  if ( fabs(goodAK4Jets.at(k).Eta()) < AK4_ETA_CUT ) continue;
+	  TLorentzVector tmpV=goodAK4Jets.at(j)+goodAK4Jets.at(k);
+	  
+	  if (tmpV.M()>=AK4_JJ_MIN_M && tmpV.M()<=AK4_JJ_MAX_M && tmpV.Pt()<AK8_MIN_PT) {
+	    
+	    WVJJTree->bos_j1_AK4_pt =  goodAK4Jets.at(j).Pt();
+	    WVJJTree->bos_j1_AK4_eta = goodAK4Jets.at(j).Eta();
+	    WVJJTree->bos_j1_AK4_phi = goodAK4Jets.at(j).Phi();
+	    WVJJTree->bos_j1_AK4_m =   goodAK4Jets.at(j).M();
+	    
+	    WVJJTree->bos_j2_AK4_pt =  goodAK4Jets.at(k).Pt();
+	    WVJJTree->bos_j2_AK4_eta = goodAK4Jets.at(k).Eta();
+	    WVJJTree->bos_j2_AK4_phi = goodAK4Jets.at(k).Phi();
+	    WVJJTree->bos_j2_AK4_m =   goodAK4Jets.at(k).M();
+
+	    WVJJTree->bos_AK4AK4_pt =  tmpV.Pt();
+	    WVJJTree->bos_AK4AK4_eta = tmpV.Eta();
+	    WVJJTree->bos_AK4AK4_phi = tmpV.Phi();
+	    WVJJTree->bos_AK4AK4_m =   tmpV.M();
+
+	    sel1=j; sel2=k;
+	    nGoodDijet++;
+
+	  }
+	  if (nGoodDijet>0) break;
+	}
+	if (nGoodDijet>0) break;
+      }
+
+      //remove the 2 boson jets from the vector
+      std::swap(goodAK4Jets[sel1], goodAK4Jets[goodAK4Jets.size()-1]);
+      std::swap(goodAK4Jets[sel2], goodAK4Jets[goodAK4Jets.size()-2]);
+      goodAK4Jets.pop_back();
+      goodAK4Jets.pop_back();
+    }
+    
+    //check we have a hadronic boson candidate
+    if ( nGoodFatJet == 0 && nGoodDijet == 0 ) continue;
+
+    float tmpMassMax = 0.0;
+    int sel1=-1, sel2=-1;
+
+    for (uint j=0; j<goodAK4Jets.size(); j++) {
+      for(uint k=j+1; k<goodAK4Jets.size(); k++) {
+	TLorentzVector tempVBF = goodAK4Jets.at(j) + goodAK4Jets.at(k);
+
+	if ( tempVBF.M() < VBF_MJJ_CUT ) continue;
+	if ( tempVBF.M() < tmpMassMax ) continue;
+	tmpMassMax = tempVBF.M();
+	sel1=j; sel2=k;
+      }
+    }
+
+    if (sel1==-1 && sel2==-1) continue;
+
+    TLorentzVector tempVBF = goodAK4Jets.at(sel1) + goodAK4Jets.at(sel2);
+
+    WVJJTree->vbf1_AK4_pt = goodAK4Jets.at(sel1).Pt();
+    WVJJTree->vbf1_AK4_eta = goodAK4Jets.at(sel1).Eta();
+    WVJJTree->vbf1_AK4_phi = goodAK4Jets.at(sel1).Phi();
+    WVJJTree->vbf1_AK4_m = goodAK4Jets.at(sel1).M();
+
+    WVJJTree->vbf2_AK4_pt = goodAK4Jets.at(sel2).Pt();
+    WVJJTree->vbf2_AK4_eta = goodAK4Jets.at(sel2).Eta();
+    WVJJTree->vbf2_AK4_phi = goodAK4Jets.at(sel2).Phi();
+    WVJJTree->vbf2_AK4_m = goodAK4Jets.at(sel2).M();
+
+    WVJJTree->vbf_AK4AK4_pt = tempVBF.Pt();
+    WVJJTree->vbf_AK4AK4_eta = tempVBF.Eta();
+    WVJJTree->vbf_AK4AK4_phi = tempVBF.Phi();
+    WVJJTree->vbf_AK4AK4_m = tempVBF.M();
 
     ot->Fill();
     
