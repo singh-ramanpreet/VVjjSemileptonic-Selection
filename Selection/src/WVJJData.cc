@@ -1,17 +1,18 @@
 #include "WVJJAna/Selection/interface/WVJJData.hh"
 
-void WVJJData::init(TTree *t) {
+void WVJJData::init() {
 
   clearVars();
 
-  fTree = t;
-  
   //metadata and weights
   fTree->Branch("run",&run,"run/I");
   fTree->Branch("ls",&ls,"ls/I");
   fTree->Branch("evt",&evt,"evt/I");
+  fTree->Branch("nPV",&nPV,"nPV/f");
+  fTree->Branch("nPU_mean",&nPU_mean,"nPU_mean/f");
   fTree->Branch("genWeight",&genWeight,"genWeight/f");
-  fTree->Branch("triggerEffWeight",&triggerEffWeight,"triggerEffWeight/f");
+  fTree->Branch("lepEffWeight",&lepEffWeight,"lepEffWeight/f");
+  fTree->Branch("lepEffWeight2",&lepEffWeight2,"lepEffWeight2/f");
   fTree->Branch("L1PFWeight",&L1PFWeight,"L1PFWeight/f");
   //lepton 1
   fTree->Branch("lep1_pt",&lep1_pt,"lep1_pt/f");
@@ -134,9 +135,13 @@ void WVJJData::clearVars() {
   run = 0;
   ls = 0;
   evt = 0;
+
+  nPV = 0;
+  nPU_mean = 0;
   
   genWeight = 1.0;
-  triggerEffWeight = 1.0;
+  lepEffWeight = 1.0;
+  lepEffWeight2 = 1.0;
   L1PFWeight = 1.0;
   
   //------------------------------------//

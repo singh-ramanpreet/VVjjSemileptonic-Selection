@@ -1,5 +1,5 @@
-#ifndef WVJJData
-#define VBJJData
+#ifndef WVJJ_DATA_HH
+#define WVJJ_DATA_HH
 
 #include "TTree.h"
 
@@ -8,14 +8,16 @@ class WVJJData {
 public:
 
   WVJJData(TTree *t) {
-    init(t);
+    fTree = t;
+    init();
   };
-
+  
   ~WVJJData() {
     delete fTree;
   };
 
   void clearVars();
+  void init();  
   
   TTree *fTree;
 
@@ -26,11 +28,25 @@ public:
   uint run;
   uint ls;
   uint evt;
-  
+
+  float nPV;
+  float nPU_mean;
+
   float genWeight;
-  float triggerEffWeight;
   float puWeight;
+  float puWeight_Up;//!!
+  float puWeight_Dn;//!!
+
+  float lepEffWeight;//!!
+  float lepEffWeight2;//!!
+
   float L1PFWeight;
+
+  float LHEWeight[1164] = {};//!!
+
+  float nBtag_loose;//!!
+  float nBtag_medium;//!!
+  float nBtag_tight;//!!
   
   //------------------------------------//
   //       LEPTONS                      //
@@ -77,8 +93,18 @@ public:
   //------------------------------------//
   //       MET                          //
   //------------------------------------//
-  
 
+  float MET;//!!
+  float MET_phi;//!!
+
+  float MET_2017raw;//!!
+
+  float MET_jecUp;//!!
+  float MET_jecDn;//!!
+
+  float neu_pz_type0;//!!
+  float neu_pz_type0_jecUp;//!!
+  float neu_pz_type0_jecDn;//!!
   //------------------------------------//
   //       VBF/TAGGING JETS             //
   //------------------------------------//
@@ -179,10 +205,6 @@ public:
   float bos_AK4AK4_eta;
   float bos_AK4AK4_phi;
   float bos_AK4AK4_m;
-
-private:
-  void init(TTree *t);  
-
 
 };
 
