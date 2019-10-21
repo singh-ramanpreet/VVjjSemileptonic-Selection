@@ -28,25 +28,21 @@ public:
   uint run;
   uint ls;
   uint evt;
-
   float nPV;
   float nPU_mean;
-
   float genWeight;
   float puWeight;
-  float puWeight_Up;//!!
-  float puWeight_Dn;//!!
-
-  float lepEffWeight;//!!
-  float lepEffWeight2;//!!
-
+  float puWeight_Up;
+  float puWeight_Dn;
+  //float lepEffWeight;
+  //float lepEffWeight2;
   float L1PFWeight;
+  float LHEWeight[1164] = {};
 
-  float LHEWeight[1164] = {};//!!
-
-  float nBtag_loose;//!!
-  float nBtag_medium;//!!
-  float nBtag_tight;//!!
+  //btag counters
+  uint nBtag_loose;
+  uint nBtag_medium;
+  uint nBtag_tight;
   
   //------------------------------------//
   //       LEPTONS                      //
@@ -94,17 +90,17 @@ public:
   //       MET                          //
   //------------------------------------//
 
-  float MET;//!!
-  float MET_phi;//!!
+  float MET;
+  float MET_phi;
+  float MET_2017raw;
+  float MET_scaleUp;
+  float MET_scaleDn;
 
-  float MET_2017raw;//!!
+  //W neutrino pZ
+  float neu_pz_type0;
+  float neu_pz_type0_scaleUp;
+  float neu_pz_type0_scaleDn;
 
-  float MET_jecUp;//!!
-  float MET_jecDn;//!!
-
-  float neu_pz_type0;//!!
-  float neu_pz_type0_jecUp;//!!
-  float neu_pz_type0_jecDn;//!!
   //------------------------------------//
   //       VBF/TAGGING JETS             //
   //------------------------------------//
@@ -114,36 +110,43 @@ public:
   float vbf1_AK4_eta;
   float vbf1_AK4_phi;
   float vbf1_AK4_m;
-  float vbf1_AK4_e;
+  //float vbf1_AK4_e;
 
   //VBF jet 1 variations
   float vbf1_AK4_pt_scaleUp;
   float vbf1_AK4_pt_scaleDn;
   float vbf1_AK4_m_scaleUp;
   float vbf1_AK4_m_scaleDn;
-  float vbf1_AK4_e_scaleUp;
-  float vbf1_AK4_e_scaleDn;
+  //float vbf1_AK4_e_scaleUp;
+  //float vbf1_AK4_e_scaleDn;
 
   //VBF jet 2
   float vbf2_AK4_pt;
   float vbf2_AK4_eta;
   float vbf2_AK4_phi;
   float vbf2_AK4_m;
-  float vbf2_AK4_e;
+  //float vbf2_AK4_e;
 
   //VBF jet 2 variations
   float vbf2_AK4_pt_scaleUp;
   float vbf2_AK4_pt_scaleDn;
   float vbf2_AK4_m_scaleUp;
   float vbf2_AK4_m_scaleDn;
-  float vbf2_AK4_e_scaleUp;
-  float vbf2_AK4_e_scaleDn;
+  //float vbf2_AK4_e_scaleUp;
+  //float vbf2_AK4_e_scaleDn;
 
   //VBF dijet object
-  float vbf_AK4AK4_pt;
-  float vbf_AK4AK4_eta;
-  float vbf_AK4AK4_phi;
-  float vbf_AK4AK4_m;
+  float vbf_pt;
+  float vbf_eta;
+  float vbf_phi;
+  float vbf_m;
+  float vbf_deta;
+
+  //VBF dijet variations
+  float vbf_pt_scaleUp;
+  float vbf_pt_scaleDn;
+  float vbf_m_scaleUp;
+  float vbf_m_scaleDn;
 
   //------------------------------------//
   //       HADRONIC BOOSTED OBJECTS     //
@@ -152,19 +155,19 @@ public:
   //Boson AK8 jet
   float bos_PuppiAK8_m_sd0;
   float bos_PuppiAK8_m_sd0_corr;
-  float bos_PuppiAK8_pt_ungroomed;
-  float bos_PuppiAK8_eta_ungroomed;
-  float bos_PuppiAK8_phi_ungroomed;
-  float bos_PuppiAK8_e_ungroomed;
+  float bos_PuppiAK8_pt;
+  float bos_PuppiAK8_eta;
+  float bos_PuppiAK8_phi;
+  //float bos_PuppiAK8_e_ungroomed;
   float bos_PuppiAK8_tau2tau1;
 
   //Boson AK8 jet variations
   float bos_PuppiAK8_m_sd0_corr_scaleUp;
   float bos_PuppiAK8_m_sd0_corr_scaleDn;
-  float bos_PuppiAK8_pt_ungroomed_scaleUp;
-  float bos_PuppiAK8_pt_ungroomed_scaleDn;
-  float bos_PuppiAK8_e_ungroomed_scaleUp;
-  float bos_PuppiAK8_e_ungroomed_scaleDn;
+  float bos_PuppiAK8_pt_scaleUp;
+  float bos_PuppiAK8_pt_scaleDn;
+  //float bos_PuppiAK8_e_ungroomed_scaleUp;
+  //float bos_PuppiAK8_e_ungroomed_scaleDn;
 
   //------------------------------------//
   //       HADRONIC RESOLVED OBJECTS    //
@@ -175,36 +178,60 @@ public:
   float bos_j1_AK4_eta;
   float bos_j1_AK4_phi;
   float bos_j1_AK4_m;
-  float bos_j1_AK4_e;
+  //float bos_j1_AK4_e;
 
   //Boson AK4 jet 1 variations
   float bos_j1_AK4_pt_scaleUp;
   float bos_j1_AK4_pt_scaleDn;
   float bos_j1_AK4_m_scaleUp;
   float bos_j1_AK4_m_scaleDn;
-  float bos_j1_AK4_e_scaleUp;
-  float bos_j1_AK4_e_scaleDn;
+  //float bos_j1_AK4_e_scaleUp;
+  //float bos_j1_AK4_e_scaleDn;
 
   //Boson AK4 jet 2
   float bos_j2_AK4_pt;
   float bos_j2_AK4_eta;
   float bos_j2_AK4_phi;
   float bos_j2_AK4_m;
-  float bos_j2_AK4_e;
+  //float bos_j2_AK4_e;
 
   //Boson AK4 jet 2 variations
   float bos_j2_AK4_pt_scaleUp;
   float bos_j2_AK4_pt_scaleDn;
   float bos_j2_AK4_m_scaleUp;
   float bos_j2_AK4_m_scaleDn;
-  float bos_j2_AK4_e_scaleUp;
-  float bos_j2_AK4_e_scaleDn;
+  //float bos_j2_AK4_e_scaleUp;
+  //float bos_j2_AK4_e_scaleDn;
 
   //Boson dijet object
   float bos_AK4AK4_pt;
   float bos_AK4AK4_eta;
   float bos_AK4AK4_phi;
   float bos_AK4AK4_m;
+
+  //Boson dijet variations
+  float bos_AK4AK4_pt_scaleUp;
+  float bos_AK4AK4_pt_scaleDn;
+  float bos_AK4AK4_m_scaleUp;
+  float bos_AK4AK4_m_scaleDn;
+
+  //------------------------------------//
+  //       FINAL STATE VARIABLES        //
+  //------------------------------------//
+
+  float dibos_m;
+  float dibos_pt;
+  float dibos_eta;
+  float dibos_phi;
+
+  float dibos_m_scaleUp;
+  float dibos_m_scaleDn;
+  float dibos_pt_scaleUp;
+  float dibos_pt_scaleDn;
+  
+  float bosCent;
+  float zeppLep;
+  float zeppHad;
 
 };
 

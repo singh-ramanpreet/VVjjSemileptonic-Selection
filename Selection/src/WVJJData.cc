@@ -8,122 +8,147 @@ void WVJJData::init() {
   fTree->Branch("run",&run,"run/I");
   fTree->Branch("ls",&ls,"ls/I");
   fTree->Branch("evt",&evt,"evt/I");
-  fTree->Branch("nPV",&nPV,"nPV/f");
-  fTree->Branch("nPU_mean",&nPU_mean,"nPU_mean/f");
-  fTree->Branch("genWeight",&genWeight,"genWeight/f");
-  fTree->Branch("lepEffWeight",&lepEffWeight,"lepEffWeight/f");
-  fTree->Branch("lepEffWeight2",&lepEffWeight2,"lepEffWeight2/f");
-  fTree->Branch("L1PFWeight",&L1PFWeight,"L1PFWeight/f");
+  fTree->Branch("nPV",&nPV,"nPV/F");
+  fTree->Branch("nPU_mean",&nPU_mean,"nPU_mean/F");
+  fTree->Branch("genWeight",&genWeight,"genWeight/F");
+  fTree->Branch("puWeight",&puWeight,"puWeight/F");
+  fTree->Branch("puWeight_Up",&puWeight_Up,"puWeight_Up/F");
+  fTree->Branch("puWeight_Dn",&puWeight_Dn,"puWeight_Dn/F");
+  fTree->Branch("L1PFWeight",&L1PFWeight,"L1PFWeight/F");
+  fTree->Branch("LHEWeight",&LHEWeight[0],"LHEWeight[1164]/F");
+  //btag counters
+  fTree->Branch("nBtag_loose",&nBtag_loose,"nBtag_loose/I");
+  fTree->Branch("nBtag_medium",&nBtag_medium,"nBtag_medium/I");
+  fTree->Branch("nBtag_tight",&nBtag_tight,"nBtag_tight/I");
   //lepton 1
-  fTree->Branch("lep1_pt",&lep1_pt,"lep1_pt/f");
-  fTree->Branch("lep1_eta",&lep1_eta,"lep1_eta/f");
-  fTree->Branch("lep1_phi",&lep1_phi,"lep1_phi/f");
-  fTree->Branch("lep1_m",&lep1_m,"lep1_m/f");
-  fTree->Branch("lep1_q",&lep1_q,"lep1_q/f");
-  fTree->Branch("lep1_iso",&lep1_iso,"lep1_iso/f");
-  fTree->Branch("lep1_idEffWeight",&lep1_idEffWeight,"lep1_idEffWeight/f");
+  fTree->Branch("lep1_pt",&lep1_pt,"lep1_pt/F");
+  fTree->Branch("lep1_eta",&lep1_eta,"lep1_eta/F");
+  fTree->Branch("lep1_phi",&lep1_phi,"lep1_phi/F");
+  fTree->Branch("lep1_m",&lep1_m,"lep1_m/F");
+  fTree->Branch("lep1_q",&lep1_q,"lep1_q/F");
+  fTree->Branch("lep1_iso",&lep1_iso,"lep1_iso/F");
+  fTree->Branch("lep1_idEffWeight",&lep1_idEffWeight,"lep1_idEffWeight/F");
   //lepton 1 scale variations
-  fTree->Branch("lep1_pt_scaleUp",&lep1_pt_scaleUp,"lep1_pt_scaleUp/f");
-  fTree->Branch("lep1_pt_scaleDn",&lep1_pt_scaleDn,"lep1_pt_scaleDn/f");
+  fTree->Branch("lep1_pt_scaleUp",&lep1_pt_scaleUp,"lep1_pt_scaleUp/F");
+  fTree->Branch("lep1_pt_scaleDn",&lep1_pt_scaleDn,"lep1_pt_scaleDn/F");
   //lepton 2
-  fTree->Branch("lep2_pt",&lep2_pt,"lep2_pt/f");
-  fTree->Branch("lep2_eta",&lep2_eta,"lep2_eta/f");
-  fTree->Branch("lep2_phi",&lep2_phi,"lep2_phi/f");
-  fTree->Branch("lep2_m",&lep2_m,"lep2_m/f");
-  fTree->Branch("lep2_q",&lep2_q,"lep2_q/f");
-  fTree->Branch("lep2_iso",&lep2_iso,"lep2_iso/f");
-  fTree->Branch("lep2_idEffWeight",&lep2_idEffWeight,"lep2_idEffWeight/f");  
+  fTree->Branch("lep2_pt",&lep2_pt,"lep2_pt/F");
+  fTree->Branch("lep2_eta",&lep2_eta,"lep2_eta/F");
+  fTree->Branch("lep2_phi",&lep2_phi,"lep2_phi/F");
+  fTree->Branch("lep2_m",&lep2_m,"lep2_m/F");
+  fTree->Branch("lep2_q",&lep2_q,"lep2_q/F");
+  fTree->Branch("lep2_iso",&lep2_iso,"lep2_iso/F");
+  fTree->Branch("lep2_idEffWeight",&lep2_idEffWeight,"lep2_idEffWeight/F");  
   //lepton 2 scale variations
-  fTree->Branch("lep2_pt_scaleUp",&lep2_pt_scaleUp,"lep2_pt_scaleUp/f");
-  fTree->Branch("lep2_pt_scaleDn",&lep2_pt_scaleDn,"lep2_pt_scaleDn/f");
+  fTree->Branch("lep2_pt_scaleUp",&lep2_pt_scaleUp,"lep2_pt_scaleUp/F");
+  fTree->Branch("lep2_pt_scaleDn",&lep2_pt_scaleDn,"lep2_pt_scaleDn/F");
   //dilepton final state
-  fTree->Branch("dilep_m",&dilep_m,"dilep_m/f");
-  fTree->Branch("dilep_pt",&dilep_pt,"dilep_pt/f");
-  fTree->Branch("dilep_eta",&dilep_eta,"dilep_eta/f");
-  fTree->Branch("dilep_phi",&dilep_phi,"dilep_phi/f");
+  fTree->Branch("dilep_m",&dilep_m,"dilep_m/F");
+  fTree->Branch("dilep_pt",&dilep_pt,"dilep_pt/F");
+  fTree->Branch("dilep_eta",&dilep_eta,"dilep_eta/F");
+  fTree->Branch("dilep_phi",&dilep_phi,"dilep_phi/F");
   //dilepton scale variations
-  fTree->Branch("dilep_m_scaleUp",&dilep_m_scaleUp,"dilep_m_scaleUp/f");
-  fTree->Branch("dilep_m_scaleDn",&dilep_m_scaleDn,"dilep_m_scaleDn/f");
-  fTree->Branch("dilep_pt_scaleUp",&dilep_pt_scaleUp,"dilep_pt_scaleUp/f");
-  fTree->Branch("dilep_pt_scaleDn",&dilep_pt_scaleDn,"dilep_pt_scaleDn/f");
+  fTree->Branch("dilep_m_scaleUp",&dilep_m_scaleUp,"dilep_m_scaleUp/F");
+  fTree->Branch("dilep_m_scaleDn",&dilep_m_scaleDn,"dilep_m_scaleDn/F");
+  fTree->Branch("dilep_pt_scaleUp",&dilep_pt_scaleUp,"dilep_pt_scaleUp/F");
+  fTree->Branch("dilep_pt_scaleDn",&dilep_pt_scaleDn,"dilep_pt_scaleDn/F");
+  //MET
+  fTree->Branch("MET",&MET,"MET/F");
+  fTree->Branch("MET_phi",&MET_phi,"MET_phi/F");
+  fTree->Branch("MET_2017raw",&MET_2017raw,"MET_2017raw/F");
+  fTree->Branch("MET_scaleUp",&MET_scaleUp,"MET_scaleUp/F");
+  fTree->Branch("MET_scaleDn",&MET_scaleDn,"MET_scaleDn/F");
+  //W neutrino pZ
+  fTree->Branch("neu_pz_type0",&neu_pz_type0,"neu_pz_type0/F");
+  fTree->Branch("neu_pz_type0_scaleUp",&neu_pz_type0_scaleUp,"neu_pz_type0_scaleUp/F");
+  fTree->Branch("neu_pz_type0_scaleDn",&neu_pz_type0_scaleDn,"neu_pz_type0_scaleDn/F");
   //VBF jet 1
-  fTree->Branch("vbf1_AK4_pt",&vbf1_AK4_pt,"vbf1_AK4_pt/f");
-  fTree->Branch("vbf1_AK4_eta",&vbf1_AK4_eta,"vbf1_AK4_eta/f");
-  fTree->Branch("vbf1_AK4_phi",&vbf1_AK4_phi,"vbf1_AK4_phi/f");
-  fTree->Branch("vbf1_AK4_m",&vbf1_AK4_m,"vbf1_AK4_m/f");
-  fTree->Branch("vbf1_AK4_e",&vbf1_AK4_e,"vbf1_AK4_e/f");
+  fTree->Branch("vbf1_AK4_pt",&vbf1_AK4_pt,"vbf1_AK4_pt/F");
+  fTree->Branch("vbf1_AK4_eta",&vbf1_AK4_eta,"vbf1_AK4_eta/F");
+  fTree->Branch("vbf1_AK4_phi",&vbf1_AK4_phi,"vbf1_AK4_phi/F");
+  fTree->Branch("vbf1_AK4_m",&vbf1_AK4_m,"vbf1_AK4_m/F");
   //VBF jet 1 variations
-  fTree->Branch("vbf1_AK4_pt_scaleUp",&vbf1_AK4_pt_scaleUp,"vbf1_AK4_pt_scaleUp/f");
-  fTree->Branch("vbf1_AK4_pt_scaleDn",&vbf1_AK4_pt_scaleDn,"vbf1_AK4_pt_scaleDn/f");
-  fTree->Branch("vbf1_AK4_m_scaleUp",&vbf1_AK4_m_scaleUp,"vbf1_AK4_m_scaleUp/f");
-  fTree->Branch("vbf1_AK4_m_scaleDn",&vbf1_AK4_m_scaleDn,"vbf1_AK4_m_scaleDn/f");
-  fTree->Branch("vbf1_AK4_e_scaleUp",&vbf1_AK4_e_scaleUp,"vbf1_AK4_e_scaleUp/f");
-  fTree->Branch("vbf1_AK4_e_scaleDn",&vbf1_AK4_e_scaleDn,"vbf1_AK4_e_scaleDn/f");
+  fTree->Branch("vbf1_AK4_pt_scaleUp",&vbf1_AK4_pt_scaleUp,"vbf1_AK4_pt_scaleUp/F");
+  fTree->Branch("vbf1_AK4_pt_scaleDn",&vbf1_AK4_pt_scaleDn,"vbf1_AK4_pt_scaleDn/F");
+  fTree->Branch("vbf1_AK4_m_scaleUp",&vbf1_AK4_m_scaleUp,"vbf1_AK4_m_scaleUp/F");
+  fTree->Branch("vbf1_AK4_m_scaleDn",&vbf1_AK4_m_scaleDn,"vbf1_AK4_m_scaleDn/F");
   //VBF jet 2
-  fTree->Branch("vbf2_AK4_pt",&vbf2_AK4_pt,"vbf2_AK4_pt/f");
-  fTree->Branch("vbf2_AK4_eta",&vbf2_AK4_eta,"vbf2_AK4_eta/f");
-  fTree->Branch("vbf2_AK4_phi",&vbf2_AK4_phi,"vbf2_AK4_phi/f");
-  fTree->Branch("vbf2_AK4_m",&vbf2_AK4_m,"vbf2_AK4_m/f");
-  fTree->Branch("vbf2_AK4_e",&vbf2_AK4_e,"vbf2_AK4_e/f");
+  fTree->Branch("vbf2_AK4_pt",&vbf2_AK4_pt,"vbf2_AK4_pt/F");
+  fTree->Branch("vbf2_AK4_eta",&vbf2_AK4_eta,"vbf2_AK4_eta/F");
+  fTree->Branch("vbf2_AK4_phi",&vbf2_AK4_phi,"vbf2_AK4_phi/F");
+  fTree->Branch("vbf2_AK4_m",&vbf2_AK4_m,"vbf2_AK4_m/F");
   //VBF jet 2 variations
-  fTree->Branch("vbf2_AK4_pt_scaleUp",&vbf2_AK4_pt_scaleUp,"vbf2_AK4_pt_scaleUp/f");
-  fTree->Branch("vbf2_AK4_pt_scaleDn",&vbf2_AK4_pt_scaleDn,"vbf2_AK4_pt_scaleDn/f");
-  fTree->Branch("vbf2_AK4_m_scaleUp",&vbf2_AK4_m_scaleUp,"vbf2_AK4_m_scaleUp/f");
-  fTree->Branch("vbf2_AK4_m_scaleDn",&vbf2_AK4_m_scaleDn,"vbf2_AK4_m_scaleDn/f");
-  fTree->Branch("vbf2_AK4_e_scaleUp",&vbf2_AK4_e_scaleUp,"vbf2_AK4_e_scaleUp/f");
-  fTree->Branch("vbf2_AK4_e_scaleDn",&vbf2_AK4_e_scaleDn,"vbf2_AK4_e_scaleDn/f");
+  fTree->Branch("vbf2_AK4_pt_scaleUp",&vbf2_AK4_pt_scaleUp,"vbf2_AK4_pt_scaleUp/F");
+  fTree->Branch("vbf2_AK4_pt_scaleDn",&vbf2_AK4_pt_scaleDn,"vbf2_AK4_pt_scaleDn/F");
+  fTree->Branch("vbf2_AK4_m_scaleUp",&vbf2_AK4_m_scaleUp,"vbf2_AK4_m_scaleUp/F");
+  fTree->Branch("vbf2_AK4_m_scaleDn",&vbf2_AK4_m_scaleDn,"vbf2_AK4_m_scaleDn/F");
   //VBF dijet object
-  fTree->Branch("vbf_AK4AK4_pt", &vbf_AK4AK4_pt, "vbf_AK4AK4_pt/f");
-  fTree->Branch("vbf_AK4AK4_eta",&vbf_AK4AK4_eta,"vbf_AK4AK4_eta/f");
-  fTree->Branch("vbf_AK4AK4_phi",&vbf_AK4AK4_phi,"vbf_AK4AK4_phi/f");
-  fTree->Branch("vbf_AK4AK4_m",  &vbf_AK4AK4_m,  "vbf_AK4AK4_m/f");
+  fTree->Branch("vbf_pt", &vbf_pt, "vbf_pt/F");
+  fTree->Branch("vbf_eta",&vbf_eta,"vbf_eta/F");
+  fTree->Branch("vbf_phi",&vbf_phi,"vbf_phi/F");
+  fTree->Branch("vbf_m",  &vbf_m,  "vbf_m/F");
+  //VBF dijet variations
+  fTree->Branch("vbf_pt_scaleUp", &vbf_pt_scaleUp, "vbf_pt_scaleUp/F");
+  fTree->Branch("vbf_pt_scaleDn", &vbf_pt_scaleDn, "vbf_pt_scaleDn/F");
+  fTree->Branch("vbf_m_scaleUp", &vbf_m_scaleUp, "vbf_m_scaleUp/F");
+  fTree->Branch("vbf_m_scaleDn", &vbf_m_scaleDn, "vbf_m_scaleDn/F");
   //Boson AK8 jet
-  fTree->Branch("bos_PuppiAK8_m_sd0",&bos_PuppiAK8_m_sd0,"bos_PuppiAK8_m_sd0/f");
-  fTree->Branch("bos_PuppiAK8_m_sd0_corr",&bos_PuppiAK8_m_sd0_corr,"bos_PuppiAK8_m_sd0_corr/f");
-  fTree->Branch("bos_PuppiAK8_pt_ungroomed",&bos_PuppiAK8_pt_ungroomed,"bos_PuppiAK8_pt_ungroomed/f");
-  fTree->Branch("bos_PuppiAK8_eta_ungroomed",&bos_PuppiAK8_eta_ungroomed,"bos_PuppiAK8_eta_ungroomed/f");
-  fTree->Branch("bos_PuppiAK8_phi_ungroomed",&bos_PuppiAK8_phi_ungroomed,"bos_PuppiAK8_phi_ungroomed/f");
-  fTree->Branch("bos_PuppiAK8_e_ungroomed",&bos_PuppiAK8_e_ungroomed,"bos_PuppiAK8_e_ungroomed/f");
-  fTree->Branch("bos_PuppiAK8_tau2tau1",&bos_PuppiAK8_tau2tau1,"bos_PuppiAK8_tau2tau1/f");
+  fTree->Branch("bos_PuppiAK8_m_sd0",&bos_PuppiAK8_m_sd0,"bos_PuppiAK8_m_sd0/F");
+  fTree->Branch("bos_PuppiAK8_m_sd0_corr",&bos_PuppiAK8_m_sd0_corr,"bos_PuppiAK8_m_sd0_corr/F");
+  fTree->Branch("bos_PuppiAK8_pt",&bos_PuppiAK8_pt,"bos_PuppiAK8_pt/F");
+  fTree->Branch("bos_PuppiAK8_eta",&bos_PuppiAK8_eta,"bos_PuppiAK8_eta/F");
+  fTree->Branch("bos_PuppiAK8_phi",&bos_PuppiAK8_phi,"bos_PuppiAK8_phi/F");
+  fTree->Branch("bos_PuppiAK8_tau2tau1",&bos_PuppiAK8_tau2tau1,"bos_PuppiAK8_tau2tau1/F");
   //Boson AK8 jet variations
-  fTree->Branch("bos_PuppiAK8_m_sd0_corr_scaleUp",&bos_PuppiAK8_m_sd0_corr_scaleUp,"bos_PuppiAK8_m_sd0_corr_scaleUp/f");
-  fTree->Branch("bos_PuppiAK8_m_sd0_corr_scaleDn",&bos_PuppiAK8_m_sd0_corr_scaleDn,"bos_PuppiAK8_m_sd0_corr_scaleDn/f");
-  fTree->Branch("bos_PuppiAK8_pt_ungroomed_scaleUp",&bos_PuppiAK8_pt_ungroomed_scaleUp,"bos_PuppiAK8_pt_ungroomed_scaleUp/f");
-  fTree->Branch("bos_PuppiAK8_pt_ungroomed_scaleDn",&bos_PuppiAK8_pt_ungroomed_scaleDn,"bos_PuppiAK8_pt_ungroomed_scaleDn/f");
-  fTree->Branch("bos_PuppiAK8_e_ungroomed_scaleUp",&bos_PuppiAK8_e_ungroomed_scaleUp,"bos_PuppiAK8_e_ungroomed_scaleUp/f");
-  fTree->Branch("bos_PuppiAK8_e_ungroomed_scaleDn",&bos_PuppiAK8_e_ungroomed_scaleDn,"bos_PuppiAK8_e_ungroomed_scaleDn/f");
+  fTree->Branch("bos_PuppiAK8_m_sd0_corr_scaleUp",&bos_PuppiAK8_m_sd0_corr_scaleUp,"bos_PuppiAK8_m_sd0_corr_scaleUp/F");
+  fTree->Branch("bos_PuppiAK8_m_sd0_corr_scaleDn",&bos_PuppiAK8_m_sd0_corr_scaleDn,"bos_PuppiAK8_m_sd0_corr_scaleDn/F");
+  fTree->Branch("bos_PuppiAK8_pt_scaleUp",&bos_PuppiAK8_pt_scaleUp,"bos_PuppiAK8_pt_scaleUp/F");
+  fTree->Branch("bos_PuppiAK8_pt_scaleDn",&bos_PuppiAK8_pt_scaleDn,"bos_PuppiAK8_pt_scaleDn/F");
   //Boson AK4 jet 1
-  fTree->Branch("bos_j1_AK4_pt",&bos_j1_AK4_pt,"bos_j1_AK4_pt/f");
-  fTree->Branch("bos_j1_AK4_eta",&bos_j1_AK4_eta,"bos_j1_AK4_eta/f");
-  fTree->Branch("bos_j1_AK4_phi",&bos_j1_AK4_phi,"bos_j1_AK4_phi/f");
-  fTree->Branch("bos_j1_AK4_m",&bos_j1_AK4_m,"bos_j1_AK4_m/f");
-  fTree->Branch("bos_j1_AK4_e",&bos_j1_AK4_e,"bos_j1_AK4_e/f");
+  fTree->Branch("bos_j1_AK4_pt",&bos_j1_AK4_pt,"bos_j1_AK4_pt/F");
+  fTree->Branch("bos_j1_AK4_eta",&bos_j1_AK4_eta,"bos_j1_AK4_eta/F");
+  fTree->Branch("bos_j1_AK4_phi",&bos_j1_AK4_phi,"bos_j1_AK4_phi/F");
+  fTree->Branch("bos_j1_AK4_m",&bos_j1_AK4_m,"bos_j1_AK4_m/F");
   //Boson AK4 jet 1 variations
-  fTree->Branch("bos_j1_AK4_pt_scaleUp",&bos_j1_AK4_pt_scaleUp,"bos_j1_AK4_pt_scaleUp/f");
-  fTree->Branch("bos_j1_AK4_pt_scaleDn",&bos_j1_AK4_pt_scaleDn,"bos_j1_AK4_pt_scaleDn/f");
-  fTree->Branch("bos_j1_AK4_m_scaleUp",&bos_j1_AK4_m_scaleUp,"bos_j1_AK4_m_scaleUp/f");
-  fTree->Branch("bos_j1_AK4_m_scaleDn",&bos_j1_AK4_m_scaleDn,"bos_j1_AK4_m_scaleDn/f");
-  fTree->Branch("bos_j1_AK4_e_scaleUp",&bos_j1_AK4_e_scaleUp,"bos_j1_AK4_e_scaleUp/f");
-  fTree->Branch("bos_j1_AK4_e_scaleDn",&bos_j1_AK4_e_scaleDn,"bos_j1_AK4_e_scaleDn/f");
+  fTree->Branch("bos_j1_AK4_pt_scaleUp",&bos_j1_AK4_pt_scaleUp,"bos_j1_AK4_pt_scaleUp/F");
+  fTree->Branch("bos_j1_AK4_pt_scaleDn",&bos_j1_AK4_pt_scaleDn,"bos_j1_AK4_pt_scaleDn/F");
+  fTree->Branch("bos_j1_AK4_m_scaleUp",&bos_j1_AK4_m_scaleUp,"bos_j1_AK4_m_scaleUp/F");
+  fTree->Branch("bos_j1_AK4_m_scaleDn",&bos_j1_AK4_m_scaleDn,"bos_j1_AK4_m_scaleDn/F");
   //Boson AK4 jet 2
-  fTree->Branch("bos_j2_AK4_pt",&bos_j2_AK4_pt,"bos_j2_AK4_pt/f");
-  fTree->Branch("bos_j2_AK4_eta",&bos_j2_AK4_eta,"bos_j2_AK4_eta/f");
-  fTree->Branch("bos_j2_AK4_phi",&bos_j2_AK4_phi,"bos_j2_AK4_phi/f");
-  fTree->Branch("bos_j2_AK4_m",&bos_j2_AK4_m,"bos_j2_AK4_m/f");
-  fTree->Branch("bos_j2_AK4_e",&bos_j2_AK4_e,"bos_j2_AK4_e/f");
+  fTree->Branch("bos_j2_AK4_pt",&bos_j2_AK4_pt,"bos_j2_AK4_pt/F");
+  fTree->Branch("bos_j2_AK4_eta",&bos_j2_AK4_eta,"bos_j2_AK4_eta/F");
+  fTree->Branch("bos_j2_AK4_phi",&bos_j2_AK4_phi,"bos_j2_AK4_phi/F");
+  fTree->Branch("bos_j2_AK4_m",&bos_j2_AK4_m,"bos_j2_AK4_m/F");
   //Boson AK4 jet 2 variations
-  fTree->Branch("bos_j2_AK4_pt_scaleUp",&bos_j2_AK4_pt_scaleUp,"bos_j2_AK4_pt_scaleUp/f");
-  fTree->Branch("bos_j2_AK4_pt_scaleDn",&bos_j2_AK4_pt_scaleDn,"bos_j2_AK4_pt_scaleDn/f");
-  fTree->Branch("bos_j2_AK4_m_scaleUp",&bos_j2_AK4_m_scaleUp,"bos_j2_AK4_m_scaleUp/f");
-  fTree->Branch("bos_j2_AK4_m_scaleDn",&bos_j2_AK4_m_scaleDn,"bos_j2_AK4_m_scaleDn/f");
-  fTree->Branch("bos_j2_AK4_e_scaleUp",&bos_j2_AK4_e_scaleUp,"bos_j2_AK4_e_scaleUp/f");
-  fTree->Branch("bos_j2_AK4_e_scaleDn",&bos_j2_AK4_e_scaleDn,"bos_j2_AK4_e_scaleDn/f");
+  fTree->Branch("bos_j2_AK4_pt_scaleUp",&bos_j2_AK4_pt_scaleUp,"bos_j2_AK4_pt_scaleUp/F");
+  fTree->Branch("bos_j2_AK4_pt_scaleDn",&bos_j2_AK4_pt_scaleDn,"bos_j2_AK4_pt_scaleDn/F");
+  fTree->Branch("bos_j2_AK4_m_scaleUp",&bos_j2_AK4_m_scaleUp,"bos_j2_AK4_m_scaleUp/F");
+  fTree->Branch("bos_j2_AK4_m_scaleDn",&bos_j2_AK4_m_scaleDn,"bos_j2_AK4_m_scaleDn/F");
   //Boson dijet object
-  fTree->Branch("bos_AK4AK4_pt", &bos_AK4AK4_pt, "bos_AK4AK4_pt/f");
-  fTree->Branch("bos_AK4AK4_eta",&bos_AK4AK4_eta,"bos_AK4AK4_eta/f");
-  fTree->Branch("bos_AK4AK4_phi",&bos_AK4AK4_phi,"bos_AK4AK4_phi/f");
-  fTree->Branch("bos_AK4AK4_m",  &bos_AK4AK4_m,  "bos_AK4AK4_m/f");
+  fTree->Branch("bos_AK4AK4_pt", &bos_AK4AK4_pt, "bos_AK4AK4_pt/F");
+  fTree->Branch("bos_AK4AK4_eta",&bos_AK4AK4_eta,"bos_AK4AK4_eta/F");
+  fTree->Branch("bos_AK4AK4_phi",&bos_AK4AK4_phi,"bos_AK4AK4_phi/F");
+  fTree->Branch("bos_AK4AK4_m",  &bos_AK4AK4_m,  "bos_AK4AK4_m/F");
+  //Boson dijet variations
+  fTree->Branch("bos_AK4AK4_pt_scaleUp", &bos_AK4AK4_pt_scaleUp, "bos_AK4AK4_pt_scaleUp/F");
+  fTree->Branch("bos_AK4AK4_pt_scaleDn", &bos_AK4AK4_pt_scaleDn, "bos_AK4AK4_pt_scaleDn/F");
+  fTree->Branch("bos_AK4AK4_m_scaleUp", &bos_AK4AK4_m_scaleUp, "bos_AK4AK4_m_scaleUp/F");
+  fTree->Branch("bos_AK4AK4_m_scaleDn", &bos_AK4AK4_m_scaleDn, "bos_AK4AK4_m_scaleDn/F");
+  //final state variables
+  fTree->Branch("dibos_m", &dibos_m, "dibos_m/F");
+  fTree->Branch("dibos_pt", &dibos_pt, "dibos_pt/F");
+  fTree->Branch("dibos_eta", &dibos_eta, "dibos_eta/F");
+  fTree->Branch("dibos_phi", &dibos_phi, "dibos_phi/F");
+
+  fTree->Branch("dibos_m_scaleUp", &dibos_m_scaleUp, "dibos_m_scaleUp/F");
+  fTree->Branch("dibos_m_scaleDn", &dibos_m_scaleDn, "dibos_m_scaleDn/F");
+  fTree->Branch("dibos_pt_scaleUp", &dibos_pt_scaleUp, "dibos_pt_scaleUp/F");
+  fTree->Branch("dibos_pt_scaleDn", &dibos_pt_scaleDn, "dibos_pt_scaleDn/F");
   
+  fTree->Branch("bosCent", &bosCent, "bosCent/F");
+  fTree->Branch("zeppLep", &zeppLep, "zeppLep/F");
+  fTree->Branch("zeppHad", &zeppHad, "zeppHad/F");
+
 };
 
 void WVJJData::clearVars() {
@@ -140,9 +165,17 @@ void WVJJData::clearVars() {
   nPU_mean = 0;
   
   genWeight = 1.0;
-  lepEffWeight = 1.0;
-  lepEffWeight2 = 1.0;
+  puWeight = 1.0;
+  puWeight_Up = 1.0;
+  puWeight_Dn = 1.0;
+
   L1PFWeight = 1.0;
+
+  LHEWeight[1164] = {};
+
+  nBtag_loose = 0;
+  nBtag_medium = 0;
+  nBtag_tight = 0;
   
   //------------------------------------//
   //       LEPTONS                      //
@@ -187,6 +220,22 @@ void WVJJData::clearVars() {
   dilep_pt_scaleDn = -999.0;
 
   //------------------------------------//
+  //       MET                          //
+  //------------------------------------//
+
+  MET = -999.0;
+  MET_phi = -999.0;
+
+  MET_2017raw = -999.0;
+
+  MET_scaleUp = -999.0;
+  MET_scaleDn = -999.0;
+
+  neu_pz_type0 = -999.0;
+  neu_pz_type0_scaleUp = -999.0;
+  neu_pz_type0_scaleDn = -999.0;
+
+  //------------------------------------//
   //       VBF/TAGGING JETS             //
   //------------------------------------//
 
@@ -195,30 +244,36 @@ void WVJJData::clearVars() {
   vbf1_AK4_eta = -999.0;
   vbf1_AK4_phi = -999.0;
   vbf1_AK4_m = -999.0;
-  vbf1_AK4_e = -999.0;
 
   //VBF jet 1 variations
   vbf1_AK4_pt_scaleUp = -999.0;
   vbf1_AK4_pt_scaleDn = -999.0;
   vbf1_AK4_m_scaleUp = -999.0;
   vbf1_AK4_m_scaleDn = -999.0;
-  vbf1_AK4_e_scaleUp = -999.0;
-  vbf1_AK4_e_scaleDn = -999.0;
 
   //VBF jet 2
   vbf2_AK4_pt = -999.0;
   vbf2_AK4_eta = -999.0;
   vbf2_AK4_phi = -999.0;
   vbf2_AK4_m = -999.0;
-  vbf2_AK4_e = -999.0;
 
   //VBF jet 2 variations
   vbf2_AK4_pt_scaleUp = -999.0;
   vbf2_AK4_pt_scaleDn = -999.0;
   vbf2_AK4_m_scaleUp = -999.0;
   vbf2_AK4_m_scaleDn = -999.0;
-  vbf2_AK4_e_scaleUp = -999.0;
-  vbf2_AK4_e_scaleDn = -999.0;
+
+  //VBF dijet object
+  vbf_pt = -999.0;
+  vbf_eta = -999.0;
+  vbf_phi = -999.0;
+  vbf_m = -999.0;
+
+  //VBF dijet variations
+  vbf_pt_scaleUp = -999.0;
+  vbf_pt_scaleDn = -999.0;
+  vbf_m_scaleUp = -999.0;
+  vbf_m_scaleDn = -999.0;
 
   //------------------------------------//
   //       HADRONIC BOOSTED OBJECTS     //
@@ -227,19 +282,16 @@ void WVJJData::clearVars() {
   //Boson AK8 jet
   bos_PuppiAK8_m_sd0 = -999.0;
   bos_PuppiAK8_m_sd0_corr = -999.0;
-  bos_PuppiAK8_pt_ungroomed = -999.0;
-  bos_PuppiAK8_eta_ungroomed = -999.0;
-  bos_PuppiAK8_phi_ungroomed = -999.0;
-  bos_PuppiAK8_e_ungroomed = -999.0;
+  bos_PuppiAK8_pt = -999.0;
+  bos_PuppiAK8_eta = -999.0;
+  bos_PuppiAK8_phi = -999.0;
   bos_PuppiAK8_tau2tau1 = -999.0;
 
   //Boson AK8 jet variations
   bos_PuppiAK8_m_sd0_corr_scaleUp = -999.0;
   bos_PuppiAK8_m_sd0_corr_scaleDn = -999.0;
-  bos_PuppiAK8_pt_ungroomed_scaleUp = -999.0;
-  bos_PuppiAK8_pt_ungroomed_scaleDn = -999.0;
-  bos_PuppiAK8_e_ungroomed_scaleUp = -999.0;
-  bos_PuppiAK8_e_ungroomed_scaleDn = -999.0;
+  bos_PuppiAK8_pt_scaleUp = -999.0;
+  bos_PuppiAK8_pt_scaleDn = -999.0;
 
   //------------------------------------//
   //       HADRONIC RESOLVED OBJECTS    //
@@ -250,36 +302,44 @@ void WVJJData::clearVars() {
   bos_j1_AK4_eta = -999.0;
   bos_j1_AK4_phi = -999.0;
   bos_j1_AK4_m = -999.0;
-  bos_j1_AK4_e = -999.0;
 
   //Boson AK4 jet 1 variations
   bos_j1_AK4_pt_scaleUp = -999.0;
   bos_j1_AK4_pt_scaleDn = -999.0;
   bos_j1_AK4_m_scaleUp = -999.0;
   bos_j1_AK4_m_scaleDn = -999.0;
-  bos_j1_AK4_e_scaleUp = -999.0;
-  bos_j1_AK4_e_scaleDn = -999.0;
 
   //Boson AK4 jet 2
   bos_j2_AK4_pt = -999.0;
   bos_j2_AK4_eta = -999.0;
   bos_j2_AK4_phi = -999.0;
   bos_j2_AK4_m = -999.0;
-  bos_j2_AK4_e = -999.0;
 
   //Boson AK4 jet 2 variations
   bos_j2_AK4_pt_scaleUp = -999.0;
   bos_j2_AK4_pt_scaleDn = -999.0;
   bos_j2_AK4_m_scaleUp = -999.0;
   bos_j2_AK4_m_scaleDn = -999.0;
-  bos_j2_AK4_e_scaleUp = -999.0;
-  bos_j2_AK4_e_scaleDn = -999.0;
 
   //Boson dijet object
   bos_AK4AK4_pt = -999.0;
   bos_AK4AK4_eta = -999.0;
   bos_AK4AK4_phi = -999.0;
   bos_AK4AK4_m = -999.0;
+
+  dibos_m = -999.0;
+  dibos_pt = -999.0;
+  dibos_eta = -999.0;
+  dibos_phi = -999.0;
+
+  dibos_m_scaleUp = -999.0;
+  dibos_m_scaleDn = -999.0;
+  dibos_pt_scaleUp = -999.0;
+  dibos_pt_scaleDn = -999.0;
+
+  bosCent = -999.0;
+  zeppLep = -999.0;
+  zeppHad = -999.0;
 
 };
 
