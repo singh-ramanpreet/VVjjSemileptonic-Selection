@@ -206,17 +206,17 @@ int main (int ac, char** av) {
   TFile *f=0;
   TTree *t=0;
 
-  ifstream ifs;
-  ifs.open(inputFile.Data());
+  std::ifstream ifs;
+  ifs.open(inputFile.c_str());
   assert(ifs.is_open());
-  string line;
+  std::string line;
   while (getline(ifs,line)) {
-    stringstream ss(line);
-    string filetoopen;
+    std::stringstream ss(line);
+    std::string filetoopen;
     ss >> filetoopen;
 
     f = TFile::Open(TString(filetoopen),"read");
-    TTree *t = (TTree *)f->Get("Events");
+    t = (TTree *)f->Get("Events");
     
     t->SetBranchAddress("Info", &info);            TBranch *infoBr = t->GetBranch("Info");
     t->SetBranchAddress("PV",   &vertexArr);       TBranch *vertexBr = t->GetBranch("PV");
