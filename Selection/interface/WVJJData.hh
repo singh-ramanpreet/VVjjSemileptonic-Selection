@@ -34,8 +34,6 @@ public:
   float puWeight;
   float puWeight_Up;
   float puWeight_Dn;
-  //float lepEffWeight;
-  //float lepEffWeight2;
   float L1PFWeight;
   float LHEWeight[1164] = {};
 
@@ -111,6 +109,9 @@ public:
   float vbf1_AK4_phi;
   float vbf1_AK4_m;
   //float vbf1_AK4_e;
+  float vbf1_AK4_qgid;
+  float vbf1_AK4_axis2;
+  float vbf1_AK4_ptD;
 
   //VBF jet 1 variations
   float vbf1_AK4_pt_scaleUp;
@@ -126,6 +127,9 @@ public:
   float vbf2_AK4_phi;
   float vbf2_AK4_m;
   //float vbf2_AK4_e;
+  float vbf2_AK4_qgid;
+  float vbf2_AK4_axis2;
+  float vbf2_AK4_ptD;
 
   //VBF jet 2 variations
   float vbf2_AK4_pt_scaleUp;
@@ -168,6 +172,19 @@ public:
   float bos_PuppiAK8_pt_scaleDn;
   //float bos_PuppiAK8_e_ungroomed_scaleUp;
   //float bos_PuppiAK8_e_ungroomed_scaleDn;
+
+  float bos_PuppiAK8_e2_sdb1; 
+  float bos_PuppiAK8_e3_sdb1; 
+  float bos_PuppiAK8_e3_v1_sdb1; 
+  float bos_PuppiAK8_e3_v2_sdb1; 
+  float bos_PuppiAK8_e4_v1_sdb1; 
+  float bos_PuppiAK8_e4_v2_sdb1;
+  float bos_PuppiAK8_e2_sdb2; 
+  float bos_PuppiAK8_e3_sdb2; 
+  float bos_PuppiAK8_e3_v1_sdb2; 
+  float bos_PuppiAK8_e3_v2_sdb2; 
+  float bos_PuppiAK8_e4_v1_sdb2; 
+  float bos_PuppiAK8_e4_v2_sdb2; 
 
   //------------------------------------//
   //       HADRONIC RESOLVED OBJECTS    //

@@ -4,51 +4,59 @@
 #include "BaconAna/DataFormats/interface/TJet.hh"
 #include "BaconAna/DataFormats/interface/TAddJet.hh"
 
-bool passAK4JetLoose(const baconhep::TJet *jet)
-{
-  ////2016
-  ////https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
-  //if(fabs(jet->eta)<= 2.7){
-  //  if(jet->neuHadFrac >= 0.99) return false;
-  //  if(jet->neuEmFrac  >= 0.99) return false;
-  //  if(jet->nParticles <= 1)    return false;
-  //}
-  //if(fabs(jet->eta)<= 2.4) {
-  //  if(jet->chHadFrac == 0)     return false;
-  //  if(jet->nCharged  == 0)     return false;
-  //  if(jet->chEmFrac  >= 0.99)  return false;
-  //}
-  //if(fabs(jet->eta) > 2.7 && fabs(jet->eta) <= 3.0) {
-  //  if(jet->neuEmFrac <= 0.01)  return false;
-  //  if(jet->neuHadFrac >= 0.98) return false;
-  //  if(jet->nNeutrals <= 2)     return false;
-  //}
-  //if(fabs(jet->eta) > 3.0) {
-  //  if(jet->neuEmFrac >= 0.90)  return false;
-  //  if(jet->nNeutrals <= 10)    return false;
-  //}
+bool passAK4JetLoose(const baconhep::TJet *jet, int era);
 
-  ////2017
-  ////https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017
-  ////(Tight)
-  if(fabs(jet->eta)<= 2.7){
-    if(jet->neuHadFrac >= 0.90) return false;
-    if(jet->neuEmFrac  >= 0.90) return false;
-    if(jet->nParticles <= 1)    return false;
+bool passAK4JetLoose(const baconhep::TJet *jet, int era) {
+  if (era!=2016 && era!=2017) {
+    std::cout << "Invalid Era!" << std::endl;
+    return false;
   }
-  if(fabs(jet->eta)<= 2.4) {
-    if(jet->chHadFrac == 0)     return false;
-    if(jet->nCharged  == 0)     return false;
+  else if (era==2016) {
+    //2016
+    //https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
+    if(fabs(jet->eta)<= 2.7){
+      if(jet->neuHadFrac >= 0.99) return false;
+      if(jet->neuEmFrac  >= 0.99) return false;
+      if(jet->nParticles <= 1)    return false;
+    }
+    if(fabs(jet->eta)<= 2.4) {
+      if(jet->chHadFrac == 0)     return false;
+      if(jet->nCharged  == 0)     return false;
+      if(jet->chEmFrac  >= 0.99)  return false;
+    }
+    if(fabs(jet->eta) > 2.7 && fabs(jet->eta) <= 3.0) {
+      if(jet->neuEmFrac <= 0.01)  return false;
+      if(jet->neuHadFrac >= 0.98) return false;
+      if(jet->nNeutrals <= 2)     return false;
+    }
+    if(fabs(jet->eta) > 3.0) {
+      if(jet->neuEmFrac >= 0.90)  return false;
+      if(jet->nNeutrals <= 10)    return false;
+    }
   }
-  if(fabs(jet->eta) > 2.7 && fabs(jet->eta) <= 3.0) {
-    if(jet->neuEmFrac <= 0.02)  return false;
-    if(jet->neuEmFrac >= 0.99)  return false;
-    if(jet->nNeutrals <= 2)     return false;
-  }
-  if(fabs(jet->eta) > 3.0) {
-    if(jet->neuHadFrac <= 0.02) return false;
-    if(jet->neuEmFrac  >= 0.90) return false;
-    if(jet->nNeutrals  <= 10)   return false;
+  else if (era==2017) {
+    //2017
+    //https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017
+    //(Tight)
+    if(fabs(jet->eta)<= 2.7){
+      if(jet->neuHadFrac >= 0.90) return false;
+      if(jet->neuEmFrac  >= 0.90) return false;
+      if(jet->nParticles <= 1)    return false;
+    }
+    if(fabs(jet->eta)<= 2.4) {
+      if(jet->chHadFrac == 0)     return false;
+      if(jet->nCharged  == 0)     return false;
+    }
+    if(fabs(jet->eta) > 2.7 && fabs(jet->eta) <= 3.0) {
+      if(jet->neuEmFrac <= 0.02)  return false;
+      if(jet->neuEmFrac >= 0.99)  return false;
+      if(jet->nNeutrals <= 2)     return false;
+    }
+    if(fabs(jet->eta) > 3.0) {
+      if(jet->neuHadFrac <= 0.02) return false;
+      if(jet->neuEmFrac  >= 0.90) return false;
+      if(jet->nNeutrals  <= 10)   return false;
+    }
   }
   return true;
 }

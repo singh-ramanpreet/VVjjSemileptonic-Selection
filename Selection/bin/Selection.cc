@@ -48,6 +48,7 @@
 #include "BaconAna/Utils/interface/TTrigger.hh"
 #include "BaconAna/DataFormats/interface/TLHEWeight.hh"
 
+#include "WVJJAna/Selection/interface/ScaleFactors.hh"
 #include "WVJJAna/Selection/interface/Utils.hh"
 #include "WVJJAna/Selection/interface/METzCalculator.h"
 
@@ -55,7 +56,8 @@ int main (int ac, char** av) {
 
   std::string inputFile = av[1];
   std::string outputFile = av[2];
-  //int isMC = atoi(av[3]);
+  int isMC = atoi(av[3]);
+  int era = atoi(av[4]);
 
   const float MUON_MASS = 0.1056583745;
   const float ELE_MASS  = 0.000511;
@@ -89,15 +91,17 @@ int main (int ac, char** av) {
   const float AK4_DR_CUT = 0.3;
 
   //2016 csv tag thresholds
-  //const float CSV_LOOSE_2016 = 0.5426;
-  //const float CSV_MEDIUM_2016 = 0.8484;
-  //const float CSV_TIGHT_2016 = 0.9535;
+  const float CSV_LOOSE_2016 = 0.5426;
+  const float CSV_MEDIUM_2016 = 0.8484;
+  const float CSV_TIGHT_2016 = 0.9535;
 
   //2017 csv tag thresholds
   const float CSV_LOOSE_2017 = 0.5803;
   const float CSV_MEDIUM_2017 = 0.8838;
   const float CSV_TIGHT_2017 = 0.9693;
   //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
+
+  ScaleFactors scaleFactor(era);
 
   //misc
   //const int RUN_BOUND = 278820;
@@ -106,26 +110,36 @@ int main (int ac, char** av) {
   std::vector<TLorentzVector> tightEle;
   std::vector<TLorentzVector> goodAK4Jets;
 
+  std::string iHLTFile="${CMSSW_BASE}/src/BaconAna/DataFormats/data/HLTFile_25ns";
+  const std::string cmssw_base = getenv("CMSSW_BASE");
+  std::string cmssw_base_env = "${CMSSW_BASE}";
+  size_t start_pos = iHLTFile.find(cmssw_base_env);
+  if(start_pos != std::string::npos) {
+    iHLTFile.replace(start_pos, cmssw_base_env.length(), cmssw_base);
+  }
+
+  const baconhep::TTrigger triggerMenu(iHLTFile);
+
   //PILEUP WEIGHT FACTORS
   //int nbinsPU=75;
-  int nbinsPU=100;
+  //int nbinsPU=100;
   //TFile* pileupFileMC = TFile::Open("data/puWeights_80x_37ifb.root");
-  TFile* pileupFileMC = TFile::Open("data/puWeights_90x_2017.root");
-  TH1D* puWeights = (TH1D*)pileupFileMC->Get("puWeights");
-  TH1D* puWeightsUp = (TH1D*)pileupFileMC->Get("puWeightsUp");
-  TH1D* puWeightsDown = (TH1D*)pileupFileMC->Get("puWeightsDown");
-  puWeights->SetBins(nbinsPU,0,nbinsPU);
-  puWeightsUp->SetBins(nbinsPU,0,nbinsPU);
-  puWeightsDown->SetBins(nbinsPU,0,nbinsPU);
+  //TFile* pileupFileMC = TFile::Open("data/puWeights_90x_2017.root");
+  //TH1D* puWeights = (TH1D*)pileupFileMC->Get("puWeights");
+  //TH1D* puWeightsUp = (TH1D*)pileupFileMC->Get("puWeightsUp");
+  //TH1D* puWeightsDown = (TH1D*)pileupFileMC->Get("puWeightsDown");
+  //puWeights->SetBins(nbinsPU,0,nbinsPU);
+  //puWeightsUp->SetBins(nbinsPU,0,nbinsPU);
+  //puWeightsDown->SetBins(nbinsPU,0,nbinsPU);
 
   //ELECTRON CORRECTIONS
   //TFile* IDIsoEle = TFile::Open("data/SF2016/egammaEffi_EGM2D_TightCutBasedIDSF.root","READ");
-  TFile* IDIsoEle = TFile::Open("data/SF2017/egammaEffi.txt_EGM2D_runBCDEF_passingTight94X.root","READ");
-  TH1F *hIDIsoEle = (TH1F*)IDIsoEle->Get("EGamma_SF2D");
+  //TFile* IDIsoEle = TFile::Open("data/SF2017/egammaEffi.txt_EGM2D_runBCDEF_passingTight94X.root","READ");
+  //TH1F *hIDIsoEle = (TH1F*)IDIsoEle->Get("EGamma_SF2D");
 
   //TFile* GSFCorrEle = TFile::Open("data/SF2016/egammaEffi_SF2D_GSF_tracking.root","READ");
-  TFile* GSFCorrEle = TFile::Open("data/SF2017/egammaEffi.txt_EGM2D_runBCDEF_passingRECO.root","READ");
-  TH1F *hGSFCorrEle = (TH1F*)GSFCorrEle->Get("EGamma_SF2D");
+  //TFile* GSFCorrEle = TFile::Open("data/SF2017/egammaEffi.txt_EGM2D_runBCDEF_passingRECO.root","READ");
+  //TH1F *hGSFCorrEle = (TH1F*)GSFCorrEle->Get("EGamma_SF2D");
 
   //TFile* TriggerEle = TFile::Open("data/SF2016/ElectronTrigger_SF.root","READ");
   //TH1F* hTriggerEle = (TH1F*)TriggerEle->Get("HLT_Ele27");
@@ -159,7 +173,7 @@ int main (int ac, char** av) {
 
   //B TAGGING
   //BTagCalibration calib("csvv2", "data/CSVv2_Moriond17_B_H.csv");//2016
-  BTagCalibration calib("csvv2", "data/CSVv2_94XSF_V2_B_F.csv");//2017
+  BTagCalibration calib("csvv2", scaleFactor.GetBtagCSV().Data());
   BTagCalibrationReader bTagReader(BTagEntry::OP_LOOSE,  // working point: can be OP_LOOSE, OP_MEDIUM, OP_TIGHT 
                                    "central",             // label for the central value (see the scale factor file)
                                    {"up","down"});        // vector of labels for systematics
@@ -173,14 +187,14 @@ int main (int ac, char** av) {
   //JetCorrectorParameters paramAK8puppi("data/Summer16_23Sep2016V4_MC/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFPuppi.txt");
 
   //2017
-  JetCorrectorParameters paramAK4chs("data/Fall17_17Nov2017_V32_MC/Fall17_17Nov2017_V32_MC_Uncertainty_AK4PFchs.txt");
-  JetCorrectorParameters paramAK8puppi("data/Fall17_17Nov2017_V32_MC/Fall17_17Nov2017_V32_MC_Uncertainty_AK8PFPuppi.txt");
+  JetCorrectorParameters paramAK4chs(scaleFactor.GetAK4JecUnc().Data());
+  JetCorrectorParameters paramAK8puppi(scaleFactor.GetAK8JecUnc().Data());
   JetCorrectionUncertainty *fJetUnc_AK4chs = new JetCorrectionUncertainty(paramAK4chs);
   JetCorrectionUncertainty *fJetUnc_AK8puppi = new JetCorrectionUncertainty(paramAK8puppi);
 
   //L1 PREFIRING
-  TFile *L1PF_jetpt = TFile::Open("data/SF2017/L1prefiring_jetpt_2017BtoF.root");
-  TH2F *hL1PF_jetpt = (TH2F*) L1PF_jetpt->Get("L1prefiring_jetpt_2017BtoF");
+  //TFile *L1PF_jetpt = TFile::Open("data/SF2017/L1prefiring_jetpt_2017BtoF.root");
+  //TH2F *hL1PF_jetpt = (TH2F*) L1PF_jetpt->Get("L1prefiring_jetpt_2017BtoF");
 
   //
   //
@@ -206,17 +220,17 @@ int main (int ac, char** av) {
   TFile *f=0;
   TTree *t=0;
 
-  ifstream ifs;
-  ifs.open(inputFile.Data());
+  std::ifstream ifs;
+  ifs.open(inputFile.data());
   assert(ifs.is_open());
-  string line;
+  std::string line;
   while (getline(ifs,line)) {
-    stringstream ss(line);
-    string filetoopen;
+    std::stringstream ss(line);
+    std::string filetoopen;
     ss >> filetoopen;
 
     f = TFile::Open(TString(filetoopen),"read");
-    TTree *t = (TTree *)f->Get("Events");
+    t = (TTree *)f->Get("Events");
     
     t->SetBranchAddress("Info", &info);            TBranch *infoBr = t->GetBranch("Info");
     t->SetBranchAddress("PV",   &vertexArr);       TBranch *vertexBr = t->GetBranch("PV");
@@ -247,7 +261,16 @@ int main (int ac, char** av) {
 	genBr->GetEntry(i);
 	if (gen->weight<0) totalEvents->Fill(-0.5);
       }
-      
+
+      if (era==2016) {
+	if(!(triggerMenu.pass("HLT_IsoMu24_v*",info->triggerBits) || triggerMenu.pass("HLT_IsoTkMu24_v*",info->triggerBits) ||  
+	     triggerMenu.pass("HLT_Ele27_WPTight_Gsf_v*",info->triggerBits))) continue;
+      }
+      if (era==2017) {
+	if(!(triggerMenu.pass("HLT_IsoMu27_v*",info->triggerBits) || triggerMenu.pass("HLT_Ele32_WPTight_Gsf_v*",info->triggerBits) || 
+	     triggerMenu.pass("HLT_Ele35_WPTight_Gsf_v*", info->triggerBits))) continue;
+      }
+
       tightMuon.clear();
       tightEle.clear();
       
@@ -260,7 +283,9 @@ int main (int ac, char** av) {
       
       WVJJTree->nPV = vertexArr->GetEntries();
       WVJJTree->nPU_mean = info->nPUmean;
-      
+
+      WVJJTree->puWeight = scaleFactor.GetPUWeight(info->nPUmean, 0);
+
       // LEPTON SELECTION
       
       muonArr->Clear();
@@ -322,12 +347,12 @@ int main (int ac, char** av) {
 	
 	if ( abs(ele->eta) > EL_ETA_CUT ) continue;
 	if ( ele->pt < LEP_PT_VETO_CUT ) continue;
-	float eleIso = ele->chHadIso + TMath::Max(ele->gammaIso + ele->neuHadIso - info->rhoIso * eleEffArea(ele->eta), float(0.0));
+	float eleIso = ele->chHadIso + TMath::Max(ele->gammaIso + ele->neuHadIso - info->rhoIso * eleEffArea(ele->eta,era), float(0.0));
 	
-	if (!passEleLoose(ele, eleIso)) continue;
+	if (!passEleLoose(ele, eleIso, era)) continue;
 	nVetoEle++;
 	
-	if (!passEleTight(ele, eleIso)) continue;
+	if (!passEleTight(ele, eleIso, era)) continue;
 	nTightEle++;
 	
 	tightEle.push_back(TLorentzVector(0,0,0,0));
@@ -414,22 +439,29 @@ int main (int ac, char** av) {
       }
       
       //lepton ID/iso/trigger efficiencies
-      if (WVJJTree->lep1_m == ELE_MASS) {
-	WVJJTree->lep1_idEffWeight = GetSFs_Lepton(WVJJTree->lep1_pt, WVJJTree->lep1_eta, hIDIsoEle);
-	WVJJTree->lep1_idEffWeight *= GetSFs_Lepton(WVJJTree->lep1_pt,WVJJTree->lep1_eta, hGSFCorrEle);
+      //if (WVJJTree->lep1_m == ELE_MASS) {
+      WVJJTree->lep1_idEffWeight = scaleFactor.GetLeptonWeights(WVJJTree->lep1_pt, WVJJTree->lep1_eta, WVJJTree->lep1_m == ELE_MASS ? 11 : 13);
+	//WVJJTree->lep1_idEffWeight = GetSFs_Lepton(WVJJTree->lep1_pt, WVJJTree->lep1_eta, hIDIsoEle);
+	//WVJJTree->lep1_idEffWeight *= GetSFs_Lepton(WVJJTree->lep1_pt,WVJJTree->lep1_eta, hGSFCorrEle);
 	//WVJJTree->lep1_idEffWeight *= GetSFs_Lepton(WVJJTree->lep1_pt,WVJJTree->lep1_eta, hTriggerEle);
 	
-	if (WVJJTree->lep2_pt>0) {
-	  WVJJTree->lep2_idEffWeight = GetSFs_Lepton(WVJJTree->lep2_pt, WVJJTree->lep2_eta, hIDIsoEle);
-	  WVJJTree->lep2_idEffWeight *= GetSFs_Lepton(WVJJTree->lep2_pt,WVJJTree->lep2_eta, hGSFCorrEle);
+      if (WVJJTree->lep2_pt>0) {
+	WVJJTree->lep2_idEffWeight = scaleFactor.GetLeptonWeights(WVJJTree->lep2_pt, WVJJTree->lep2_eta, WVJJTree->lep1_m == ELE_MASS ? 11 : 13);
+	  //WVJJTree->lep2_idEffWeight = GetSFs_Lepton(WVJJTree->lep2_pt, WVJJTree->lep2_eta, hIDIsoEle);
+	  //WVJJTree->lep2_idEffWeight *= GetSFs_Lepton(WVJJTree->lep2_pt,WVJJTree->lep2_eta, hGSFCorrEle);
 	  //WVJJTree->lep2_idEffWeight *= GetSFs_Lepton(WVJJTree->lep2_pt,WVJJTree->lep2_eta, hTriggerEle);
 	  //do we even want the trigger eff for the subleading lepton?
-	}
       }
-      else if (WVJJTree->lep1_m == MUON_MASS) {
-	WVJJTree->lep1_idEffWeight = 1.0; // not implemented yet
-	WVJJTree->lep2_idEffWeight = 1.0; // not implemented yet
-      }
+
+      //else if (WVJJTree->lep1_m == MUON_MASS) {
+      //	WVJJTree->lep1_idEffWeight = ScaleFactors.GetLeptonWeights(WVJJTree->lep1_pt, WVJJTree->lep1_eta, 13);
+      //	//WVJJTree->lep1_idEffWeight = 1.0; // not implemented yet
+      //	//WVJJTree->lep2_idEffWeight = 1.0; // not implemented yet
+      //
+      //	if (WVJJTree->lep2_pt>0) {
+      //	  WVJJTree->lep2_idEffWeight = ScaleFactors.GetLeptonWeights(WVJJTree->lep2_pt, WVJJTree->lep2_eta, 13);
+      //	}
+      //}
       
       // MET
       
@@ -456,7 +488,7 @@ int main (int ac, char** av) {
 	float jecUnc = GetJECunc(ak4jet->pt, ak4jet->eta, fJetUnc_AK4chs);
 	
 	//HARDCODED
-	if (ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) {
+	if (era==2017 && ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) {
 	  TLorentzVector tempRawJet(0,0,0,0);
 	  tempRawJet.SetPtEtaPhiM(ak4jet->ptRaw, ak4jet->eta, ak4jet->phi, ak4jet->mass);
 	  
@@ -563,6 +595,19 @@ int main (int ac, char** av) {
 	WVJJTree->bos_PuppiAK8_m_sd0_corr_scaleDn =  WVJJTree->bos_PuppiAK8_m_sd0_corr*(1.0-jecUnc);
 	WVJJTree->bos_PuppiAK8_pt_scaleUp =  WVJJTree->bos_PuppiAK8_pt*(1.0+jecUnc);
 	WVJJTree->bos_PuppiAK8_pt_scaleDn =  WVJJTree->bos_PuppiAK8_pt*(1.0-jecUnc);
+
+	WVJJTree->bos_PuppiAK8_e2_sdb1 = ak8addjet->e2_sdb1;
+	WVJJTree->bos_PuppiAK8_e3_sdb1 = ak8addjet->e3_sdb1;
+	WVJJTree->bos_PuppiAK8_e3_v1_sdb1 = ak8addjet->e3_v1_sdb1;
+	WVJJTree->bos_PuppiAK8_e3_v2_sdb1 = ak8addjet->e3_v2_sdb1;
+	WVJJTree->bos_PuppiAK8_e4_v1_sdb1 = ak8addjet->e4_v1_sdb1;
+	WVJJTree->bos_PuppiAK8_e4_v2_sdb1 = ak8addjet->e4_v2_sdb1;
+	//WVJJTree->bos_PuppiAK8_e2_sdb2 = ak8addjet->e2_sdb2;
+	//WVJJTree->bos_PuppiAK8_e3_sdb2 = ak8addjet->e3_sdb2;
+	//WVJJTree->bos_PuppiAK8_e3_v1_sdb2 = ak8addjet->e3_v1_sdb2;
+	//WVJJTree->bos_PuppiAK8_e3_v2_sdb2 = ak8addjet->e3_v2_sdb2;
+	//WVJJTree->bos_PuppiAK8_e4_v1_sdb2 = ak8addjet->e4_v1_sdb2;
+	//WVJJTree->bos_PuppiAK8_e4_v2_sdb2 = ak8addjet->e4_v2_sdb2;
 	
 	dmW = fabs(ak8addjet->mass_sd0 - W_MASS);
 	nGoodFatJet++;
@@ -580,15 +625,15 @@ int main (int ac, char** av) {
 	
 	//jet energy scale variations
 	if ( ak4jet->pt < AK4_PT_CUT && ak4jet->pt*(1.0+jecUnc) < AK4_PT_CUT && ak4jet->pt*(1.0-jecUnc) < AK4_PT_CUT) continue;
-	if (!passAK4JetLoose(ak4jet)) continue;
+	if (!passAK4JetLoose(ak4jet,era)) continue;
 	
 	//2017 only
 	if (ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) continue;
 	
 	if (abs(ak4jet->eta)<2.4 && ak4jet->pt>30) {
-	  if (ak4jet->csv > CSV_LOOSE_2017) WVJJTree->nBtag_loose++;
-	  if (ak4jet->csv > CSV_MEDIUM_2017) WVJJTree->nBtag_medium++;
-	  if (ak4jet->csv > CSV_TIGHT_2017) WVJJTree->nBtag_tight++;
+	  if (ak4jet->csv > (era==2016) ? CSV_LOOSE_2016 : CSV_LOOSE_2017) WVJJTree->nBtag_loose++;
+	  if (ak4jet->csv > (era==2016) ? CSV_MEDIUM_2016 : CSV_MEDIUM_2017) WVJJTree->nBtag_medium++;
+	  if (ak4jet->csv > (era==2016) ? CSV_TIGHT_2016 : CSV_TIGHT_2017) WVJJTree->nBtag_tight++;
 	}
 	
 	bool isClean=true;
@@ -832,8 +877,8 @@ int main (int ac, char** av) {
       for (int j=0; j<AK4Arr->GetEntries(); j++) {
 	const baconhep::TJet *ak4jet = (baconhep::TJet*)((*AK4Arr)[j]);
 	if (abs(ak4jet->eta) > 2.0 && abs(ak4jet->eta)<3.0 && ak4jet->pt>30 && ak4jet->pt<500) {
-	  float pfRate = hL1PF_jetpt->GetBinContent(hL1PF_jetpt->FindBin(ak4jet->eta, ak4jet->pt));
-	  WVJJTree->L1PFWeight *= ( 1 - pfRate );
+	  //float pfRate = hL1PF_jetpt->GetBinContent(hL1PF_jetpt->FindBin(ak4jet->eta, ak4jet->pt));
+	  WVJJTree->L1PFWeight *= scaleFactor.GetL1PFWeightJet(ak4jet->pt, ak4jet->eta);
 	}
       }
       

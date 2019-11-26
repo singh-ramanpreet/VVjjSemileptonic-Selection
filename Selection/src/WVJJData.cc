@@ -67,6 +67,9 @@ void WVJJData::init() {
   fTree->Branch("vbf1_AK4_eta",&vbf1_AK4_eta,"vbf1_AK4_eta/F");
   fTree->Branch("vbf1_AK4_phi",&vbf1_AK4_phi,"vbf1_AK4_phi/F");
   fTree->Branch("vbf1_AK4_m",&vbf1_AK4_m,"vbf1_AK4_m/F");
+  fTree->Branch("vbf1_AK4_gqid",&vbf1_AK4_qgid,"vbf1_AK4_qgid/F");
+  fTree->Branch("vbf1_AK4_axis2",&vbf1_AK4_axis2,"vbf1_AK4_axis2/F");
+  fTree->Branch("vbf1_AK4_ptD",&vbf1_AK4_ptD,"vbf1_AK4_ptD/F");
   //VBF jet 1 variations
   fTree->Branch("vbf1_AK4_pt_scaleUp",&vbf1_AK4_pt_scaleUp,"vbf1_AK4_pt_scaleUp/F");
   fTree->Branch("vbf1_AK4_pt_scaleDn",&vbf1_AK4_pt_scaleDn,"vbf1_AK4_pt_scaleDn/F");
@@ -77,6 +80,9 @@ void WVJJData::init() {
   fTree->Branch("vbf2_AK4_eta",&vbf2_AK4_eta,"vbf2_AK4_eta/F");
   fTree->Branch("vbf2_AK4_phi",&vbf2_AK4_phi,"vbf2_AK4_phi/F");
   fTree->Branch("vbf2_AK4_m",&vbf2_AK4_m,"vbf2_AK4_m/F");
+  fTree->Branch("vbf2_AK4_gqid",&vbf2_AK4_qgid,"vbf2_AK4_qgid/F");
+  fTree->Branch("vbf2_AK4_axis2",&vbf2_AK4_axis2,"vbf2_AK4_axis2/F");
+  fTree->Branch("vbf2_AK4_ptD",&vbf2_AK4_ptD,"vbf2_AK4_ptD/F");
   //VBF jet 2 variations
   fTree->Branch("vbf2_AK4_pt_scaleUp",&vbf2_AK4_pt_scaleUp,"vbf2_AK4_pt_scaleUp/F");
   fTree->Branch("vbf2_AK4_pt_scaleDn",&vbf2_AK4_pt_scaleDn,"vbf2_AK4_pt_scaleDn/F");
@@ -104,6 +110,19 @@ void WVJJData::init() {
   fTree->Branch("bos_PuppiAK8_m_sd0_corr_scaleDn",&bos_PuppiAK8_m_sd0_corr_scaleDn,"bos_PuppiAK8_m_sd0_corr_scaleDn/F");
   fTree->Branch("bos_PuppiAK8_pt_scaleUp",&bos_PuppiAK8_pt_scaleUp,"bos_PuppiAK8_pt_scaleUp/F");
   fTree->Branch("bos_PuppiAK8_pt_scaleDn",&bos_PuppiAK8_pt_scaleDn,"bos_PuppiAK8_pt_scaleDn/F");
+  //Boson AK8 correlation variations
+  fTree->Branch("bos_PuppiAK8_e2_sdb1", &bos_PuppiAK8_e2_sdb1, "bos_PuppiAK8_e2_sdb1/F");
+  fTree->Branch("bos_PuppiAK8_e3_sdb1", &bos_PuppiAK8_e3_sdb1, "bos_PuppiAK8_e3_sdb1/F");
+  fTree->Branch("bos_PuppiAK8_e3_v1_sdb1", &bos_PuppiAK8_e3_v1_sdb1, "bos_PuppiAK8_e3_v1_sdb1/F");
+  fTree->Branch("bos_PuppiAK8_e3_v2_sdb1", &bos_PuppiAK8_e3_v2_sdb1, "bos_PuppiAK8_e3_v2_sdb1/F");
+  fTree->Branch("bos_PuppiAK8_e4_v1_sdb1", &bos_PuppiAK8_e4_v1_sdb1, "bos_PuppiAK8_e4_v1_sdb1/F");
+  fTree->Branch("bos_PuppiAK8_e4_v2_sdb1", &bos_PuppiAK8_e4_v2_sdb1, "bos_PuppiAK8_e4_v2_sdb1/F");
+  fTree->Branch("bos_PuppiAK8_e2_sdb2", &bos_PuppiAK8_e2_sdb2, "bos_PuppiAK8_e2_sdb2/F");
+  fTree->Branch("bos_PuppiAK8_e3_sdb2", &bos_PuppiAK8_e3_sdb2, "bos_PuppiAK8_e3_sdb2/F");
+  fTree->Branch("bos_PuppiAK8_e3_v1_sdb2", &bos_PuppiAK8_e3_v1_sdb2, "bos_PuppiAK8_e3_v1_sdb2/F");
+  fTree->Branch("bos_PuppiAK8_e3_v2_sdb2", &bos_PuppiAK8_e3_v2_sdb2, "bos_PuppiAK8_e3_v2_sdb2/F");
+  fTree->Branch("bos_PuppiAK8_e4_v1_sdb2", &bos_PuppiAK8_e4_v1_sdb2, "bos_PuppiAK8_e4_v1_sdb2/F");
+  fTree->Branch("bos_PuppiAK8_e4_v2_sdb2", &bos_PuppiAK8_e4_v2_sdb2, "bos_PuppiAK8_e4_v2_sdb2/F");
   //Boson AK4 jet 1
   fTree->Branch("bos_j1_AK4_pt",&bos_j1_AK4_pt,"bos_j1_AK4_pt/F");
   fTree->Branch("bos_j1_AK4_eta",&bos_j1_AK4_eta,"bos_j1_AK4_eta/F");
@@ -244,6 +263,9 @@ void WVJJData::clearVars() {
   vbf1_AK4_eta = -999.0;
   vbf1_AK4_phi = -999.0;
   vbf1_AK4_m = -999.0;
+  vbf1_AK4_qgid = -999.0;
+  vbf1_AK4_axis2 = -999.0;
+  vbf1_AK4_ptD = -999.0;
 
   //VBF jet 1 variations
   vbf1_AK4_pt_scaleUp = -999.0;
@@ -256,6 +278,9 @@ void WVJJData::clearVars() {
   vbf2_AK4_eta = -999.0;
   vbf2_AK4_phi = -999.0;
   vbf2_AK4_m = -999.0;
+  vbf2_AK4_qgid = -999.0;
+  vbf2_AK4_axis2 = -999.0;
+  vbf2_AK4_ptD = -999.0;
 
   //VBF jet 2 variations
   vbf2_AK4_pt_scaleUp = -999.0;
@@ -292,6 +317,20 @@ void WVJJData::clearVars() {
   bos_PuppiAK8_m_sd0_corr_scaleDn = -999.0;
   bos_PuppiAK8_pt_scaleUp = -999.0;
   bos_PuppiAK8_pt_scaleDn = -999.0;
+
+  bos_PuppiAK8_e2_sdb1 = -999.0;
+  bos_PuppiAK8_e3_sdb1 = -999.0;
+  bos_PuppiAK8_e3_v1_sdb1 = -999.0;
+  bos_PuppiAK8_e3_v2_sdb1 = -999.0;
+  bos_PuppiAK8_e4_v1_sdb1 = -999.0;
+  bos_PuppiAK8_e4_v2_sdb1 = -999.0;
+
+  bos_PuppiAK8_e2_sdb2 = -999.0;
+  bos_PuppiAK8_e3_sdb2 = -999.0;
+  bos_PuppiAK8_e3_v1_sdb2 = -999.0;
+  bos_PuppiAK8_e3_v2_sdb2 = -999.0;
+  bos_PuppiAK8_e4_v1_sdb2 = -999.0;
+  bos_PuppiAK8_e4_v2_sdb2 = -999.0;
 
   //------------------------------------//
   //       HADRONIC RESOLVED OBJECTS    //
