@@ -229,8 +229,10 @@ int main (int ac, char** av) {
     std::string filetoopen;
     ss >> filetoopen;
 
-    f = TFile::Open(TString(filetoopen),"read");
+    f = TFile::Open(TString("root://cmseos.fnal.gov/")+TString(filetoopen),"read");
     t = (TTree *)f->Get("Events");
+
+    if (t==NULL) continue;
     
     t->SetBranchAddress("Info", &info);            TBranch *infoBr = t->GetBranch("Info");
     t->SetBranchAddress("PV",   &vertexArr);       TBranch *vertexBr = t->GetBranch("PV");
@@ -884,7 +886,8 @@ int main (int ac, char** av) {
       
       ot->Fill();
     }
-
+    delete t; delete f;
+    t=0; f=0;
   }
   of->Write();
   of->Close();
