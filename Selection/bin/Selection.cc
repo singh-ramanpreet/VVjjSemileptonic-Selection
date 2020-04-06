@@ -633,9 +633,16 @@ int main (int ac, char** av) {
 	if (ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) continue;
 	
 	if (abs(ak4jet->eta)<2.4 && ak4jet->pt>30) {
-	  if (ak4jet->csv > (era==2016) ? CSV_LOOSE_2016 : CSV_LOOSE_2017) WVJJTree->nBtag_loose++;
-	  if (ak4jet->csv > (era==2016) ? CSV_MEDIUM_2016 : CSV_MEDIUM_2017) WVJJTree->nBtag_medium++;
-	  if (ak4jet->csv > (era==2016) ? CSV_TIGHT_2016 : CSV_TIGHT_2017) WVJJTree->nBtag_tight++;
+	  if (era==2016) {
+	    if (ak4jet->csv > CSV_LOOSE_2016) WVJJTree->nBtag_loose++;
+	    if (ak4jet->csv > CSV_LOOSE_2016) WVJJTree->nBtag_medium++;
+	    if (ak4jet->csv > CSV_LOOSE_2016) WVJJTree->nBtag_tight++;
+	  }
+	  else if (era==2017) {
+	    if (ak4jet->csv > CSV_LOOSE_2017) WVJJTree->nBtag_loose++;
+	    if (ak4jet->csv > CSV_LOOSE_2017) WVJJTree->nBtag_medium++;
+	    if (ak4jet->csv > CSV_LOOSE_2017) WVJJTree->nBtag_tight++;
+	  }
 	}
 	
 	bool isClean=true;
