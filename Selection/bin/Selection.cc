@@ -629,9 +629,6 @@ int main (int ac, char** av) {
 	if ( ak4jet->pt < AK4_PT_CUT && ak4jet->pt*(1.0+jecUnc) < AK4_PT_CUT && ak4jet->pt*(1.0-jecUnc) < AK4_PT_CUT) continue;
 	if (!passAK4JetLoose(ak4jet,era)) continue;
 	
-	//2017 only
-	if (era==2017 && ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) continue;
-	
 	if (abs(ak4jet->eta)<2.4 && ak4jet->pt>30) {
 	  if (era==2016) {
 	    if (ak4jet->csv > CSV_LOOSE_2016) WVJJTree->nBtag_loose++;
@@ -693,7 +690,7 @@ int main (int ac, char** av) {
 	    if ( fabs(goodAK4Jets.at(k).Eta()) < AK4_ETA_CUT ) continue;
 	    TLorentzVector tmpV=goodAK4Jets.at(j)+goodAK4Jets.at(k);
 	    
-	    if (tmpV.M()<AK4_JJ_MIN_M || tmpV.M()>AK4_JJ_MAX_M || tmpV.Pt()>AK8_MIN_PT) continue;
+	    if (tmpV.M()<AK4_JJ_MIN_M || tmpV.M()>AK4_JJ_MAX_M) continue;
 
 	    if (fabs(tmpV.M()-W_MASS)>dmW) continue;
 	      
@@ -713,6 +710,7 @@ int main (int ac, char** av) {
 	    WVJJTree->bos_AK4AK4_m =   tmpV.M();
 	    
 	    sel1=j; sel2=k;
+	    dmW=fabs(tmpV.M()-W_MASS);
 	    nGoodDijet=1;
 	      
 	  }
