@@ -630,7 +630,7 @@ int main (int ac, char** av) {
 	if (!passAK4JetLoose(ak4jet,era)) continue;
 	
 	//2017 only
-	if (ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) continue;
+	if (era==2017 && ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) continue;
 	
 	if (abs(ak4jet->eta)<2.4 && ak4jet->pt>30) {
 	  if (era==2016) {
@@ -686,34 +686,35 @@ int main (int ac, char** av) {
       uint sel1=1000, sel2=1000;
       if (nGoodFatJet==0) {
 	TLorentzVector tmpV1, tmpV2;
+	dmW=3000.0;
 	for (uint j=0; j<goodAK4Jets.size(); j++) {
 	  if ( fabs(goodAK4Jets.at(j).Eta()) < AK4_ETA_CUT ) continue;
 	  for(uint k=j+1; k<goodAK4Jets.size(); k++) {
 	    if ( fabs(goodAK4Jets.at(k).Eta()) < AK4_ETA_CUT ) continue;
 	    TLorentzVector tmpV=goodAK4Jets.at(j)+goodAK4Jets.at(k);
 	    
-	    if (tmpV.M()>=AK4_JJ_MIN_M && tmpV.M()<=AK4_JJ_MAX_M && tmpV.Pt()<AK8_MIN_PT) {
+	    if (tmpV.M()<AK4_JJ_MIN_M || tmpV.M()>AK4_JJ_MAX_M || tmpV.Pt()>AK8_MIN_PT) continue;
+
+	    if (fabs(tmpV.M()-W_MASS)>dmW) continue;
 	      
-	      WVJJTree->bos_j1_AK4_pt =  goodAK4Jets.at(j).Pt();
-	      WVJJTree->bos_j1_AK4_eta = goodAK4Jets.at(j).Eta();
-	      WVJJTree->bos_j1_AK4_phi = goodAK4Jets.at(j).Phi();
-	      WVJJTree->bos_j1_AK4_m =   goodAK4Jets.at(j).M();
+	    WVJJTree->bos_j1_AK4_pt =  goodAK4Jets.at(j).Pt();
+	    WVJJTree->bos_j1_AK4_eta = goodAK4Jets.at(j).Eta();
+	    WVJJTree->bos_j1_AK4_phi = goodAK4Jets.at(j).Phi();
+	    WVJJTree->bos_j1_AK4_m =   goodAK4Jets.at(j).M();
+	    
+	    WVJJTree->bos_j2_AK4_pt =  goodAK4Jets.at(k).Pt();
+	    WVJJTree->bos_j2_AK4_eta = goodAK4Jets.at(k).Eta();
+	    WVJJTree->bos_j2_AK4_phi = goodAK4Jets.at(k).Phi();
+	    WVJJTree->bos_j2_AK4_m =   goodAK4Jets.at(k).M();
+	    
+	    WVJJTree->bos_AK4AK4_pt =  tmpV.Pt();
+	    WVJJTree->bos_AK4AK4_eta = tmpV.Eta();
+	    WVJJTree->bos_AK4AK4_phi = tmpV.Phi();
+	    WVJJTree->bos_AK4AK4_m =   tmpV.M();
+	    
+	    sel1=j; sel2=k;
+	    nGoodDijet=1;
 	      
-	      WVJJTree->bos_j2_AK4_pt =  goodAK4Jets.at(k).Pt();
-	      WVJJTree->bos_j2_AK4_eta = goodAK4Jets.at(k).Eta();
-	      WVJJTree->bos_j2_AK4_phi = goodAK4Jets.at(k).Phi();
-	      WVJJTree->bos_j2_AK4_m =   goodAK4Jets.at(k).M();
-	      
-	      WVJJTree->bos_AK4AK4_pt =  tmpV.Pt();
-	      WVJJTree->bos_AK4AK4_eta = tmpV.Eta();
-	      WVJJTree->bos_AK4AK4_phi = tmpV.Phi();
-	      WVJJTree->bos_AK4AK4_m =   tmpV.M();
-	      
-	      sel1=j; sel2=k;
-	      nGoodDijet++;
-	      
-	    }
-	    if (nGoodDijet>0) break;
 	  }
 	  if (nGoodDijet>0) break;
 	}
@@ -752,7 +753,7 @@ int main (int ac, char** av) {
 	WVJJTree->bos_AK4AK4_pt_scaleDn = (tempBos1+tempBos2).Pt();
 	WVJJTree->bos_AK4AK4_m_scaleDn = (tempBos1+tempBos2).M();
 	
-      }
+      } //if (nGoodFatJet==0)
       
       //check we have a hadronic boson candidate
       if ( nGoodFatJet == 0 && nGoodDijet == 0 ) continue;
@@ -765,6 +766,8 @@ int main (int ac, char** av) {
 	for(uint k=j+1; k<goodAK4Jets.size(); k++) {
 	  if (k==sel1 || k==sel2) continue;
 	  TLorentzVector tempVBF = goodAK4Jets.at(j) + goodAK4Jets.at(k);
+	  //require 2 jets be in opposite hemispheres
+	  if ( goodAK4Jets.at(j).Eta()*goodAK4Jets.at(k).Eta() > 0 ) continue; 
 	  if ( tempVBF.M() < VBF_MJJ_CUT ) continue;
 	  if ( tempVBF.M() < tmpMassMax ) continue;
 	  tmpMassMax = tempVBF.M();
