@@ -628,6 +628,8 @@ int main (int ac, char** av) {
 	//jet energy scale variations
 	if ( ak4jet->pt < AK4_PT_CUT && ak4jet->pt*(1.0+jecUnc) < AK4_PT_CUT && ak4jet->pt*(1.0-jecUnc) < AK4_PT_CUT) continue;
 	if (!passAK4JetLoose(ak4jet,era)) continue;
+
+	if (era==2017 && ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) continue;
 	
 	if (abs(ak4jet->eta)<2.4 && ak4jet->pt>30) {
 	  if (era==2016) {
