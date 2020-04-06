@@ -714,7 +714,6 @@ int main (int ac, char** av) {
 	    nGoodDijet=1;
 	      
 	  }
-	  if (nGoodDijet>0) break;
 	}
 	
 	if (nGoodDijet==0) continue;
