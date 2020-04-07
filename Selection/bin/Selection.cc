@@ -103,9 +103,6 @@ int main (int ac, char** av) {
 
   ScaleFactors scaleFactor(era);
 
-  //misc
-  //const int RUN_BOUND = 278820;
-
   std::vector<TLorentzVector> tightMuon;
   std::vector<TLorentzVector> tightEle;
   std::vector<TLorentzVector> goodAK4Jets;
@@ -120,50 +117,6 @@ int main (int ac, char** av) {
 
   const baconhep::TTrigger triggerMenu(iHLTFile);
 
-  //PILEUP WEIGHT FACTORS
-  //int nbinsPU=75;
-  //int nbinsPU=100;
-  //TFile* pileupFileMC = TFile::Open("data/puWeights_80x_37ifb.root");
-  //TFile* pileupFileMC = TFile::Open("data/puWeights_90x_2017.root");
-  //TH1D* puWeights = (TH1D*)pileupFileMC->Get("puWeights");
-  //TH1D* puWeightsUp = (TH1D*)pileupFileMC->Get("puWeightsUp");
-  //TH1D* puWeightsDown = (TH1D*)pileupFileMC->Get("puWeightsDown");
-  //puWeights->SetBins(nbinsPU,0,nbinsPU);
-  //puWeightsUp->SetBins(nbinsPU,0,nbinsPU);
-  //puWeightsDown->SetBins(nbinsPU,0,nbinsPU);
-
-  //ELECTRON CORRECTIONS
-  //TFile* IDIsoEle = TFile::Open("data/SF2016/egammaEffi_EGM2D_TightCutBasedIDSF.root","READ");
-  //TFile* IDIsoEle = TFile::Open("data/SF2017/egammaEffi.txt_EGM2D_runBCDEF_passingTight94X.root","READ");
-  //TH1F *hIDIsoEle = (TH1F*)IDIsoEle->Get("EGamma_SF2D");
-
-  //TFile* GSFCorrEle = TFile::Open("data/SF2016/egammaEffi_SF2D_GSF_tracking.root","READ");
-  //TFile* GSFCorrEle = TFile::Open("data/SF2017/egammaEffi.txt_EGM2D_runBCDEF_passingRECO.root","READ");
-  //TH1F *hGSFCorrEle = (TH1F*)GSFCorrEle->Get("EGamma_SF2D");
-
-  //TFile* TriggerEle = TFile::Open("data/SF2016/ElectronTrigger_SF.root","READ");
-  //TH1F* hTriggerEle = (TH1F*)TriggerEle->Get("HLT_Ele27");
-  
-  //MUONS CORRECTIONS
-  //not using currently
-  //TFile* IDMuA = TFile::Open("data/SF2016/MuonID_RunBCDEF_23SepReReco_19p72fb.root","READ");
-  //TH1F *hIDMuA = (TH1F*)IDMuA->Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/abseta_pt_ratio");
-  //
-  //TFile* IDMuB = TFile::Open("data/SF2016/MuonID_RunGH_23SepReReco_16p146fb.root","READ");
-  //TH1F *hIDMuB = (TH1F*)IDMuB->Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/abseta_pt_ratio");
-  //
-  //TFile* IsoMuA = TFile::Open("data/SF2016/MuonIso_RunBCDEF_23SepReReco_19p72fb.root","READ");
-  //TH1F *hIsoMuA = (TH1F*)IsoMuA->Get("TightISO_TightID_pt_eta/abseta_pt_ratio");
-  //
-  //TFile* IsoMuB = TFile::Open("data/SF2016/MuonIso_RunGH_23SepReReco_16p146fb.root","READ");
-  //TH1F *hIsoMuB = (TH1F*)IsoMuB->Get("TightISO_TightID_pt_eta/abseta_pt_ratio");
-  //
-  //TFile* TriggerMuA = TFile::Open("data/SF2016/MuonTrigger_RunBCDEF_23SepReReco_19p72fb.root","READ");
-  //TH1F* hTriggerMuA = (TH1F*)TriggerMuA->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio");
-  //
-  //TFile* TriggerMuB = TFile::Open("data/SF2016/MuonTrigger_RunGH_23SepReReco_16p146fb.root","READ");
-  //TH1F* hTriggerMuB = (TH1F*)TriggerMuB->Get("IsoMu24_OR_IsoTkMu24_PtEtaBins/abseta_pt_ratio");
-
   //PUPPI CORRECTIONS
   //2016?
   TFile* file = TFile::Open("data/puppiCorr.root","READ");
@@ -172,7 +125,6 @@ int main (int ac, char** av) {
   TF1* puppisd_corrRECO_for = (TF1*)file->Get("puppiJECcorr_reco_1v3eta2v5");
 
   //B TAGGING
-  //BTagCalibration calib("csvv2", "data/CSVv2_Moriond17_B_H.csv");//2016
   BTagCalibration calib("csvv2", scaleFactor.GetBtagCSV().Data());
   BTagCalibrationReader bTagReader(BTagEntry::OP_LOOSE,  // working point: can be OP_LOOSE, OP_MEDIUM, OP_TIGHT 
                                    "central",             // label for the central value (see the scale factor file)
@@ -182,19 +134,10 @@ int main (int ac, char** av) {
   bTagReader.load(calib, BTagEntry::FLAV_UDSG, "incl");   // use the "incl" measurements for light jets
 
   //JET CORRECTIONS
-  //2016
-  //JetCorrectorParameters paramAK4chs("data/Summer16_23Sep2016V4_MC/Summer16_23Sep2016V4_MC_Uncertainty_AK4PFchs.txt");
-  //JetCorrectorParameters paramAK8puppi("data/Summer16_23Sep2016V4_MC/Summer16_23Sep2016V4_MC_Uncertainty_AK8PFPuppi.txt");
-
-  //2017
   JetCorrectorParameters paramAK4chs(scaleFactor.GetAK4JecUnc().Data());
   JetCorrectorParameters paramAK8puppi(scaleFactor.GetAK8JecUnc().Data());
   JetCorrectionUncertainty *fJetUnc_AK4chs = new JetCorrectionUncertainty(paramAK4chs);
   JetCorrectionUncertainty *fJetUnc_AK8puppi = new JetCorrectionUncertainty(paramAK8puppi);
-
-  //L1 PREFIRING
-  //TFile *L1PF_jetpt = TFile::Open("data/SF2017/L1prefiring_jetpt_2017BtoF.root");
-  //TH2F *hL1PF_jetpt = (TH2F*) L1PF_jetpt->Get("L1prefiring_jetpt_2017BtoF");
 
   //
   //
@@ -255,13 +198,15 @@ int main (int ac, char** av) {
     totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+t->GetEntries());
     
     for (uint i=0; i < t->GetEntries(); i++) {
-      //for (uint i=0; i < 200; i++) {
       WVJJTree->clearVars();
       infoBr->GetEntry(i);
       
       if (genBr) {
 	genBr->GetEntry(i);
-	if (gen->weight<0) totalEvents->Fill(-0.5);
+	if (gen->weight<0) {
+	  totalEvents->Fill(-0.5);
+	  WVJJTree->genWeight=-1.0;
+	}
       }
 
       if (era==2016) {
@@ -634,13 +579,13 @@ int main (int ac, char** av) {
 	if (abs(ak4jet->eta)<2.4 && ak4jet->pt>30) {
 	  if (era==2016) {
 	    if (ak4jet->csv > CSV_LOOSE_2016) WVJJTree->nBtag_loose++;
-	    if (ak4jet->csv > CSV_LOOSE_2016) WVJJTree->nBtag_medium++;
-	    if (ak4jet->csv > CSV_LOOSE_2016) WVJJTree->nBtag_tight++;
+	    if (ak4jet->csv > CSV_MEDIUM_2016) WVJJTree->nBtag_medium++;
+	    if (ak4jet->csv > CSV_TIGHT_2016) WVJJTree->nBtag_tight++;
 	  }
 	  else if (era==2017) {
 	    if (ak4jet->csv > CSV_LOOSE_2017) WVJJTree->nBtag_loose++;
-	    if (ak4jet->csv > CSV_LOOSE_2017) WVJJTree->nBtag_medium++;
-	    if (ak4jet->csv > CSV_LOOSE_2017) WVJJTree->nBtag_tight++;
+	    if (ak4jet->csv > CSV_MEDIUM_2017) WVJJTree->nBtag_medium++;
+	    if (ak4jet->csv > CSV_TIGHT_2017) WVJJTree->nBtag_tight++;
 	  }
 	}
 	
