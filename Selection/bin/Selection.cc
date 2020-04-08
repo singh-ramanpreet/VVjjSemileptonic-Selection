@@ -823,9 +823,10 @@ int main (int ac, char** av) {
       
       if(lheBr) {
 	lheWgtArr->Clear();
+	lheBr->GetEntry(i);
 	for (int j=0; j<lheWgtArr->GetEntries(); j++) {
 	  const baconhep::TLHEWeight *lhe = (baconhep::TLHEWeight*)((*lheWgtArr)[j]);
-	  WVJJTree->LHEWeight[i] = lhe->weight;
+	  WVJJTree->LHEWeight[j] = lhe->weight;
 	}
       }
       
@@ -837,7 +838,7 @@ int main (int ac, char** av) {
 	  WVJJTree->L1PFWeight *= scaleFactor.GetL1PFWeightJet(ak4jet->pt, ak4jet->eta);
 	}
       }
-      
+
       ot->Fill();
     }
     delete t; delete f;
