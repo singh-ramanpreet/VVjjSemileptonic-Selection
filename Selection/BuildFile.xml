@@ -1,5 +1,3 @@
-<use name="BaconAna/DataFormats"/>
-<use name="BaconAna/Utils"/>
 <use name="root"/>
 <use name="roottmva"/>
 <use name="CondFormats/JetMETObjects"/>

@@ -49,8 +49,7 @@
 //#include "BaconAna/DataFormats/interface/TLHEWeight.hh"
 
 //#include "WVJJAna/Selection/interface/ScaleFactors.hh"
-#include "WVJJAna/Selection/interface/NanoAOD_MC.hh"
-#include "WVJJAna/Selection/interface/NanoAOD_Weights.hh"
+#include "WVJJAna/Selection/interface/NanoAOD_Data.hh"
 #include "WVJJAna/Selection/interface/Utils.hh"
 #include "WVJJAna/Selection/interface/METzCalculator.h"
 
@@ -163,7 +162,7 @@ int main (int ac, char** av) {
   //TClonesArray *lheWgtArr   = new TClonesArray("baconhep::TLHEWeight");
 
   TFile *f=0;
-  TTree *t=0, *r=0;
+  TTree *t=0;
 
   std::ifstream ifs;
   ifs.open(inputFile.data());
@@ -173,37 +172,18 @@ int main (int ac, char** av) {
     std::stringstream ss(line);
     std::string filetoopen;
     ss >> filetoopen;
-    
+
     f = TFile::Open(TString("root://cmseos.fnal.gov/")+TString(filetoopen),"read");
     t = (TTree *)f->Get("Events");
-    r = (TTree *)f->Get("Runs");
+    //r = (TTree *)f->Get("Runs");
     if (t==NULL) continue;
-    
-    std::cout << filetoopen << std::endl;
-    
-    NanoAOD_MC NanoReader = NanoAOD_MC(t);
-    NanoAOD_Weights NanoWeightReader = NanoAOD_Weights(r);
-    
-    if (isMC==1) {
-      std::cout << r->GetEntries() << std::endl;
-      for (uint i=0; i < r->GetEntries(); i++) {
-	NanoWeightReader.GetEntry(i);
-	std::cout << NanoWeightReader.genEventCount_ << std::endl;
-	totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+NanoWeightReader.genEventCount_);
-      }
-    }
+
+    NanoAOD_Data NanoReader = NanoAOD_Data(t);
 
     for (uint i=0; i < t->GetEntries(); i++) {
       WVJJTree->clearVars();
       NanoReader.GetEntry(i);
-      
-      if (isMC==1) {
-	if (NanoReader.Generator_weight<0) {
-	  totalEvents->Fill(-0.5);
-	  WVJJTree->genWeight=-1.0;
-	}
-      }
-      
+
       if (era==2018) {
 	if(! ( NanoReader.HLT_IsoMu24 || NanoReader.HLT_IsoMu27 || NanoReader.HLT_IsoMu30 || NanoReader.HLT_Mu50 ||
 	       NanoReader.HLT_Ele27_WPTight_Gsf || NanoReader.HLT_Ele28_WPTight_Gsf || NanoReader.HLT_Ele32_WPTight_Gsf ||
@@ -211,7 +191,16 @@ int main (int ac, char** av) {
 	  continue;
 	
       }
-
+      /*
+	if (era==2016) {
+	if(!(triggerMenu.pass("HLT_IsoMu24_v*",info->triggerBits) || triggerMenu.pass("HLT_IsoTkMu24_v*",info->triggerBits) ||  
+	     triggerMenu.pass("HLT_Ele27_WPTight_Gsf_v*",info->triggerBits))) continue;
+      }
+      if (era==2017) {
+	if(!(triggerMenu.pass("HLT_IsoMu27_v*",info->triggerBits) || triggerMenu.pass("HLT_Ele32_WPTight_Gsf_v*",info->triggerBits) || 
+	     triggerMenu.pass("HLT_Ele35_WPTight_Gsf_v*", info->triggerBits))) continue;
+      }
+      */
       tightMuon.clear();
       tightEle.clear();
       
@@ -223,10 +212,9 @@ int main (int ac, char** av) {
       //vertexBr->GetEntry(i);
       
       WVJJTree->nPV = NanoReader.PV_npvsGood;
-      WVJJTree->nPU_mean = NanoReader.Pileup_nPU;
-      
+
       WVJJTree->puWeight = 1.0;//scaleFactor.GetPUWeight(info->nPUmean, 0);
-      
+
       // LEPTON SELECTION
       
       //muonArr->Clear();
@@ -271,14 +259,14 @@ int main (int ac, char** av) {
 	  
 	}
 	else if ( NanoReader.Muon_pt[j] > WVJJTree->lep2_pt ) {
-	  
+
 	  WVJJTree->lep2_pt = NanoReader.Muon_pt[j];
 	  WVJJTree->lep2_eta = NanoReader.Muon_eta[j];
 	  WVJJTree->lep2_phi = NanoReader.Muon_phi[j];
 	  WVJJTree->lep2_m = MUON_MASS;
 	  WVJJTree->lep2_iso = NanoReader.Muon_pfRelIso04_all[j];
 	  WVJJTree->lep2_q = NanoReader.Muon_charge[j];
-	  
+
 	}
       }
       
@@ -333,7 +321,7 @@ int main (int ac, char** av) {
 	  WVJJTree->lep2_m = ELE_MASS;
 	  WVJJTree->lep2_iso = NanoReader.Electron_pfRelIso03_all[j];
 	  WVJJTree->lep2_q = NanoReader.Electron_charge[j];
-	  
+
 	}
       }
       
@@ -385,18 +373,18 @@ int main (int ac, char** av) {
       //lepton ID/iso/trigger efficiencies
       //if (WVJJTree->lep1_m == ELE_MASS) {
       //WVJJTree->lep1_idEffWeight = scaleFactor.GetLeptonWeights(WVJJTree->lep1_pt, WVJJTree->lep1_eta, WVJJTree->lep1_m == ELE_MASS ? 11 : 13);
-      //WVJJTree->lep1_idEffWeight = GetSFs_Lepton(WVJJTree->lep1_pt, WVJJTree->lep1_eta, hIDIsoEle);
-      //WVJJTree->lep1_idEffWeight *= GetSFs_Lepton(WVJJTree->lep1_pt,WVJJTree->lep1_eta, hGSFCorrEle);
-      //WVJJTree->lep1_idEffWeight *= GetSFs_Lepton(WVJJTree->lep1_pt,WVJJTree->lep1_eta, hTriggerEle);
-      
+	//WVJJTree->lep1_idEffWeight = GetSFs_Lepton(WVJJTree->lep1_pt, WVJJTree->lep1_eta, hIDIsoEle);
+	//WVJJTree->lep1_idEffWeight *= GetSFs_Lepton(WVJJTree->lep1_pt,WVJJTree->lep1_eta, hGSFCorrEle);
+	//WVJJTree->lep1_idEffWeight *= GetSFs_Lepton(WVJJTree->lep1_pt,WVJJTree->lep1_eta, hTriggerEle);
+	
       //if (WVJJTree->lep2_pt>0) {
-      //WVJJTree->lep2_idEffWeight = scaleFactor.GetLeptonWeights(WVJJTree->lep2_pt, WVJJTree->lep2_eta, WVJJTree->lep1_m == ELE_MASS ? 11 : 13);
-      //WVJJTree->lep2_idEffWeight = GetSFs_Lepton(WVJJTree->lep2_pt, WVJJTree->lep2_eta, hIDIsoEle);
-      //WVJJTree->lep2_idEffWeight *= GetSFs_Lepton(WVJJTree->lep2_pt,WVJJTree->lep2_eta, hGSFCorrEle);
-      //WVJJTree->lep2_idEffWeight *= GetSFs_Lepton(WVJJTree->lep2_pt,WVJJTree->lep2_eta, hTriggerEle);
-      //do we even want the trigger eff for the subleading lepton?
+	//WVJJTree->lep2_idEffWeight = scaleFactor.GetLeptonWeights(WVJJTree->lep2_pt, WVJJTree->lep2_eta, WVJJTree->lep1_m == ELE_MASS ? 11 : 13);
+	  //WVJJTree->lep2_idEffWeight = GetSFs_Lepton(WVJJTree->lep2_pt, WVJJTree->lep2_eta, hIDIsoEle);
+	  //WVJJTree->lep2_idEffWeight *= GetSFs_Lepton(WVJJTree->lep2_pt,WVJJTree->lep2_eta, hGSFCorrEle);
+	  //WVJJTree->lep2_idEffWeight *= GetSFs_Lepton(WVJJTree->lep2_pt,WVJJTree->lep2_eta, hTriggerEle);
+	  //do we even want the trigger eff for the subleading lepton?
       //}
-      
+
       //else if (WVJJTree->lep1_m == MUON_MASS) {
       //	WVJJTree->lep1_idEffWeight = ScaleFactors.GetLeptonWeights(WVJJTree->lep1_pt, WVJJTree->lep1_eta, 13);
       //	//WVJJTree->lep1_idEffWeight = 1.0; // not implemented yet
@@ -478,7 +466,7 @@ int main (int ac, char** av) {
 	
 	NeutrinoPz_type0.SetMET(tempMet_Dn);
 	WVJJTree->neu_pz_type0_scaleDn = NeutrinoPz_type0.Calculate();
-	
+      
 	TLorentzVector neutrino(0,0,0,0);
 	neutrino.SetPxPyPzE(tempMet.Px(), tempMet.Py(), WVJJTree->neu_pz_type0, 
 			    sqrt(tempMet.Px()*tempMet.Px()+tempMet.Py()*tempMet.Py()+ WVJJTree->neu_pz_type0* WVJJTree->neu_pz_type0));
@@ -540,7 +528,7 @@ int main (int ac, char** av) {
 	WVJJTree->bos_PuppiAK8_m_sd0_corr_scaleDn =  WVJJTree->bos_PuppiAK8_m_sd0_corr*(1.0-jecUnc);
 	WVJJTree->bos_PuppiAK8_pt_scaleUp =  WVJJTree->bos_PuppiAK8_pt*(1.0+jecUnc);
 	WVJJTree->bos_PuppiAK8_pt_scaleDn =  WVJJTree->bos_PuppiAK8_pt*(1.0-jecUnc);
-	
+
 	dmW = fabs(NanoReader.FatJet_msoftdrop[j] - W_MASS);
 	nGoodFatJet++;
       }
@@ -548,25 +536,25 @@ int main (int ac, char** av) {
       goodAK4Jets.clear();
       //AK4Arr->Clear();
       //AK4Br->GetEntry(i);
-      
+
       for (uint j=0; j<NanoReader.nJet; j++) {
-	
+
         float jecUnc = GetJECunc(NanoReader.Jet_pt[j], NanoReader.Jet_eta[j], fJetUnc_AK4chs);
 	
 	//jet energy scale variations
 	if ( NanoReader.Jet_pt[j] < AK4_PT_CUT && NanoReader.Jet_pt[j]*(1.0+jecUnc) < AK4_PT_CUT && 
 	     NanoReader.Jet_pt[j]*(1.0-jecUnc) < AK4_PT_CUT) continue;
 	//jet ID??
-	
+
 	//if (era==2017 && ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) continue;
-	
+
 	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
 	if (NanoReader.Jet_eta[j]<2.4 && NanoReader.Jet_pt[j]>30) {
 	  if (NanoReader.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;
 	  if (NanoReader.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
 	  if (NanoReader.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
 	}
-	
+
 	//if (abs(ak4jet->eta)<2.4 && ak4jet->pt>30) {
 	//  if (era==2016) {
 	//    if (ak4jet->csv > CSV_LOOSE_2016) WVJJTree->nBtag_loose++;
@@ -630,9 +618,9 @@ int main (int ac, char** av) {
 	    TLorentzVector tmpV=goodAK4Jets.at(j)+goodAK4Jets.at(k);
 	    
 	    if (tmpV.M()<AK4_JJ_MIN_M || tmpV.M()>AK4_JJ_MAX_M) continue;
-	    
+
 	    if (fabs(tmpV.M()-W_MASS)>dmW) continue;
-	    
+	      
 	    WVJJTree->bos_j1_AK4_pt =  goodAK4Jets.at(j).Pt();
 	    WVJJTree->bos_j1_AK4_eta = goodAK4Jets.at(j).Eta();
 	    WVJJTree->bos_j1_AK4_phi = goodAK4Jets.at(j).Phi();
@@ -651,7 +639,7 @@ int main (int ac, char** av) {
 	    sel1=j; sel2=k;
 	    dmW=fabs(tmpV.M()-W_MASS);
 	    nGoodDijet=1;
-	    
+	      
 	  }
 	}
 	
@@ -710,7 +698,7 @@ int main (int ac, char** av) {
 	  vbf1=j; vbf2=k;
 	}
       }
-    
+      
       if (vbf1==-1 && vbf2==-1) continue;
       
       TLorentzVector tempVBF = goodAK4Jets.at(vbf1) + goodAK4Jets.at(vbf2);
@@ -776,7 +764,7 @@ int main (int ac, char** av) {
 	bosHad_dn.SetPtEtaPhiM(WVJJTree->bos_PuppiAK8_pt_scaleDn, WVJJTree->bos_PuppiAK8_eta,
 			       WVJJTree->bos_PuppiAK8_phi, WVJJTree->bos_PuppiAK8_m_sd0_corr_scaleDn);
       }
-      //resolved event
+    //resolved event
       else if (WVJJTree->bos_AK4AK4_m > 0) {
 	bosHad.SetPtEtaPhiM(WVJJTree->bos_AK4AK4_pt, WVJJTree->bos_AK4AK4_eta, 
 			    WVJJTree->bos_AK4AK4_phi, WVJJTree->bos_AK4AK4_m);
@@ -812,22 +800,34 @@ int main (int ac, char** av) {
       
       WVJJTree->zeppLep = bosLep.Eta() - 0.5*(WVJJTree->vbf1_AK4_eta + WVJJTree->vbf2_AK4_eta);
       WVJJTree->zeppHad = bosHad.Eta() - 0.5*(WVJJTree->vbf1_AK4_eta + WVJJTree->vbf2_AK4_eta);
-
+      
+      //if(lheBr) {
+      //	lheWgtArr->Clear();
+      //	for (int j=0; j<lheWgtArr->GetEntries(); j++) {
+      //	  const baconhep::TLHEWeight *lhe = (baconhep::TLHEWeight*)((*lheWgtArr)[j]);
+      //	  WVJJTree->LHEWeight[i] = lhe->weight;
+      //	}
+      //}
+      //
+      ////need to add photon part
+      //for (int j=0; j<AK4Arr->GetEntries(); j++) {
+      //	const baconhep::TJet *ak4jet = (baconhep::TJet*)((*AK4Arr)[j]);
+      //	if (abs(ak4jet->eta) > 2.0 && abs(ak4jet->eta)<3.0 && ak4jet->pt>30 && ak4jet->pt<500) {
+      //	  //float pfRate = hL1PF_jetpt->GetBinContent(hL1PF_jetpt->FindBin(ak4jet->eta, ak4jet->pt));
+      //	  WVJJTree->L1PFWeight *= scaleFactor.GetL1PFWeightJet(ak4jet->pt, ak4jet->eta);
+      //	}
+      //}
+      
       ot->Fill();
     }
-    
-    delete t; 
-    delete f;
-    t=0; 
-    f=0;
+    delete t; delete f;
+    t=0; f=0;
   }
-
-  std::cout << "at the end" << std::endl;
   of->Write();
   of->Close();
   
-  //delete f;
-  //f=0; t=0;
+  delete f;
+  f=0; t=0;
   
   return 0;
 

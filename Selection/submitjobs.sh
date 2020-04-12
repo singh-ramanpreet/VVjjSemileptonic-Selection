@@ -1,17 +1,15 @@
 #!/bin/bash
 
 #baconFolder=/eos/uscms/store/user/lpcbacon/15/
-baconFolder=/eos/uscms/store/user/lnujj/WpWm_aQGC_Ntuples_Ram/FirstStepOutput/BaconNtuples/
+#baconFolder=/eos/uscms/store/user/lnujj/WpWm_aQGC_Ntuples_Ram/FirstStepOutput/BaconNtuples/
 #baconFolder=/eos/uscms/store/user/klawhorn/BaconSamples/
+baconFolder=/eos/uscms/store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2018/
 
-outputFolder=/eos/uscms/store/user/klawhorn/WVJJTree_Dec5/2016
+outputFolder=/eos/uscms/store/user/klawhorn/WVJJTree_nanoAOD/
 
-#xrdfs root://cmseos.fnal.gov/ mkdir ${outputFolder}
-#xrdfs root://cmseos.fnal.gov/ mkdir ${outputFolder}/log
+outputJDL=apr12_2.jdl
 
-outputJDL=dec_5_submit_2.jdl
-
-cat stub.jdl > ${outputJDL}
+cat stub_dat.jdl > ${outputJDL}
 
 while read line
 do
@@ -20,7 +18,7 @@ do
     echo "Output = " `pwd`/log/${outputName}.stdout >> ${outputJDL}
     echo "Error = " `pwd`/log/${outputName}.stderr >> ${outputJDL}
     echo "Log = " `pwd`/log/${outputName}.log >> ${outputJDL}
-    echo "Arguments = " ${baconFolder}/${line} ${outputFolder} ${outputName} 1 2016 >> ${outputJDL}
+    echo "Arguments = " ${baconFolder}/${line} ${outputFolder} ${outputName} 0 2018 >> ${outputJDL}
     echo "Queue" >> ${outputJDL}
    
-done < tosubmit2016_2.dat
+done < Datav5.dat

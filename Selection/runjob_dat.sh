@@ -18,7 +18,7 @@ eval `scram runtime -sh`
 echo "====> List files : " 
 ls -alh
 xrdfs root://cmseos.fnal.gov ls ${1} | grep root > ${3}.txt
-Selection ${3}.txt ${3}.root ${4} ${5}
+Selection_dat ${3}.txt ${3}.root ${4} ${5}
 echo "====> List files : " 
 ls -alh
 echo "====> List root files : " 
