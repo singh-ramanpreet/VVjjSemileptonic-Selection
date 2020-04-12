@@ -215,7 +215,8 @@ int main (int ac, char** av) {
       }
       if (era==2017) {
 	if(!(triggerMenu.pass("HLT_IsoMu27_v*",info->triggerBits) || triggerMenu.pass("HLT_Ele32_WPTight_Gsf_v*",info->triggerBits) || 
-	     triggerMenu.pass("HLT_Ele35_WPTight_Gsf_v*", info->triggerBits))) continue;
+	     triggerMenu.pass("HLT_Ele35_WPTight_Gsf_v*", info->triggerBits) || triggerMenu.pass("HLT_Ele27_WPTight_Gsf_v*",info->triggerBits) ||
+	     triggerMenu.pass("HLT_IsoMu24_v*",info->triggerBits) || triggerMenu.pass("HLT_IsoTkMu24_v*",info->triggerBits))) continue;
       }
 
       tightMuon.clear();
@@ -632,9 +633,9 @@ int main (int ac, char** av) {
 	TLorentzVector tmpV1, tmpV2;
 	dmW=3000.0;
 	for (uint j=0; j<goodAK4Jets.size(); j++) {
-	  if ( fabs(goodAK4Jets.at(j).Eta()) < AK4_ETA_CUT ) continue;
+	  if ( fabs(goodAK4Jets.at(j).Eta()) > AK4_ETA_CUT ) continue;
 	  for(uint k=j+1; k<goodAK4Jets.size(); k++) {
-	    if ( fabs(goodAK4Jets.at(k).Eta()) < AK4_ETA_CUT ) continue;
+	    if ( fabs(goodAK4Jets.at(k).Eta()) > AK4_ETA_CUT ) continue;
 	    TLorentzVector tmpV=goodAK4Jets.at(j)+goodAK4Jets.at(k);
 	    
 	    if (tmpV.M()<AK4_JJ_MIN_M || tmpV.M()>AK4_JJ_MAX_M) continue;
