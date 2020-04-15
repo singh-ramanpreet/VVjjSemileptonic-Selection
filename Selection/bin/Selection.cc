@@ -28,27 +28,10 @@
 #include "TH2.h"
 #include <TClonesArray.h>
 
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-
-#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
-#include "CondTools/BTau/interface/BTagCalibrationReader.h"
+//#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+//#include "CondTools/BTau/interface/BTagCalibrationReader.h"
 //#include "../BtagUnc.hh"
 
-//#include "BaconAna/DataFormats/interface/BaconAnaDefs.hh"
-//#include "BaconAna/DataFormats/interface/TEventInfo.hh"
-//#include "BaconAna/DataFormats/interface/TGenEventInfo.hh"
-//#include "BaconAna/DataFormats/interface/TGenParticle.hh"
-//#include "BaconAna/DataFormats/interface/TMuon.hh"
-//#include "BaconAna/DataFormats/interface/TElectron.hh"
-//#include "BaconAna/DataFormats/interface/TVertex.hh"
-//#include "BaconAna/DataFormats/interface/TJet.hh"
-//#include "BaconAna/DataFormats/interface/TAddJet.hh"
-//#include "BaconAna/Utils/interface/TTrigger.hh"
-//#include "BaconAna/DataFormats/interface/TLHEWeight.hh"
-
-//#include "WVJJAna/Selection/interface/ScaleFactors.hh"
 #include "WVJJAna/Selection/interface/NanoAOD_MC.hh"
 #include "WVJJAna/Selection/interface/NanoAOD_Weights.hh"
 #include "WVJJAna/Selection/interface/Utils.hh"
@@ -92,54 +75,10 @@ int main (int ac, char** av) {
   const float AK4_AK8_DR_CUT = 0.8;
   const float AK4_DR_CUT = 0.3;
 
-  //2016 csv tag thresholds
-  //const float CSV_LOOSE_2016 = 0.5426;
-  //const float CSV_MEDIUM_2016 = 0.8484;
-  //const float CSV_TIGHT_2016 = 0.9535;
-
-  //2017 csv tag thresholds
-  //const float CSV_LOOSE_2017 = 0.5803;
-  //const float CSV_MEDIUM_2017 = 0.8838;
-  //const float CSV_TIGHT_2017 = 0.9693;
-  //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
-
-  //ScaleFactors scaleFactor(era);
-
   std::vector<TLorentzVector> tightMuon;
   std::vector<TLorentzVector> tightEle;
-  std::vector<TLorentzVector> goodAK4Jets;
-
-  //std::string iHLTFile="${CMSSW_BASE}/src/BaconAna/DataFormats/data/HLTFile_25ns";
-  //const std::string cmssw_base = getenv("CMSSW_BASE");
-  //std::string cmssw_base_env = "${CMSSW_BASE}";
-  //size_t start_pos = iHLTFile.find(cmssw_base_env);
-  //if(start_pos != std::string::npos) {
-  //  iHLTFile.replace(start_pos, cmssw_base_env.length(), cmssw_base);
-  //}
-
-  //const baconhep::TTrigger triggerMenu(iHLTFile);
-
-  //PUPPI CORRECTIONS
-  //2016?
-  //TFile* file = TFile::Open("data/puppiCorr.root","READ");
-  //TF1* puppisd_corrGEN      = (TF1*)file->Get("puppiJECcorr_gen");
-  //TF1* puppisd_corrRECO_cen = (TF1*)file->Get("puppiJECcorr_reco_0eta1v3");
-  //TF1* puppisd_corrRECO_for = (TF1*)file->Get("puppiJECcorr_reco_1v3eta2v5");
-
-  //B TAGGING
-  //BTagCalibration calib("csvv2", scaleFactor.GetBtagCSV().Data());
-  //BTagCalibrationReader bTagReader(BTagEntry::OP_LOOSE,  // working point: can be OP_LOOSE, OP_MEDIUM, OP_TIGHT 
-  //                                 "central",             // label for the central value (see the scale factor file)
-  //                                 {"up","down"});        // vector of labels for systematics
-  //bTagReader.load(calib, BTagEntry::FLAV_B, "comb");      // use the "comb" measurements for b-jets
-  //bTagReader.load(calib, BTagEntry::FLAV_C, "comb");      // use the "comb" measurements for c-jets
-  //bTagReader.load(calib, BTagEntry::FLAV_UDSG, "incl");   // use the "incl" measurements for light jets
-
-  //JET CORRECTIONS
-  JetCorrectorParameters paramAK4chs("data/Autumn18_V19_MC/Autumn18_V19_MC_Uncertainty_AK4PF.txt");
-  JetCorrectorParameters paramAK8puppi("data/Autumn18_V19_MC/Autumn18_V19_MC_Uncertainty_AK8PFPuppi.txt");
-  JetCorrectionUncertainty *fJetUnc_AK4chs = new JetCorrectionUncertainty(paramAK4chs);
-  JetCorrectionUncertainty *fJetUnc_AK8puppi = new JetCorrectionUncertainty(paramAK8puppi);
+  //std::vector<TLorentzVector> goodAK4Jets;
+  std::vector<int>goodJetIndex;
 
   //
   //
@@ -151,16 +90,6 @@ int main (int ac, char** av) {
   TTree *ot = new TTree("Events","Events");
   WVJJData* WVJJTree = new WVJJData(ot);  
   TH1F *totalEvents = new TH1F("TotalEvents","TotalEvents",2,-1,1);
-
-  //baconhep::TEventInfo *info   = new baconhep::TEventInfo();
-  //baconhep::TGenEventInfo *gen = new baconhep::TGenEventInfo();
-  //TClonesArray *vertexArr   = new TClonesArray("baconhep::TVertex");
-  //TClonesArray *muonArr     = new TClonesArray("baconhep::TMuon");
-  //TClonesArray *electronArr = new TClonesArray("baconhep::TElectron");
-  //TClonesArray *AK4Arr      = new TClonesArray("baconhep::TJet");
-  //TClonesArray *PuppiAK8Arr = new TClonesArray("baconhep::TJet");
-  //TClonesArray *PuppiAK8AddArr = new TClonesArray("baconhep::TAddJet");
-  //TClonesArray *lheWgtArr   = new TClonesArray("baconhep::TLHEWeight");
 
   TFile *f=0;
   TTree *t=0, *r=0;
@@ -197,6 +126,8 @@ int main (int ac, char** av) {
       WVJJTree->clearVars();
       NanoReader.GetEntry(i);
       
+      if (i%10000==0) std::cout <<"event " << i << std::endl;
+      
       if (isMC==1) {
 	if (NanoReader.Generator_weight<0) {
 	  totalEvents->Fill(-0.5);
@@ -219,9 +150,6 @@ int main (int ac, char** av) {
       WVJJTree->evt = NanoReader.event;
       WVJJTree->ls = NanoReader.luminosityBlock;
       
-      //vertexArr->Clear();
-      //vertexBr->GetEntry(i);
-      
       WVJJTree->nPV = NanoReader.PV_npvsGood;
       WVJJTree->nPU_mean = NanoReader.Pileup_nPU;
       
@@ -229,17 +157,12 @@ int main (int ac, char** av) {
       
       // LEPTON SELECTION
       
-      //muonArr->Clear();
-      //muonBr->GetEntry(i);
-      
       int nTightEle=0;
       int nTightMu=0;
       int nVetoEle=0;
       int nVetoMu=0;
       
       for (uint j=0; j < NanoReader.nMuon; j++) {
-	//const baconhep::TMuon *mu = (baconhep::TMuon*)((*muonArr)[j]);
-	
 	if ( abs(NanoReader.Muon_eta[j]) > MU_ETA_CUT ) continue;
 	if ( NanoReader.Muon_pt[j] < LEP_PT_VETO_CUT ) continue;
 	
@@ -282,12 +205,7 @@ int main (int ac, char** av) {
 	}
       }
       
-      //electronArr->Clear();
-      //electronBr->GetEntry(i);
-      
       for (uint j=0; j < NanoReader.nElectron; j++) {
-	//const baconhep::TElectron *ele = (baconhep::TElectron*)((*electronArr)[j]);
-	
 	if ( abs(NanoReader.Electron_eta[j]) > EL_ETA_CUT ) continue;
 	if ( NanoReader.Electron_pt[j] < LEP_PT_VETO_CUT ) continue;
 	
@@ -345,10 +263,6 @@ int main (int ac, char** av) {
       if(nTightEle>0 && nVetoMu>0) continue;
       if(nTightMu==1 && nVetoMu>1) continue;
       if(nTightEle==1 && nVetoEle>1) continue;
-      
-      //if (WVJJTree->lep1_pt < 0) continue; // no lepton canddiates
-      //if (nVetoLeps>2) continue; // too many leptons
-      //if ((nTightMu==1||nTightEle==1) && nVetoLeps>1) continue;
       
       //muon scale variations
       //if (WVJJTree->lep1_m == MU_MASS) {}
@@ -409,62 +323,21 @@ int main (int ac, char** av) {
       
       // MET
       
-      if (NanoReader.PuppiMET_pt < 0) continue;
-      WVJJTree->MET_2017raw = NanoReader.PuppiMET_pt;
-      WVJJTree->MET_phi = NanoReader.PuppiMET_phi;
-      
-      TLorentzVector tempMet(0,0,0,0);
-      tempMet.SetPxPyPzE(WVJJTree->MET_2017raw*TMath::Cos(WVJJTree->MET_phi), 
-			 WVJJTree->MET_2017raw*TMath::Sin(WVJJTree->MET_phi), 
-			 0.0, WVJJTree->MET_2017raw);
-      
-      TLorentzVector tempMet_Up = tempMet;
-      TLorentzVector tempMet_Dn = tempMet;
-      
-      //AK4Arr->Clear();
-      //AK4Br->GetEntry(i);
-      
-      //2017 only correction for ECAL noise
-      for (uint j=0; j<NanoReader.nJet; j++) {
-	//const baconhep::TJet *ak4jet = (baconhep::TJet*)((*AK4Arr)[j]);
-	//if(ak4jet->pt < AK4_PT_VETO_CUT) continue;
-	
-	float jecUnc = GetJECunc(NanoReader.Jet_pt[j], NanoReader.Jet_eta[j], fJetUnc_AK4chs);
-	
-	//HARDCODED
-	//if (era==2017 && ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) {
-	//  TLorentzVector tempRawJet(0,0,0,0);
-	//  tempRawJet.SetPtEtaPhiM(ak4jet->ptRaw, ak4jet->eta, ak4jet->phi, ak4jet->mass);
-	//  
-	//  tempMet+=tempRawJet;
-	//  tempMet_Up+=tempRawJet;
-	//  tempMet_Dn+=tempRawJet;
-	//}
-	
-	//else {
-	TLorentzVector tempJet(0,0,0,0);
-	tempJet.SetPtEtaPhiM(NanoReader.Jet_pt[j], NanoReader.Jet_eta[j],
-			     NanoReader.Jet_phi[j], NanoReader.Jet_mass[j]);
-	
-	TLorentzVector tempJetVar(0,0,0,0);
-	tempJetVar.SetPtEtaPhiM(NanoReader.Jet_pt[j]*(1.0+jecUnc), NanoReader.Jet_eta[j],
-				NanoReader.Jet_phi[j], NanoReader.Jet_mass[j]);
-	tempMet_Up += tempJetVar - tempJet;
-	
-	tempJetVar.SetPtEtaPhiM(NanoReader.Jet_pt[j]*(1.0-jecUnc), NanoReader.Jet_eta[j], 
-				NanoReader.Jet_phi[j], NanoReader.Jet_mass[j]);
-	tempMet_Dn += tempJetVar - tempJet;
-	//}
-      }
-      
-      WVJJTree->MET = tempMet.Pt();
-      WVJJTree->MET_scaleUp = tempMet_Up.Pt();
-      WVJJTree->MET_scaleDn = tempMet_Dn.Pt();
+      if (NanoReader.MET_pt < 0) continue;
+      WVJJTree->MET = NanoReader.MET_pt;
+      WVJJTree->MET_phi = NanoReader.MET_phi;
+      WVJJTree->MET_scaleUp = NanoReader.MET_pt_jesTotalUp;
+      WVJJTree->MET_scaleDn = NanoReader.MET_pt_jesTotalDown;
       
       if (WVJJTree->lep2_pt<0) {
 	
 	TLorentzVector lep1(0,0,0,0);
 	lep1.SetPtEtaPhiM( WVJJTree->lep1_pt, WVJJTree->lep1_eta, WVJJTree->lep1_phi, WVJJTree->lep1_m );
+
+	TLorentzVector tempMet(0,0,0,0);
+	tempMet.SetPxPyPzE(WVJJTree->MET*TMath::Cos(WVJJTree->MET_phi), 
+			   WVJJTree->MET*TMath::Sin(WVJJTree->MET_phi), 
+			   0.0, WVJJTree->MET);
 	
 	METzCalculator NeutrinoPz_type0;
 	NeutrinoPz_type0.SetMET(tempMet);
@@ -472,12 +345,24 @@ int main (int ac, char** av) {
 	NeutrinoPz_type0.SetLeptonType(WVJJTree->lep1_m == ELE_MASS ? "el" : "mu");
 	
 	WVJJTree->neu_pz_type0 = NeutrinoPz_type0.Calculate();
+
+	tempMet.SetPxPyPzE(WVJJTree->MET_scaleUp*TMath::Cos(WVJJTree->MET_phi), 
+			   WVJJTree->MET_scaleUp*TMath::Sin(WVJJTree->MET_phi), 
+			   0.0, WVJJTree->MET_scaleUp);
 	
-	NeutrinoPz_type0.SetMET(tempMet_Up);
+	NeutrinoPz_type0.SetMET(tempMet);
 	WVJJTree->neu_pz_type0_scaleUp = NeutrinoPz_type0.Calculate();
-	
-	NeutrinoPz_type0.SetMET(tempMet_Dn);
+
+	tempMet.SetPxPyPzE(WVJJTree->MET_scaleDn*TMath::Cos(WVJJTree->MET_phi), 
+			   WVJJTree->MET_scaleDn*TMath::Sin(WVJJTree->MET_phi), 
+			   0.0, WVJJTree->MET_scaleDn);	
+
+	NeutrinoPz_type0.SetMET(tempMet);
 	WVJJTree->neu_pz_type0_scaleDn = NeutrinoPz_type0.Calculate();
+
+	tempMet.SetPxPyPzE(WVJJTree->MET*TMath::Cos(WVJJTree->MET_phi), 
+			   WVJJTree->MET*TMath::Sin(WVJJTree->MET_phi), 
+			   0.0, WVJJTree->MET);
 	
 	TLorentzVector neutrino(0,0,0,0);
 	neutrino.SetPxPyPzE(tempMet.Px(), tempMet.Py(), WVJJTree->neu_pz_type0, 
@@ -496,23 +381,21 @@ int main (int ac, char** av) {
       
       // AK8
       
-      //PuppiAK8Arr->Clear();
-      //puppiAK8Br->GetEntry(i);
-      //PuppiAK8AddArr->Clear();
-      //puppiAK8AddBr->GetEntry(i);
-      
       float dmW = 3000.0;
       int nGoodFatJet=0;
       
       for (uint j=0; j<NanoReader.nFatJet; j++) {
-	//const baconhep::TJet *ak8jet = (baconhep::TJet*)((*PuppiAK8Arr)[j]);
-	//const baconhep::TAddJet *ak8addjet = (baconhep::TAddJet*)((*PuppiAK8AddArr)[j]);
+	if ( ! (NanoReader.FatJet_pt[j]>AK8_MIN_PT || NanoReader.FatJet_pt_jesTotalUp[j]>AK8_MIN_PT || 
+		NanoReader.FatJet_pt_jesTotalDown[j]>AK8_MIN_PT) ) continue;
+	if ( fabs(NanoReader.FatJet_eta[j]) > AK8_MAX_ETA ) continue;
 	
-	if ( NanoReader.FatJet_pt[j]< AK8_MIN_PT ||  fabs(NanoReader.FatJet_eta[j]) > AK8_MAX_ETA ) continue;
-	
-	float jecUnc = GetJECunc(NanoReader.FatJet_pt[j], NanoReader.FatJet_eta[j], fJetUnc_AK8puppi);
-	
-	if ( NanoReader.FatJet_msoftdrop[j] < AK8_MIN_SDM || NanoReader.FatJet_msoftdrop[j] > AK8_MAX_SDM ) continue;
+
+	if ( ! (NanoReader.FatJet_msoftdrop[j]>AK8_MIN_SDM || NanoReader.FatJet_msoftdrop_jesTotalUp[j]>AK8_MIN_SDM ||
+		NanoReader.FatJet_msoftdrop_jesTotalDown[j]>AK8_MIN_SDM) ) continue;
+
+	if ( ! (NanoReader.FatJet_msoftdrop[j]<AK8_MAX_SDM || NanoReader.FatJet_msoftdrop_jesTotalUp[j]<AK8_MAX_SDM ||
+		NanoReader.FatJet_msoftdrop_jesTotalDown[j]<AK8_MAX_SDM) ) continue;
+
 	if ( fabs(NanoReader.FatJet_msoftdrop[j] - W_MASS) > dmW ) continue;
 	
 	bool isClean=true;
@@ -536,29 +419,22 @@ int main (int ac, char** av) {
 	WVJJTree->bos_PuppiAK8_eta = NanoReader.FatJet_eta[j];
 	WVJJTree->bos_PuppiAK8_phi = NanoReader.FatJet_phi[j];
 	
-	WVJJTree->bos_PuppiAK8_m_sd0_corr_scaleUp =  WVJJTree->bos_PuppiAK8_m_sd0_corr*(1.0+jecUnc);
-	WVJJTree->bos_PuppiAK8_m_sd0_corr_scaleDn =  WVJJTree->bos_PuppiAK8_m_sd0_corr*(1.0-jecUnc);
-	WVJJTree->bos_PuppiAK8_pt_scaleUp =  WVJJTree->bos_PuppiAK8_pt*(1.0+jecUnc);
-	WVJJTree->bos_PuppiAK8_pt_scaleDn =  WVJJTree->bos_PuppiAK8_pt*(1.0-jecUnc);
+	WVJJTree->bos_PuppiAK8_m_sd0_corr_scaleUp = NanoReader.FatJet_msoftdrop_jesTotalUp[j];
+	WVJJTree->bos_PuppiAK8_m_sd0_corr_scaleDn = NanoReader.FatJet_msoftdrop_jesTotalDown[j];
+	WVJJTree->bos_PuppiAK8_pt_scaleUp = NanoReader.FatJet_pt_jesTotalUp[j];
+	WVJJTree->bos_PuppiAK8_pt_scaleDn = NanoReader.FatJet_pt_jesTotalDown[j];
 	
 	dmW = fabs(NanoReader.FatJet_msoftdrop[j] - W_MASS);
 	nGoodFatJet++;
       }
       
-      goodAK4Jets.clear();
-      //AK4Arr->Clear();
-      //AK4Br->GetEntry(i);
-      
+      goodJetIndex.clear();
       for (uint j=0; j<NanoReader.nJet; j++) {
 	
-        float jecUnc = GetJECunc(NanoReader.Jet_pt[j], NanoReader.Jet_eta[j], fJetUnc_AK4chs);
-	
 	//jet energy scale variations
-	if ( NanoReader.Jet_pt[j] < AK4_PT_CUT && NanoReader.Jet_pt[j]*(1.0+jecUnc) < AK4_PT_CUT && 
-	     NanoReader.Jet_pt[j]*(1.0-jecUnc) < AK4_PT_CUT) continue;
+	if ( NanoReader.Jet_pt[j] < AK4_PT_CUT && NanoReader.Jet_pt_jesTotalUp[j] < AK4_PT_CUT && 
+	     NanoReader.Jet_pt_jesTotalDown[j] < AK4_PT_CUT) continue;
 	//jet ID??
-	
-	//if (era==2017 && ak4jet->ptRaw < 50 && abs(ak4jet->eta)>2.65 && abs(ak4jet->eta)<3.139) continue;
 	
 	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
 	if (NanoReader.Jet_eta[j]<2.4 && NanoReader.Jet_pt[j]>30) {
@@ -566,19 +442,6 @@ int main (int ac, char** av) {
 	  if (NanoReader.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
 	  if (NanoReader.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
 	}
-	
-	//if (abs(ak4jet->eta)<2.4 && ak4jet->pt>30) {
-	//  if (era==2016) {
-	//    if (ak4jet->csv > CSV_LOOSE_2016) WVJJTree->nBtag_loose++;
-	//    if (ak4jet->csv > CSV_MEDIUM_2016) WVJJTree->nBtag_medium++;
-	//    if (ak4jet->csv > CSV_TIGHT_2016) WVJJTree->nBtag_tight++;
-	//  }
-	//  else if (era==2017) {
-	//    if (ak4jet->csv > CSV_LOOSE_2017) WVJJTree->nBtag_loose++;
-	//    if (ak4jet->csv > CSV_MEDIUM_2017) WVJJTree->nBtag_medium++;
-	//    if (ak4jet->csv > CSV_TIGHT_2017) WVJJTree->nBtag_tight++;
-	//  }
-	//}
 	
 	bool isClean=true;
 	// object cleaning
@@ -590,8 +453,8 @@ int main (int ac, char** av) {
 	  }
 	}
 	
-	for ( std::size_t k=0; k<goodAK4Jets.size(); k++) {
-	  if (deltaR(goodAK4Jets.at(k).Eta(), goodAK4Jets.at(k).Phi(),
+	for ( std::size_t k=0; k<goodJetIndex.size(); k++) {
+	  if (deltaR(NanoReader.Jet_eta[goodJetIndex.at(k)], NanoReader.Jet_phi[goodJetIndex.at(k)],
 		     NanoReader.Jet_eta[j], NanoReader.Jet_phi[j]) < AK4_DR_CUT) {
 	    isClean = false;
 	  }
@@ -610,10 +473,8 @@ int main (int ac, char** av) {
 	}
 	
 	if ( isClean == false ) continue;
-	
-	goodAK4Jets.push_back(TLorentzVector(0,0,0,0));
-	goodAK4Jets.back().SetPtEtaPhiM(NanoReader.Jet_pt[j], NanoReader.Jet_eta[j],
-					NanoReader.Jet_phi[j], NanoReader.Jet_mass[j]);
+
+	goodJetIndex.push_back(j);
 	
       }
       
@@ -623,25 +484,34 @@ int main (int ac, char** av) {
       if (nGoodFatJet==0) {
 	TLorentzVector tmpV1, tmpV2;
 	dmW=3000.0;
-	for (uint j=0; j<goodAK4Jets.size(); j++) {
-	  if ( fabs(goodAK4Jets.at(j).Eta()) < AK4_ETA_CUT ) continue;
-	  for(uint k=j+1; k<goodAK4Jets.size(); k++) {
-	    if ( fabs(goodAK4Jets.at(k).Eta()) < AK4_ETA_CUT ) continue;
-	    TLorentzVector tmpV=goodAK4Jets.at(j)+goodAK4Jets.at(k);
+	for (uint j=0; j<goodJetIndex.size(); j++) {
+	  if ( fabs( NanoReader.Jet_eta[goodJetIndex.at(j)] ) < AK4_ETA_CUT ) continue;
+	  for(uint k=j+1; k<goodJetIndex.size(); k++) {
+	    if ( fabs( NanoReader.Jet_eta[goodJetIndex.at(k)] ) < AK4_ETA_CUT ) continue;
+
+	    TLorentzVector tmp1(0,0,0,0); 
+	    tmp1.SetPtEtaPhiM( NanoReader.Jet_pt[goodJetIndex.at(j)], NanoReader.Jet_eta[goodJetIndex.at(j)],
+			       NanoReader.Jet_phi[goodJetIndex.at(j)], NanoReader.Jet_mass[goodJetIndex.at(j)] );
+
+	    TLorentzVector tmp2(0,0,0,0); 
+	    tmp2.SetPtEtaPhiM( NanoReader.Jet_pt[goodJetIndex.at(k)], NanoReader.Jet_eta[goodJetIndex.at(k)],
+			       NanoReader.Jet_phi[goodJetIndex.at(k)], NanoReader.Jet_mass[goodJetIndex.at(k)] );
+			       
+	    TLorentzVector tmpV=tmp1+tmp2;
 	    
 	    if (tmpV.M()<AK4_JJ_MIN_M || tmpV.M()>AK4_JJ_MAX_M) continue;
 	    
 	    if (fabs(tmpV.M()-W_MASS)>dmW) continue;
 	    
-	    WVJJTree->bos_j1_AK4_pt =  goodAK4Jets.at(j).Pt();
-	    WVJJTree->bos_j1_AK4_eta = goodAK4Jets.at(j).Eta();
-	    WVJJTree->bos_j1_AK4_phi = goodAK4Jets.at(j).Phi();
-	    WVJJTree->bos_j1_AK4_m =   goodAK4Jets.at(j).M();
+	    WVJJTree->bos_j1_AK4_pt =  NanoReader.Jet_pt[goodJetIndex.at(j)];
+	    WVJJTree->bos_j1_AK4_eta = NanoReader.Jet_eta[goodJetIndex.at(j)];
+	    WVJJTree->bos_j1_AK4_phi = NanoReader.Jet_phi[goodJetIndex.at(j)];
+	    WVJJTree->bos_j1_AK4_m =   NanoReader.Jet_mass[goodJetIndex.at(j)];
 	    
-	    WVJJTree->bos_j2_AK4_pt =  goodAK4Jets.at(k).Pt();
-	    WVJJTree->bos_j2_AK4_eta = goodAK4Jets.at(k).Eta();
-	    WVJJTree->bos_j2_AK4_phi = goodAK4Jets.at(k).Phi();
-	    WVJJTree->bos_j2_AK4_m =   goodAK4Jets.at(k).M();
+	    WVJJTree->bos_j2_AK4_pt =  NanoReader.Jet_pt[goodJetIndex.at(k)];
+	    WVJJTree->bos_j2_AK4_eta = NanoReader.Jet_eta[goodJetIndex.at(k)];
+	    WVJJTree->bos_j2_AK4_phi = NanoReader.Jet_phi[goodJetIndex.at(k)];
+	    WVJJTree->bos_j2_AK4_m =   NanoReader.Jet_mass[goodJetIndex.at(k)];
 	    
 	    WVJJTree->bos_AK4AK4_pt =  tmpV.Pt();
 	    WVJJTree->bos_AK4AK4_eta = tmpV.Eta();
@@ -657,18 +527,15 @@ int main (int ac, char** av) {
 	
 	if (nGoodDijet==0) continue;
 	
-	float jecUnc1 = GetJECunc(WVJJTree->bos_j1_AK4_pt, WVJJTree->bos_j1_AK4_eta, fJetUnc_AK4chs);
-	float jecUnc2 = GetJECunc(WVJJTree->bos_j2_AK4_pt, WVJJTree->bos_j2_AK4_eta, fJetUnc_AK4chs);
-	
-	WVJJTree->bos_j1_AK4_pt_scaleUp = WVJJTree->bos_j1_AK4_pt*(1.0+jecUnc1);
-	WVJJTree->bos_j1_AK4_pt_scaleDn = WVJJTree->bos_j1_AK4_pt*(1.0-jecUnc1);
-	WVJJTree->bos_j1_AK4_m_scaleUp = WVJJTree->bos_j1_AK4_m*(1.0+jecUnc1);
-	WVJJTree->bos_j1_AK4_m_scaleDn = WVJJTree->bos_j1_AK4_m*(1.0-jecUnc1);
-	
-	WVJJTree->bos_j2_AK4_pt_scaleUp = WVJJTree->bos_j2_AK4_pt*(1.0+jecUnc2);
-	WVJJTree->bos_j2_AK4_pt_scaleDn = WVJJTree->bos_j2_AK4_pt*(1.0-jecUnc2);
-	WVJJTree->bos_j2_AK4_m_scaleUp = WVJJTree->bos_j2_AK4_m*(1.0+jecUnc2);
-	WVJJTree->bos_j2_AK4_m_scaleDn = WVJJTree->bos_j2_AK4_m*(1.0-jecUnc2);
+	WVJJTree->bos_j1_AK4_pt_scaleUp = NanoReader.Jet_pt_jesTotalUp[goodJetIndex.at(sel1)];
+	WVJJTree->bos_j1_AK4_pt_scaleDn = NanoReader.Jet_pt_jesTotalDown[goodJetIndex.at(sel1)];
+	WVJJTree->bos_j1_AK4_m_scaleUp = NanoReader.Jet_mass_jesTotalUp[goodJetIndex.at(sel1)];
+	WVJJTree->bos_j1_AK4_m_scaleDn = NanoReader.Jet_mass_jesTotalDown[goodJetIndex.at(sel1)];
+
+	WVJJTree->bos_j2_AK4_pt_scaleUp = NanoReader.Jet_pt_jesTotalUp[goodJetIndex.at(sel2)];
+	WVJJTree->bos_j2_AK4_pt_scaleDn = NanoReader.Jet_pt_jesTotalDown[goodJetIndex.at(sel2)];
+	WVJJTree->bos_j2_AK4_m_scaleUp = NanoReader.Jet_mass_jesTotalUp[goodJetIndex.at(sel2)];
+	WVJJTree->bos_j2_AK4_m_scaleDn = NanoReader.Jet_mass_jesTotalDown[goodJetIndex.at(sel2)];
 	
 	TLorentzVector tempBos1(0,0,0,0);
 	TLorentzVector tempBos2(0,0,0,0);
@@ -697,13 +564,23 @@ int main (int ac, char** av) {
       float tmpMassMax = 0.0;
       int vbf1=-1, vbf2=-1;
       
-      for (uint j=0; j<goodAK4Jets.size(); j++) {
+      for (uint j=0; j<goodJetIndex.size(); j++) {
 	if (j==sel1 || j==sel2) continue;
-	for(uint k=j+1; k<goodAK4Jets.size(); k++) {
+	for(uint k=j+1; k<goodJetIndex.size(); k++) {
 	  if (k==sel1 || k==sel2) continue;
-	  TLorentzVector tempVBF = goodAK4Jets.at(j) + goodAK4Jets.at(k);
+
+	  TLorentzVector tmp1(0,0,0,0);
+	  tmp1.SetPtEtaPhiM( NanoReader.Jet_pt[goodJetIndex.at(j)], NanoReader.Jet_eta[goodJetIndex.at(j)],
+			     NanoReader.Jet_phi[goodJetIndex.at(j)], NanoReader.Jet_mass[goodJetIndex.at(j)] );
+
+	  TLorentzVector tmp2(0,0,0,0);
+	  tmp2.SetPtEtaPhiM( NanoReader.Jet_pt[goodJetIndex.at(k)], NanoReader.Jet_eta[goodJetIndex.at(k)],
+			     NanoReader.Jet_phi[goodJetIndex.at(k)], NanoReader.Jet_mass[goodJetIndex.at(k)] );
+
+	  TLorentzVector tempVBF=tmp1+tmp2;
+
 	  //require 2 jets be in opposite hemispheres
-	  if ( goodAK4Jets.at(j).Eta()*goodAK4Jets.at(k).Eta() > 0 ) continue; 
+	  if ( NanoReader.Jet_eta[goodJetIndex.at(j)] * NanoReader.Jet_eta[goodJetIndex.at(k)] > 0 ) continue; 
 	  if ( tempVBF.M() < VBF_MJJ_CUT ) continue;
 	  if ( tempVBF.M() < tmpMassMax ) continue;
 	  tmpMassMax = tempVBF.M();
@@ -713,41 +590,41 @@ int main (int ac, char** av) {
     
       if (vbf1==-1 && vbf2==-1) continue;
       
-      TLorentzVector tempVBF = goodAK4Jets.at(vbf1) + goodAK4Jets.at(vbf2);
-      
-      WVJJTree->vbf1_AK4_pt = goodAK4Jets.at(vbf1).Pt();
-      WVJJTree->vbf1_AK4_eta = goodAK4Jets.at(vbf1).Eta();
-      WVJJTree->vbf1_AK4_phi = goodAK4Jets.at(vbf1).Phi();
-      WVJJTree->vbf1_AK4_m = goodAK4Jets.at(vbf1).M();
-      
-      WVJJTree->vbf2_AK4_pt = goodAK4Jets.at(vbf2).Pt();
-      WVJJTree->vbf2_AK4_eta = goodAK4Jets.at(vbf2).Eta();
-      WVJJTree->vbf2_AK4_phi = goodAK4Jets.at(vbf2).Phi();
-      WVJJTree->vbf2_AK4_m = goodAK4Jets.at(vbf2).M();
-      
-      WVJJTree->vbf_pt = tempVBF.Pt();
-      WVJJTree->vbf_eta = tempVBF.Eta();
-      WVJJTree->vbf_phi = tempVBF.Phi();
-      WVJJTree->vbf_m = tempVBF.M();
+      WVJJTree->vbf1_AK4_pt = NanoReader.Jet_pt[goodJetIndex.at(vbf1)];
+      WVJJTree->vbf1_AK4_eta = NanoReader.Jet_eta[goodJetIndex.at(vbf1)];
+      WVJJTree->vbf1_AK4_phi = NanoReader.Jet_phi[goodJetIndex.at(vbf1)];
+      WVJJTree->vbf1_AK4_m = NanoReader.Jet_mass[goodJetIndex.at(vbf1)];
+
+      WVJJTree->vbf2_AK4_pt = NanoReader.Jet_pt[goodJetIndex.at(vbf2)];
+      WVJJTree->vbf2_AK4_eta = NanoReader.Jet_eta[goodJetIndex.at(vbf2)];
+      WVJJTree->vbf2_AK4_phi = NanoReader.Jet_phi[goodJetIndex.at(vbf2)];
+      WVJJTree->vbf2_AK4_m = NanoReader.Jet_mass[goodJetIndex.at(vbf2)];
+
+      TLorentzVector tempVBF1(0,0,0,0);
+      TLorentzVector tempVBF2(0,0,0,0);
+
+      tempVBF1.SetPtEtaPhiM(WVJJTree->vbf1_AK4_pt, WVJJTree->vbf1_AK4_eta,
+			    WVJJTree->vbf1_AK4_phi, WVJJTree->vbf1_AK4_m);
+      tempVBF2.SetPtEtaPhiM(WVJJTree->vbf2_AK4_pt, WVJJTree->vbf2_AK4_eta,
+			    WVJJTree->vbf2_AK4_phi, WVJJTree->vbf2_AK4_m);
+
+      WVJJTree->vbf_pt = (tempVBF1+tempVBF2).Pt();
+      WVJJTree->vbf_eta = (tempVBF1+tempVBF2).Eta();
+      WVJJTree->vbf_phi = (tempVBF1+tempVBF2).Phi();
+      WVJJTree->vbf_m = (tempVBF1+tempVBF2).M();
       
       WVJJTree->vbf_deta = abs( WVJJTree->vbf2_AK4_eta - WVJJTree->vbf1_AK4_eta );
       
-      TLorentzVector tempVBF1(0,0,0,0);
-      TLorentzVector tempVBF2(0,0,0,0);
-      
-      float jecUnc1 = GetJECunc(WVJJTree->vbf1_AK4_pt, WVJJTree->vbf1_AK4_eta, fJetUnc_AK4chs);
-      float jecUnc2 = GetJECunc(WVJJTree->vbf2_AK4_pt, WVJJTree->vbf2_AK4_eta, fJetUnc_AK4chs);
-      
-      WVJJTree->vbf1_AK4_pt_scaleUp = WVJJTree->vbf1_AK4_pt*(1.0+jecUnc1);
-      WVJJTree->vbf1_AK4_pt_scaleDn = WVJJTree->vbf1_AK4_pt*(1.0-jecUnc1);
-      WVJJTree->vbf1_AK4_m_scaleUp = WVJJTree->vbf1_AK4_m*(1.0+jecUnc1);
-      WVJJTree->vbf1_AK4_m_scaleDn = WVJJTree->vbf1_AK4_m*(1.0-jecUnc1);
-      
-      WVJJTree->vbf2_AK4_pt_scaleUp = WVJJTree->vbf2_AK4_pt*(1.0+jecUnc2);
-      WVJJTree->vbf2_AK4_pt_scaleDn = WVJJTree->vbf2_AK4_pt*(1.0-jecUnc2);
-      WVJJTree->vbf2_AK4_m_scaleUp = WVJJTree->vbf2_AK4_m*(1.0+jecUnc2);
-      WVJJTree->vbf2_AK4_m_scaleDn = WVJJTree->vbf2_AK4_m*(1.0-jecUnc2);
-      
+      WVJJTree->vbf1_AK4_pt_scaleUp = NanoReader.Jet_pt_jesTotalUp[goodJetIndex.at(vbf1)];
+      WVJJTree->vbf1_AK4_pt_scaleDn = NanoReader.Jet_pt_jesTotalDown[goodJetIndex.at(vbf1)];
+      WVJJTree->vbf1_AK4_m_scaleUp = NanoReader.Jet_mass_jesTotalUp[goodJetIndex.at(vbf1)];
+      WVJJTree->vbf1_AK4_m_scaleDn = NanoReader.Jet_mass_jesTotalDown[goodJetIndex.at(vbf1)];
+
+      WVJJTree->vbf2_AK4_pt_scaleUp = NanoReader.Jet_pt_jesTotalUp[goodJetIndex.at(vbf2)];
+      WVJJTree->vbf2_AK4_pt_scaleDn = NanoReader.Jet_pt_jesTotalDown[goodJetIndex.at(vbf2)];
+      WVJJTree->vbf2_AK4_m_scaleUp = NanoReader.Jet_mass_jesTotalUp[goodJetIndex.at(vbf2)];
+      WVJJTree->vbf2_AK4_m_scaleDn = NanoReader.Jet_mass_jesTotalDown[goodJetIndex.at(vbf2)];
+
       tempVBF1.SetPtEtaPhiM(WVJJTree->vbf1_AK4_pt_scaleUp, WVJJTree->vbf1_AK4_eta,
 			    WVJJTree->vbf1_AK4_phi, WVJJTree->vbf1_AK4_m_scaleUp);
       tempVBF2.SetPtEtaPhiM(WVJJTree->vbf2_AK4_pt_scaleUp, WVJJTree->vbf2_AK4_eta,
@@ -817,17 +694,16 @@ int main (int ac, char** av) {
     }
     
     delete t; 
+    delete r;
     delete f;
     t=0; 
+    r=0;
     f=0;
   }
 
   std::cout << "at the end" << std::endl;
   of->Write();
   of->Close();
-  
-  //delete f;
-  //f=0; t=0;
   
   return 0;
 
