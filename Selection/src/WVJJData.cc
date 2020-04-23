@@ -16,6 +16,9 @@ void WVJJData::init() {
   fTree->Branch("puWeight_Dn",&puWeight_Dn,"puWeight_Dn/F");
   fTree->Branch("L1PFWeight",&L1PFWeight,"L1PFWeight/F");
   fTree->Branch("LHEWeight",&LHEWeight[0],"LHEWeight[1164]/F");
+  //jet counters
+  fTree->Branch("nJet30",&nJet30,"nJet30/I");
+  fTree->Branch("nJet50",&nJet50,"nJet50/I");
   //btag counters
   fTree->Branch("nBtag_loose",&nBtag_loose,"nBtag_loose/I");
   fTree->Branch("nBtag_medium",&nBtag_medium,"nBtag_medium/I");
@@ -191,6 +194,9 @@ void WVJJData::clearVars() {
   L1PFWeight = 1.0;
 
   LHEWeight[1164] = {};
+
+  nJet30 = 0;
+  nJet50 = 0;
 
   nBtag_loose = 0;
   nBtag_medium = 0;

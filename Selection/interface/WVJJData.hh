@@ -37,6 +37,10 @@ public:
   float L1PFWeight;
   float LHEWeight[1164] = {};
 
+  //njet counters
+  uint nJet30;
+  uint nJet50;
+
   //btag counters
   uint nBtag_loose;
   uint nBtag_medium;

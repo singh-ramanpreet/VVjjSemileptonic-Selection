@@ -68,7 +68,7 @@ int main (int ac, char** av) {
   const float LEP_PT_VETO_CUT = 20;
   const float EL_PT_CUT = 35;
   const float EL_ETA_CUT = 2.5;
-  const float MU_PT_CUT = 35;
+  const float MU_PT_CUT = 30;
   const float MU_ETA_CUT = 2.4;
 
   //ak8 jet cuts
@@ -589,7 +589,7 @@ int main (int ac, char** av) {
 	    if (ak4jet->csv > CSV_TIGHT_2017) WVJJTree->nBtag_tight++;
 	  }
 	}
-	
+
 	bool isClean=true;
 	// object cleaning
 	
@@ -621,6 +621,9 @@ int main (int ac, char** av) {
 	
 	if ( isClean == false ) continue;
 	
+	if (ak4jet->pt>30) WVJJTree->nJet30++;
+	if (ak4jet->pt>50) WVJJTree->nJet50++;
+
 	goodAK4Jets.push_back(TLorentzVector(0,0,0,0));
 	goodAK4Jets.back().SetPtEtaPhiM(ak4jet->pt, ak4jet->eta, ak4jet->phi, ak4jet->mass);
 	
