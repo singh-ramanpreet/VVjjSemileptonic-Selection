@@ -36,11 +36,29 @@ public:
   float puWeight_Dn;
   float L1PFWeight;
   float LHEWeight[1164] = {};
+  uint nScaleWeight;
+  uint nPdfWeight;
+  float scaleWeight[10] = {};
+  float pdfWeight[200] = {};
+
+  //njet counters
+  uint nJet30;
+  uint nJet50;
+  uint nJet30_noClean;
+  uint nJet50_noClean;
 
   //btag counters
   uint nBtag_loose;
   uint nBtag_medium;
   uint nBtag_tight;
+
+  float btagWeight;
+
+  //triggers
+  bool trigger_1Mu;
+  bool trigger_2Mu;
+  bool trigger_1El;
+  bool trigger_2El;
   
   //------------------------------------//
   //       LEPTONS                      //

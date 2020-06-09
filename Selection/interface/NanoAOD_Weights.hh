@@ -104,11 +104,11 @@ void NanoAOD_Weights::Init(TTree *tree)
    fChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("run", &run, &b_run);
-   fChain->SetBranchAddress("genEventCount", &genEventCount_, &b_genEventCount_);
-   fChain->SetBranchAddress("genEventSumw", &genEventSumw_, &b_genEventSumw_);
-   fChain->SetBranchAddress("genEventSumw2", &genEventSumw2_, &b_genEventSumw2_);
-   fChain->SetBranchAddress("nLHEScaleSumw", &nLHEScaleSumw_, &b_nLHEScaleSumw_);
-   fChain->SetBranchAddress("LHEScaleSumw", &LHEScaleSumw_, &b_LHEScaleSumw_);
-   fChain->SetBranchAddress("nLHEPdfSumw", &nLHEPdfSumw_, &b_nLHEPdfSumw_);
-   fChain->SetBranchAddress("LHEPdfSumw", &LHEPdfSumw_, &b_LHEPdfSumw_);
+   fChain->SetBranchAddress("genEventCount_", &genEventCount_, &b_genEventCount_);
+   fChain->SetBranchAddress("genEventSumw_", &genEventSumw_, &b_genEventSumw_);
+   fChain->SetBranchAddress("genEventSumw2_", &genEventSumw2_, &b_genEventSumw2_);
+   fChain->SetBranchAddress("nLHEScaleSumw_", &nLHEScaleSumw_, &b_nLHEScaleSumw_);
+   fChain->SetBranchAddress("LHEScaleSumw_", &LHEScaleSumw_, &b_LHEScaleSumw_);
+   fChain->SetBranchAddress("nLHEPdfSumw_", &nLHEPdfSumw_, &b_nLHEPdfSumw_);
+   fChain->SetBranchAddress("LHEPdfSumw_", &LHEPdfSumw_, &b_LHEPdfSumw_);
 }

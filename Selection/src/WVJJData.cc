@@ -16,10 +16,23 @@ void WVJJData::init() {
   fTree->Branch("puWeight_Dn",&puWeight_Dn,"puWeight_Dn/F");
   fTree->Branch("L1PFWeight",&L1PFWeight,"L1PFWeight/F");
   fTree->Branch("LHEWeight",&LHEWeight[0],"LHEWeight[1164]/F");
+  fTree->Branch("nScaleWeight",&nScaleWeight,"nScaleWeight/I");
+  fTree->Branch("nPdfWeight",&nPdfWeight,"nPdfWeight/I");
+  fTree->Branch("scaleWeight",&scaleWeight[0],"scaleWeight[10]/F");
+  fTree->Branch("pdfWeight",&pdfWeight[0],"pdfWeight[200]/F");
+  //jet counters
+  fTree->Branch("nJet30",&nJet30,"nJet30/I");
+  fTree->Branch("nJet50",&nJet50,"nJet50/I");
   //btag counters
   fTree->Branch("nBtag_loose",&nBtag_loose,"nBtag_loose/I");
   fTree->Branch("nBtag_medium",&nBtag_medium,"nBtag_medium/I");
   fTree->Branch("nBtag_tight",&nBtag_tight,"nBtag_tight/I");
+  fTree->Branch("btagWeight",&btagWeight,"btagWeight/F");
+  //trigger
+  fTree->Branch("trigger_1Mu",&trigger_1Mu,"trigger_1Mu/O");
+  fTree->Branch("trigger_2Mu",&trigger_2Mu,"trigger_2Mu/O");
+  fTree->Branch("trigger_1El",&trigger_1El,"trigger_1El/O");
+  fTree->Branch("trigger_2El",&trigger_2El,"trigger_2El/O");
   //lepton 1
   fTree->Branch("lep1_pt",&lep1_pt,"lep1_pt/F");
   fTree->Branch("lep1_eta",&lep1_eta,"lep1_eta/F");
@@ -190,11 +203,26 @@ void WVJJData::clearVars() {
 
   L1PFWeight = 1.0;
 
-  LHEWeight[1164] = {};
+  std::fill_n(LHEWeight,1164,0);
+  
+  nScaleWeight = 0;
+  nPdfWeight = 0;
+  std::fill_n(scaleWeight,10,0);
+  std::fill_n(pdfWeight,200,0);
+
+  nJet30 = 0;
+  nJet50 = 0;
 
   nBtag_loose = 0;
   nBtag_medium = 0;
   nBtag_tight = 0;
+
+  btagWeight = 1.0;
+
+  trigger_1Mu = false;
+  trigger_2Mu = false;
+  trigger_1El = false;
+  trigger_2El = false;
   
   //------------------------------------//
   //       LEPTONS                      //

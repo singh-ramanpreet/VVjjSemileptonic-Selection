@@ -2863,8 +2863,8 @@ public :
     Init(tree);
   };
   virtual ~NanoAOD_Data() {
-    if (!fChain) return;
-    delete fChain->GetCurrentFile();
+    //if (!fChain) return;
+    //delete fChain->GetCurrentFile();
   };
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
