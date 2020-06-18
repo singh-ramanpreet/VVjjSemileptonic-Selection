@@ -105,7 +105,7 @@ int main (int ac, char** av) {
     r = (TTree *)f->Get("Runs");
     if (t==NULL) continue;
     
-    std::cout << filetoopen << std::endl;
+    //std::cout << filetoopen << std::endl;
     
     NanoAOD_MC NanoReader = NanoAOD_MC(t);
     NanoAOD_Weights NanoWeightReader = NanoAOD_Weights(r);
@@ -119,11 +119,12 @@ int main (int ac, char** av) {
 
     }
 
-    for (uint i=0; i < t->GetEntries(); i++) {
+    //for (uint i=0; i < t->GetEntries(); i++) {
+    for (uint i=0; i < 1000000; i++) {
       WVJJTree->clearVars();
       NanoReader.GetEntry(i);
 
-      if (i%10000==0) std::cout <<"event " << i << std::endl;
+      //if (i%10000==0) std::cout <<"event " << i << std::endl;
 
       if (isMC==1) {
 	WVJJTree->genWeight=NanoReader.Generator_weight;
@@ -779,7 +780,7 @@ int main (int ac, char** av) {
 
 	WVJJTree->nScaleWeight = NanoReader.nLHEScaleWeight;
 	WVJJTree->nPdfWeight = NanoReader.nLHEPdfWeight;
-
+	
 	for (uint j=0; j<WVJJTree->nScaleWeight; j++) {
 	  //LHE scale variation weights (w_var / w_nominal); [0] is MUR="0.5" MUF="0.5"; 
 	  //[1] is MUR="0.5" MUF="1.0"; [2] is MUR="0.5" MUF="2.0"; [3] is MUR="1.0" MUF="0.5"; 
@@ -791,20 +792,20 @@ int main (int ac, char** av) {
 	  //LHE pdf variation weights (w_var / w_nominal) for LHA IDs 91400 - 91432
 	  WVJJTree->pdfWeight[j]=NanoReader.LHEPdfWeight[j];
 	}
-
+	
       }
-
+      
       WVJJTree->btagWeight = NanoReader.btagWeight_DeepCSVB;
-
+      
       ot->Fill();
     }
     
-    delete t; 
-    delete r;
-    delete f;
-    t=0; 
-    r=0;
-    f=0;
+    //delete t; 
+    //delete r;
+    //delete f;
+    //t=0; 
+    //r=0;
+    //f=0;
   }
 
   of->Write();

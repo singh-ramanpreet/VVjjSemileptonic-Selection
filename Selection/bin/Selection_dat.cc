@@ -39,6 +39,7 @@ int main (int ac, char** av) {
   std::string outputFile = av[2];
   int isMC = atoi(av[3]);
   int era = atoi(av[4]);
+  int nanoVersion = atoi(av[5]);
 
   const float MUON_MASS = 0.1056583745;
   const float ELE_MASS  = 0.000511;
@@ -111,28 +112,41 @@ int main (int ac, char** av) {
     for (uint i=0; i < t->GetEntries(); i++) {
       WVJJTree->clearVars();
       NanoReader.GetEntry(i);
+
       if (era==2018) {
-	if(! ( NanoReader.HLT_IsoMu24 || NanoReader.HLT_IsoMu27 || NanoReader.HLT_IsoMu30 || NanoReader.HLT_Mu50 ||
-               NanoReader.HLT_Ele27_WPTight_Gsf || NanoReader.HLT_Ele28_WPTight_Gsf || NanoReader.HLT_Ele32_WPTight_Gsf ||
-               NanoReader.HLT_Ele35_WPTight_Gsf || NanoReader.HLT_Ele38_WPTight_Gsf || NanoReader.HLT_Ele40_WPTight_Gsf ||
-               NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
-               NanoReader.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG || NanoReader.HLT_DoubleEle33_CaloIdL_MW ||
-               NanoReader.HLT_DoubleEle25_CaloIdL_MW || NanoReader.HLT_DoubleEle27_CaloIdL_MW ||
-               NanoReader.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 || NanoReader.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
-	       NanoReader.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 || NanoReader.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 ) )      
-	  continue;	
+	
+	if ( NanoReader.HLT_IsoMu24 || NanoReader.HLT_IsoMu27 || NanoReader.HLT_IsoMu30 || NanoReader.HLT_Mu50 ) WVJJTree->trigger_1Mu = true;
+
+        if ( NanoReader.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 || NanoReader.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
+             NanoReader.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 || NanoReader.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 ) WVJJTree->trigger_2Mu = true;
+
+        if ( NanoReader.HLT_Ele27_WPTight_Gsf || NanoReader.HLT_Ele28_WPTight_Gsf || NanoReader.HLT_Ele32_WPTight_Gsf ||
+             NanoReader.HLT_Ele35_WPTight_Gsf || NanoReader.HLT_Ele38_WPTight_Gsf || NanoReader.HLT_Ele40_WPTight_Gsf ) WVJJTree->trigger_1El = true;
+
+        if ( NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
+             NanoReader.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG || NanoReader.HLT_DoubleEle33_CaloIdL_MW ||
+             NanoReader.HLT_DoubleEle25_CaloIdL_MW || NanoReader.HLT_DoubleEle27_CaloIdL_MW ) WVJJTree->trigger_2El = true;
+
       }
       else if (era==2017) {
-        if (! ( NanoReader.HLT_IsoMu24 || NanoReader.HLT_IsoMu27 || NanoReader.HLT_IsoMu30 || NanoReader.HLT_Mu50 ||
-                NanoReader.HLT_Ele27_WPTight_Gsf || NanoReader.HLT_Ele32_WPTight_Gsf || NanoReader.HLT_Ele35_WPTight_Gsf ||
-                NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
-                NanoReader.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG || NanoReader.HLT_DoubleEle33_CaloIdL_MW ||
-                NanoReader.HLT_DoubleEle25_CaloIdL_MW ||
-                NanoReader.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 || NanoReader.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
-                NanoReader.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 || NanoReader.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 ) )
-          continue;
+
+        if ( NanoReader.HLT_IsoMu24 || NanoReader.HLT_IsoMu27 || NanoReader.HLT_IsoMu30 || NanoReader.HLT_Mu50 ) WVJJTree->trigger_1Mu = true;
+
+
+        if ( NanoReader.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 || NanoReader.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
+             NanoReader.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 || NanoReader.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 ) WVJJTree->trigger_2Mu = true;
+
+
+        if ( NanoReader.HLT_Ele27_WPTight_Gsf || NanoReader.HLT_Ele32_WPTight_Gsf || NanoReader.HLT_Ele35_WPTight_Gsf ) WVJJTree->trigger_1El = true;
+
+        if ( NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
+             NanoReader.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG || NanoReader.HLT_DoubleEle33_CaloIdL_MW ||
+             NanoReader.HLT_DoubleEle25_CaloIdL_MW ) WVJJTree->trigger_2El = true;
+
       }
-      
+
+      if ( ! ( WVJJTree->trigger_1Mu || WVJJTree->trigger_2Mu || WVJJTree->trigger_1El || WVJJTree->trigger_2El ) ) continue;
+
       tightMuon.clear();
       tightEle.clear();
       
@@ -154,13 +168,13 @@ int main (int ac, char** av) {
       
       for (uint j=0; j < NanoReader.nMuon; j++) {
 	if ( abs(NanoReader.Muon_eta[j]) > MU_ETA_CUT ) continue;
-	if ( NanoReader.Muon_pt[j] < LEP_PT_VETO_CUT ) continue;
+	if ( 1.03*NanoReader.Muon_pt[j] < LEP_PT_VETO_CUT ) continue;
 	if (NanoReader.Muon_pfRelIso04_all[j]>0.25) continue;
 	if (!NanoReader.Muon_looseId[j]) continue;
 	nVetoMu++;
 	
 	if (!NanoReader.Muon_tightId[j]) continue;
-	if ( NanoReader.Muon_pt[j] < MU_PT_CUT ) continue;
+	if ( 1.03*NanoReader.Muon_pt[j] < MU_PT_CUT ) continue;
 	if (NanoReader.Muon_pfRelIso04_all[j]>0.15) continue;
 	nTightMu++;
 	tightMuon.push_back(TLorentzVector(0,0,0,0));
@@ -198,7 +212,7 @@ int main (int ac, char** av) {
       
       for (uint j=0; j < NanoReader.nElectron; j++) {
 	if ( abs(NanoReader.Electron_eta[j]) > EL_ETA_CUT ) continue;
-	if ( NanoReader.Electron_pt[j] < LEP_PT_VETO_CUT ) continue;
+	if ( 1.03*NanoReader.Electron_pt[j] < LEP_PT_VETO_CUT ) continue;
 	
 	//cut-based ID Fall17 V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)
 	if (NanoReader.Electron_cutBased[j]<2) continue;
@@ -211,7 +225,7 @@ int main (int ac, char** av) {
 	tightEle.back().SetPtEtaPhiM(NanoReader.Electron_pt[j],NanoReader.Electron_eta[j],
 				     NanoReader.Electron_phi[j],ELE_MASS);
 	
-	if ( NanoReader.Electron_pt[j] < EL_PT_CUT ) continue;
+	if ( 1.03*NanoReader.Electron_pt[j] < EL_PT_CUT ) continue;
 	
 	//don't try to select electrons unless we don't already
 	//have muons

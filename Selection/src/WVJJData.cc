@@ -18,7 +18,7 @@ void WVJJData::init() {
   fTree->Branch("LHEWeight",&LHEWeight[0],"LHEWeight[1164]/F");
   fTree->Branch("nScaleWeight",&nScaleWeight,"nScaleWeight/I");
   fTree->Branch("nPdfWeight",&nPdfWeight,"nPdfWeight/I");
-  fTree->Branch("scaleWeight",&scaleWeight[0],"scaleWeight[10]/F");
+  fTree->Branch("scaleWeight",&scaleWeight[0],"scaleWeight[200]/F");
   fTree->Branch("pdfWeight",&pdfWeight[0],"pdfWeight[200]/F");
   //jet counters
   fTree->Branch("nJet30",&nJet30,"nJet30/I");
@@ -207,7 +207,7 @@ void WVJJData::clearVars() {
   
   nScaleWeight = 0;
   nPdfWeight = 0;
-  std::fill_n(scaleWeight,10,0);
+  std::fill_n(scaleWeight,200,0);
   std::fill_n(pdfWeight,200,0);
 
   nJet30 = 0;

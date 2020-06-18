@@ -38,7 +38,7 @@ public:
   float LHEWeight[1164] = {};
   uint nScaleWeight;
   uint nPdfWeight;
-  float scaleWeight[10] = {};
+  float scaleWeight[200] = {};
   float pdfWeight[200] = {};
 
   //njet counters
