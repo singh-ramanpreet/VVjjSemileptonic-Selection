@@ -23,9 +23,9 @@ public :
    static constexpr Int_t kMaxgenEventCount = 1;
    static constexpr Int_t kMaxgenEventSumw = 1;
    static constexpr Int_t kMaxgenEventSumw2 = 1;
-   static constexpr Int_t kMaxnLHEScaleSumw = 1;
+   static constexpr Int_t kMaxnLHEScaleSumw = 200;
    static constexpr Int_t kMaxLHEScaleSumw = 1;
-   static constexpr Int_t kMaxnLHEPdfSumw = 1;
+   static constexpr Int_t kMaxnLHEPdfSumw = 200;
    static constexpr Int_t kMaxLHEPdfSumw = 1;
 
    // Declaration of leaf types
