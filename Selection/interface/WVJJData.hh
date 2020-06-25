@@ -38,8 +38,10 @@ public:
   float LHEWeight[1164] = {};
   uint nScaleWeight;
   uint nPdfWeight;
+  uint nAqgcWeight;
   float scaleWeight[200] = {};
   float pdfWeight[200] = {};
+  float aqgcWeight[1000] = {};
 
   //njet counters
   uint nJet30;
@@ -59,6 +61,9 @@ public:
   bool trigger_2Mu;
   bool trigger_1El;
   bool trigger_2El;
+
+  //signal vs anti-iso
+  bool isAntiIso;
   
   //------------------------------------//
   //       LEPTONS                      //
@@ -71,6 +76,8 @@ public:
   float lep1_m;
   float lep1_q;
   float lep1_iso;
+  float lep1_dxy;
+  float lep1_dz;
   float lep1_idEffWeight;
 
   //lepton 1 scale variations
@@ -84,6 +91,8 @@ public:
   float lep2_m;
   float lep2_q;
   float lep2_iso;
+  float lep2_dxy;
+  float lep2_dz;
   float lep2_idEffWeight;
 
   //lepton 2 scale variations

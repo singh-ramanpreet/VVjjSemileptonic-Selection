@@ -112,15 +112,13 @@ int main (int ac, char** av) {
 
     if (isMC==1) {
 
-      for (uint i=0; i < r->GetEntries(); i++) {
-        NanoWeightReader.GetEntry(i);
-        totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+NanoWeightReader.genEventSumw_);
-      }
+      NanoWeightReader.GetEntry(0);
+      totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+NanoWeightReader.genEventSumw_);
 
     }
 
-    //for (uint i=0; i < t->GetEntries(); i++) {
-    for (uint i=0; i < 1000000; i++) {
+    for (uint i=0; i < t->GetEntries(); i++) {
+    //for (uint i=0; i < 1000000; i++) {
       WVJJTree->clearVars();
       NanoReader.GetEntry(i);
 
@@ -158,8 +156,15 @@ int main (int ac, char** av) {
 
 	if ( NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || NanoReader.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
 	     NanoReader.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG || NanoReader.HLT_DoubleEle33_CaloIdL_MW || 
-	     NanoReader.HLT_DoubleEle25_CaloIdL_MW ) WVJJTree->trigger_2El = true;
-	
+	     NanoReader.HLT_DoubleEle25_CaloIdL_MW ) WVJJTree->trigger_2El = true;	
+      }
+
+      else if (era==2016) {
+
+	if ( NanoReader.HLT_IsoMu24 ) WVJJTree->trigger_1Mu = true;
+
+	if ( NanoReader.HLT_Ele27_WPTight_Gsf ) WVJJTree->trigger_1El = true;
+
       }
 
       //std::cout << "passed trigger: ";
@@ -218,6 +223,8 @@ int main (int ac, char** av) {
 	  WVJJTree->lep2_phi = WVJJTree->lep1_phi;
 	  WVJJTree->lep2_m = WVJJTree->lep1_m;
 	  WVJJTree->lep2_iso = WVJJTree->lep1_iso;
+	  WVJJTree->lep2_dxy = WVJJTree->lep1_dxy;
+          WVJJTree->lep2_dz = WVJJTree->lep1_dz;
 	  WVJJTree->lep2_q = WVJJTree->lep1_q;
 	  
 	  WVJJTree->lep1_pt = NanoReader.Muon_pt[j];
@@ -225,6 +232,8 @@ int main (int ac, char** av) {
 	  WVJJTree->lep1_phi = NanoReader.Muon_phi[j];
 	  WVJJTree->lep1_m = MUON_MASS;
 	  WVJJTree->lep1_iso = NanoReader.Muon_pfRelIso04_all[j];
+	  WVJJTree->lep1_dxy = NanoReader.Muon_dxy[j];
+	  WVJJTree->lep1_dz = NanoReader.Muon_dz[j];
 	  WVJJTree->lep1_q = NanoReader.Muon_charge[j];
 	  
 	}
@@ -236,6 +245,8 @@ int main (int ac, char** av) {
 	  WVJJTree->lep2_phi = NanoReader.Muon_phi[j];
 	  WVJJTree->lep2_m = MUON_MASS;
 	  WVJJTree->lep2_iso = NanoReader.Muon_pfRelIso04_all[j];
+	  WVJJTree->lep2_dxy = NanoReader.Muon_dxy[j];
+	  WVJJTree->lep2_dz = NanoReader.Muon_dz[j];
 	  WVJJTree->lep2_q = NanoReader.Muon_charge[j];
 	  
 	  }
@@ -271,6 +282,8 @@ int main (int ac, char** av) {
 	  WVJJTree->lep2_phi = WVJJTree->lep1_phi;
 	  WVJJTree->lep2_m = WVJJTree->lep1_m;
 	  WVJJTree->lep2_iso = WVJJTree->lep1_iso;
+	  WVJJTree->lep2_dxy = WVJJTree->lep1_dxy;
+	  WVJJTree->lep2_dz = WVJJTree->lep1_dz;
 	  WVJJTree->lep2_q = WVJJTree->lep1_q;
 	  
 	  WVJJTree->lep1_pt = NanoReader.Electron_pt[j];
@@ -278,6 +291,8 @@ int main (int ac, char** av) {
 	  WVJJTree->lep1_phi = NanoReader.Electron_phi[j];
 	  WVJJTree->lep1_m = ELE_MASS;
 	  WVJJTree->lep1_iso = NanoReader.Electron_pfRelIso03_all[j];
+	  WVJJTree->lep1_dxy = NanoReader.Electron_dxy[j];
+	  WVJJTree->lep1_dz = NanoReader.Electron_dz[j];
 	  WVJJTree->lep1_q = NanoReader.Electron_charge[j];
 	  
 	}
@@ -288,19 +303,93 @@ int main (int ac, char** av) {
 	  WVJJTree->lep2_phi = NanoReader.Electron_phi[j];
 	  WVJJTree->lep2_m = ELE_MASS;
 	  WVJJTree->lep2_iso = NanoReader.Electron_pfRelIso03_all[j];
+	  WVJJTree->lep2_dxy = NanoReader.Electron_dxy[j];
+	  WVJJTree->lep2_dz = NanoReader.Electron_dz[j];
 	  WVJJTree->lep2_q = NanoReader.Electron_charge[j];
 	  
 	}
       }
 
       //check conditions
-      if(!(WVJJTree->lep1_pt>0)) continue;
-      if ((nTightMu+nTightEle)==0) continue; //no leptons with required ID
-      if((nVetoEle+nVetoMu)>2) continue;
-      if(nTightMu>0 && nVetoEle>0) continue;
-      if(nTightEle>0 && nVetoMu>0) continue;
-      if(nTightMu==1 && nVetoMu>1) continue;
-      if(nTightEle==1 && nVetoEle>1) continue;
+
+      bool passLepSel = true;
+      if(!(WVJJTree->lep1_pt>0)) passLepSel=false;
+      if ((nTightMu+nTightEle)==0) passLepSel=false; //no leptons with required ID
+      if((nVetoEle+nVetoMu)>2) passLepSel=false;
+      if(nTightMu>0 && nVetoEle>0) passLepSel=false;
+      if(nTightEle>0 && nVetoMu>0) passLepSel=false;
+      if(nTightMu==1 && nVetoMu>1) passLepSel=false;
+      if(nTightEle==1 && nVetoEle>1) passLepSel=false;
+
+      if (0) {
+      //if (passLepSel==false && (nTightMu+nTightEle)==0 && ((nVetoEle>0) ^ (nVetoMu>0))) {
+	if (nVetoEle>0) {
+
+	  for (uint j=0; j < NanoReader.nElectron; j++) {
+	    if ( abs(NanoReader.Electron_eta[j]) > EL_ETA_CUT ) continue;
+	    if ( 1.03*NanoReader.Electron_pt[j] < EL_PT_CUT ) continue;
+	    if ( NanoReader.Electron_cutBased[j]<2 ) continue;
+
+	    bool passEleID = true;
+	    for (int k=0; k<10; k++) {
+	      if (k==7) continue; //isolation requirement
+	      if ( ((NanoReader.Electron_vidNestedWPBitmap[j] >> k*3) & 0x7) < 4) passEleID=false;
+	    }
+
+	    if (passEleID==false) continue;
+
+	    if ( NanoReader.Electron_pt[j] > WVJJTree->lep1_pt ) {
+	      WVJJTree->lep1_pt = NanoReader.Electron_pt[j];
+	      WVJJTree->lep1_eta = NanoReader.Electron_eta[j];
+	      WVJJTree->lep1_phi = NanoReader.Electron_phi[j];
+	      WVJJTree->lep1_m = ELE_MASS;
+	      WVJJTree->lep1_iso = NanoReader.Electron_pfRelIso03_all[j];
+	      WVJJTree->lep1_dxy = NanoReader.Electron_dxy[j];
+	      WVJJTree->lep1_dz = NanoReader.Electron_dz[j];
+	      WVJJTree->lep1_q = NanoReader.Electron_charge[j];
+
+	    }
+	  }
+
+	  tightEle.push_back(TLorentzVector(0,0,0,0));
+	  tightEle.back().SetPtEtaPhiM(WVJJTree->lep1_pt, WVJJTree->lep1_eta, 
+				       WVJJTree->lep1_phi, ELE_MASS);
+
+	  WVJJTree->isAntiIso=true;
+
+	}
+
+	if (nVetoMu>0) {
+
+	  for (uint j=0; j < NanoReader.nMuon; j++) {
+	    if ( abs(NanoReader.Muon_eta[j]) > MU_ETA_CUT ) continue;
+	    if (NanoReader.Muon_pfRelIso04_all[j]>0.25) continue;
+	    if ( 1.03*NanoReader.Muon_pt[j] < MU_PT_CUT ) continue;
+	    if (!NanoReader.Muon_tightId[j]) continue;
+
+	    if ( NanoReader.Muon_pt[j] > WVJJTree->lep1_pt ) {
+	      WVJJTree->lep1_pt = NanoReader.Muon_pt[j];
+	      WVJJTree->lep1_eta = NanoReader.Muon_eta[j];
+	      WVJJTree->lep1_phi = NanoReader.Muon_phi[j];
+	      WVJJTree->lep1_m = MUON_MASS;
+	      WVJJTree->lep1_iso = NanoReader.Muon_pfRelIso04_all[j];
+	      WVJJTree->lep1_dxy = NanoReader.Muon_dxy[j];
+	      WVJJTree->lep1_dz = NanoReader.Muon_dz[j];
+	      WVJJTree->lep1_q = NanoReader.Muon_charge[j];
+	    }
+	  }
+
+	  tightMuon.push_back(TLorentzVector(0,0,0,0));
+	  tightMuon.back().SetPtEtaPhiM(WVJJTree->lep1_pt, WVJJTree->lep1_eta,
+					WVJJTree->lep1_phi,MUON_MASS);
+
+	  WVJJTree->isAntiIso=true;
+
+	}
+      }
+      
+      if (!passLepSel && !WVJJTree->isAntiIso) continue;
+
 
       //muon scale variations
       if (WVJJTree->lep1_m == MUON_MASS) {
@@ -794,8 +883,20 @@ int main (int ac, char** av) {
 	}
 	
       }
+
+      if (isMC==1 && NanoReader.nLHEReweightingWeight!=0) {
+	WVJJTree->nAqgcWeight=NanoReader.nLHEReweightingWeight;
+
+	for (uint j=0; j<WVJJTree->nAqgcWeight; j++) {
+	  WVJJTree->aqgcWeight[j]=NanoReader.LHEReweightingWeight[0];
+	}
+
+      }
+
+      //std::cout << i << ", " << WVJJTree->lep1_pt << ", " << WVJJTree->lep1_eta << ", " << WVJJTree->lep1_phi << std::endl;
       
       WVJJTree->btagWeight = NanoReader.btagWeight_DeepCSVB;
+      WVJJTree->L1PFWeight = NanoReader.L1PreFiringWeight_Nom;
       
       ot->Fill();
     }

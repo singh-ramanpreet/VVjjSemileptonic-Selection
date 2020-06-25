@@ -18,8 +18,10 @@ void WVJJData::init() {
   fTree->Branch("LHEWeight",&LHEWeight[0],"LHEWeight[1164]/F");
   fTree->Branch("nScaleWeight",&nScaleWeight,"nScaleWeight/I");
   fTree->Branch("nPdfWeight",&nPdfWeight,"nPdfWeight/I");
+  fTree->Branch("nAqgcWeight",&nAqgcWeight,"nAqgcWeight/I");
   fTree->Branch("scaleWeight",&scaleWeight[0],"scaleWeight[200]/F");
   fTree->Branch("pdfWeight",&pdfWeight[0],"pdfWeight[200]/F");
+  fTree->Branch("aqgcWeight",&aqgcWeight[0],"aqgcWeight[1000]/F");
   //jet counters
   fTree->Branch("nJet30",&nJet30,"nJet30/I");
   fTree->Branch("nJet50",&nJet50,"nJet50/I");
@@ -33,6 +35,8 @@ void WVJJData::init() {
   fTree->Branch("trigger_2Mu",&trigger_2Mu,"trigger_2Mu/O");
   fTree->Branch("trigger_1El",&trigger_1El,"trigger_1El/O");
   fTree->Branch("trigger_2El",&trigger_2El,"trigger_2El/O");
+
+  fTree->Branch("isAntiIso",&isAntiIso,"isAntiIso/O");
   //lepton 1
   fTree->Branch("lep1_pt",&lep1_pt,"lep1_pt/F");
   fTree->Branch("lep1_eta",&lep1_eta,"lep1_eta/F");
@@ -40,6 +44,8 @@ void WVJJData::init() {
   fTree->Branch("lep1_m",&lep1_m,"lep1_m/F");
   fTree->Branch("lep1_q",&lep1_q,"lep1_q/F");
   fTree->Branch("lep1_iso",&lep1_iso,"lep1_iso/F");
+  fTree->Branch("lep1_dxy",&lep1_dxy,"lep1_dxy/F");
+  fTree->Branch("lep1_dz",&lep1_dz,"lep1_dz/F");
   fTree->Branch("lep1_idEffWeight",&lep1_idEffWeight,"lep1_idEffWeight/F");
   //lepton 1 scale variations
   fTree->Branch("lep1_pt_scaleUp",&lep1_pt_scaleUp,"lep1_pt_scaleUp/F");
@@ -51,6 +57,8 @@ void WVJJData::init() {
   fTree->Branch("lep2_m",&lep2_m,"lep2_m/F");
   fTree->Branch("lep2_q",&lep2_q,"lep2_q/F");
   fTree->Branch("lep2_iso",&lep2_iso,"lep2_iso/F");
+  fTree->Branch("lep2_dxy",&lep2_dxy,"lep2_dxy/F");
+  fTree->Branch("lep2_dz",&lep2_dz,"lep2_dz/F");
   fTree->Branch("lep2_idEffWeight",&lep2_idEffWeight,"lep2_idEffWeight/F");  
   //lepton 2 scale variations
   fTree->Branch("lep2_pt_scaleUp",&lep2_pt_scaleUp,"lep2_pt_scaleUp/F");
@@ -207,8 +215,10 @@ void WVJJData::clearVars() {
   
   nScaleWeight = 0;
   nPdfWeight = 0;
+  nAqgcWeight = 0;
   std::fill_n(scaleWeight,200,0);
   std::fill_n(pdfWeight,200,0);
+  std::fill_n(aqgcWeight,1000,0);
 
   nJet30 = 0;
   nJet50 = 0;
@@ -223,6 +233,8 @@ void WVJJData::clearVars() {
   trigger_2Mu = false;
   trigger_1El = false;
   trigger_2El = false;
+
+  isAntiIso = false;
   
   //------------------------------------//
   //       LEPTONS                      //
@@ -234,6 +246,8 @@ void WVJJData::clearVars() {
   lep1_phi = -999.0;
   lep1_m = -999.0;
   lep1_q = -999.0;
+  lep1_dxy = -999.0;
+  lep1_dz = -999.0;
   lep1_iso = -999.0;
   lep1_idEffWeight = 1.0;
 
@@ -247,6 +261,8 @@ void WVJJData::clearVars() {
   lep2_phi = -999.0;
   lep2_m = -999.0;
   lep2_q = -999.0;
+  lep2_dxy = -999.0;
+  lep2_dz = -999.0;
   lep2_iso = -999.0;
   lep2_idEffWeight = 1.0;
 

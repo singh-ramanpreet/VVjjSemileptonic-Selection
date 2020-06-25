@@ -376,6 +376,7 @@ public :
    Int_t           TrigObj_l1iso[31];   //[nTrigObj]
    Int_t           TrigObj_l1charge[31];   //[nTrigObj]
    Int_t           TrigObj_filterBits[31];   //[nTrigObj]
+  Float_t         L1PreFiringWeight_Nom;  
    UInt_t          nOtherPV;
    Float_t         OtherPV_z[3];   //[nOtherPV]
    Float_t         PV_ndof;
@@ -1450,7 +1451,8 @@ public :
    TBranch        *b_CorrT1METJet_area;   //!
    TBranch        *b_CorrT1METJet_eta;   //!
    TBranch        *b_CorrT1METJet_muonSubtrFactor;   //!
-   TBranch        *b_CorrT1METJet_phi;   //!
+   TBranch        *b_CorrT1METJet_phi;   //
+  TBranch *b_L1PreFiringWeight_Nom;
    TBranch        *b_CorrT1METJet_rawPt;   //!
    TBranch        *b_nElectron;   //!
    TBranch        *b_Electron_deltaEtaSC;   //!
@@ -2922,6 +2924,7 @@ void NanoAOD_Data::Init(TTree *tree)
    fChain->SetBranchAddress("CorrT1METJet_muonSubtrFactor", CorrT1METJet_muonSubtrFactor, &b_CorrT1METJet_muonSubtrFactor);
    fChain->SetBranchAddress("CorrT1METJet_phi", CorrT1METJet_phi, &b_CorrT1METJet_phi);
    fChain->SetBranchAddress("CorrT1METJet_rawPt", CorrT1METJet_rawPt, &b_CorrT1METJet_rawPt);
+   fChain->SetBranchAddress("L1PreFiringWeight_Nom", &L1PreFiringWeight_Nom, &b_L1PreFiringWeight_Nom);
    fChain->SetBranchAddress("nElectron", &nElectron, &b_nElectron);
    fChain->SetBranchAddress("Electron_deltaEtaSC", Electron_deltaEtaSC, &b_Electron_deltaEtaSC);
    fChain->SetBranchAddress("Electron_dr03EcalRecHitSumEt", Electron_dr03EcalRecHitSumEt, &b_Electron_dr03EcalRecHitSumEt);

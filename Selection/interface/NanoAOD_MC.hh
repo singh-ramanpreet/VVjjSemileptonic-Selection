@@ -248,6 +248,7 @@ public :
    Int_t           Jet_nElectrons[30];   //[nJet]
    Int_t           Jet_nMuons[30];   //[nJet]
    Int_t           Jet_puId[30];   //[nJet]
+   Float_t         L1PreFiringWeight_Nom;
    Float_t         LHE_HT;
    Float_t         LHE_HTIncoming;
    Float_t         LHE_Vpt;
@@ -2901,6 +2902,7 @@ public :
    TBranch        *b_FatJet_pt_jesCorrelationGroupUncorrelatedDown;   //!
    TBranch        *b_FatJet_mass_jesCorrelationGroupUncorrelatedDown;   //!
    TBranch        *b_FatJet_msoftdrop_jesCorrelationGroupUncorrelatedDown;   //!
+  TBranch *b_L1PreFiringWeight_Nom;
 
   NanoAOD_MC(TTree *tree=0) { if (tree == 0) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("root://cmseos.fnal.gov//store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2018_v6/WminusTo2JZTo2LJJ_EWK_LO_SM_MJJ100PTJ10_TuneCP5_13TeV-madgraph-pythia8/200408_094108/FB0B3C91-4F33-9D41-BF4C-D6677CEFD73A_Skim.root");
@@ -3157,6 +3159,7 @@ void NanoAOD_MC::Init(TTree *tree)
    fChain->SetBranchAddress("LHEScaleWeight", &LHEScaleWeight, &b_LHEScaleWeight);
    fChain->SetBranchAddress("nPSWeight", &nPSWeight, &b_nPSWeight);
    fChain->SetBranchAddress("PSWeight", PSWeight, &b_PSWeight);
+   fChain->SetBranchAddress("L1PreFiringWeight_Nom", &L1PreFiringWeight_Nom, &b_L1PreFiringWeight_Nom);
    fChain->SetBranchAddress("nIsoTrack", &nIsoTrack, &b_nIsoTrack);
    fChain->SetBranchAddress("IsoTrack_dxy", IsoTrack_dxy, &b_IsoTrack_dxy);
    fChain->SetBranchAddress("IsoTrack_dz", IsoTrack_dz, &b_IsoTrack_dz);
