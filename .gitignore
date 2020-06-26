@@ -41,5 +41,8 @@ etc/allDict.h
 *.app
 
 
-# Otheres
+# Others
+*.log
+*.stderr
+*.stdout
 *~

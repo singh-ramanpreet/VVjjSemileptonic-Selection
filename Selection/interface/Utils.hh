@@ -2,9 +2,6 @@
 #define UTILS_HH
 
 #include "WVJJAna/Selection/interface/WVJJData.hh"
-#include "WVJJAna/Selection/interface/ElectronID.hh"
-#include "WVJJAna/Selection/interface/MuonID.hh"
-#include "WVJJAna/Selection/interface/JetID.hh"
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"

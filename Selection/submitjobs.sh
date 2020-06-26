@@ -1,26 +1,34 @@
 #!/bin/bash
 
-#baconFolder=/eos/uscms/store/user/lpcbacon/15/
-baconFolder=/eos/uscms/store/user/lnujj/WpWm_aQGC_Ntuples_Ram/FirstStepOutput/BaconNtuples/
-#baconFolder=/eos/uscms/store/user/klawhorn/BaconSamples/
+baconFolder=/store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2018_v6_3May
+#baconFolder=/store/user/lpcbacon/arapyanRun2017/
 
-outputFolder=/eos/uscms/store/user/klawhorn/WVJJTree_Dec5/2016
+outputFolder=/store/user/klawhorn/WVJJTree_Jun4/2018
 
-#xrdfs root://cmseos.fnal.gov/ mkdir ${outputFolder}
-#xrdfs root://cmseos.fnal.gov/ mkdir ${outputFolder}/log
-
-outputJDL=dec_5_submit_2.jdl
+outputJDL=may3_MC.jdl
 
 cat stub.jdl > ${outputJDL}
 
 while read line
 do
     outputName=${line%%/*}
-
-    echo "Output = " `pwd`/log/${outputName}.stdout >> ${outputJDL}
-    echo "Error = " `pwd`/log/${outputName}.stderr >> ${outputJDL}
-    echo "Log = " `pwd`/log/${outputName}.log >> ${outputJDL}
-    echo "Arguments = " ${baconFolder}/${line} ${outputFolder} ${outputName} 1 2016 >> ${outputJDL}
-    echo "Queue" >> ${outputJDL}
+    testvar="$( eos root://cmseos.fnal.gov ls ${baconFolder}/${line} 2>&1 > /dev/null )"
+    if [[ ${testvar} != "" ]]; then
+        echo "Input folder does not exist... skipping" ${line}
+        continue
+    fi
+    filelist=(`eos root://cmseos.fnal.gov ls ${baconFolder}/${line} | grep root`)
+    #size=${#filelist[@]}
+    echo ${#filelist[@]}
+    i=0
+    for inputFile in "${filelist[@]}"
+    do
+        echo "Output = " `pwd`/log/${outputName}_${i}.stdout >> ${outputJDL}
+        echo "Error = " `pwd`/log/${outputName}_${i}.stderr >> ${outputJDL}
+        echo "Log = " `pwd`/log/${outputName}_${i}.log >> ${outputJDL}
+        echo "Arguments = " ${baconFolder}/${line}/${inputFile} ${outputFolder} ${outputName}_${i} 1 2018 6 >> ${outputJDL}
+        echo "Queue" >> ${outputJDL}
+        i=$((i+1))
+    done
    
-done < tosubmit2016_2.dat
+done < submit_2018_3May.txt

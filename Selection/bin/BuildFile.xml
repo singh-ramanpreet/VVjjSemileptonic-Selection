@@ -1,5 +1,5 @@
-<use name="BaconAna/DataFormats"/>
 <use name="WVJJAna/Selection"/>
 <use name="root"/>
 <flags CXXFLAGS="-g -Wall"/>
 <bin file="Selection.cc" name="Selection"> </bin>
+<bin file="Selection_dat.cc" name="Selection_dat"> </bin>
