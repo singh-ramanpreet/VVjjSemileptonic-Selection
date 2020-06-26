@@ -49,6 +49,10 @@ public:
   uint nJet30_noClean;
   uint nJet50_noClean;
 
+  //njet counters
+  uint nJet30;
+  uint nJet50;
+
   //btag counters
   uint nBtag_loose;
   uint nBtag_medium;

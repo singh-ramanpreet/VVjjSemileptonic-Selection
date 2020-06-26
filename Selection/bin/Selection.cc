@@ -614,7 +614,7 @@ int main (int ac, char** av) {
           if (NanoReader.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
           if (NanoReader.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
 	}
-	
+
 	bool isClean=true;
 	// object cleaning
 	
@@ -659,6 +659,7 @@ int main (int ac, char** av) {
       if (nGoodFatJet==0) {
 	TLorentzVector tmpV1, tmpV2;
 	dmW=3000.0;
+
 	for (uint j=0; j<goodJetIndex.size(); j++) {
 	  if ( fabs( NanoReader.Jet_eta[goodJetIndex.at(j)] ) > AK4_ETA_CUT ) continue;
 	  for(uint k=j+1; k<goodJetIndex.size(); k++) {
@@ -893,8 +894,6 @@ int main (int ac, char** av) {
 
       }
 
-      //std::cout << i << ", " << WVJJTree->lep1_pt << ", " << WVJJTree->lep1_eta << ", " << WVJJTree->lep1_phi << std::endl;
-      
       WVJJTree->btagWeight = NanoReader.btagWeight_DeepCSVB;
       WVJJTree->L1PFWeight = NanoReader.L1PreFiringWeight_Nom;
       

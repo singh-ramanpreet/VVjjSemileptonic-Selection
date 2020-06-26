@@ -223,6 +223,9 @@ void WVJJData::clearVars() {
   nJet30 = 0;
   nJet50 = 0;
 
+  nJet30 = 0;
+  nJet50 = 0;
+
   nBtag_loose = 0;
   nBtag_medium = 0;
   nBtag_tight = 0;
