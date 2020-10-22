@@ -37,6 +37,7 @@ void WVJJData::init() {
   fTree->Branch("trigger_2El",&trigger_2El,"trigger_2El/O");
 
   fTree->Branch("isAntiIso",&isAntiIso,"isAntiIso/O");
+  fTree->Branch("lepFakeRate",&lepFakeRate,"lepFakeRate/F");
   //lepton 1
   fTree->Branch("lep1_pt",&lep1_pt,"lep1_pt/F");
   fTree->Branch("lep1_eta",&lep1_eta,"lep1_eta/F");
@@ -76,7 +77,7 @@ void WVJJData::init() {
   //MET
   fTree->Branch("MET",&MET,"MET/F");
   fTree->Branch("MET_phi",&MET_phi,"MET_phi/F");
-  fTree->Branch("MET_2017raw",&MET_2017raw,"MET_2017raw/F");
+  fTree->Branch("MET_2017",&MET_2017,"MET_2017/F");
   fTree->Branch("MET_scaleUp",&MET_scaleUp,"MET_scaleUp/F");
   fTree->Branch("MET_scaleDn",&MET_scaleDn,"MET_scaleDn/F");
   //W neutrino pZ
@@ -210,6 +211,8 @@ void WVJJData::clearVars() {
   puWeight_Dn = 1.0;
 
   L1PFWeight = 1.0;
+  L1PFWeight_Up = 1.0;
+  L1PFWeight_Dn = 1.0;
 
   std::fill_n(LHEWeight,1164,0);
   
@@ -219,9 +222,6 @@ void WVJJData::clearVars() {
   std::fill_n(scaleWeight,200,0);
   std::fill_n(pdfWeight,200,0);
   std::fill_n(aqgcWeight,1000,0);
-
-  nJet30 = 0;
-  nJet50 = 0;
 
   nJet30 = 0;
   nJet50 = 0;
@@ -238,6 +238,7 @@ void WVJJData::clearVars() {
   trigger_2El = false;
 
   isAntiIso = false;
+  lepFakeRate = 1.0;  
   
   //------------------------------------//
   //       LEPTONS                      //
@@ -251,6 +252,7 @@ void WVJJData::clearVars() {
   lep1_q = -999.0;
   lep1_dxy = -999.0;
   lep1_dz = -999.0;
+  lep1_sip3d = -999.0;
   lep1_iso = -999.0;
   lep1_idEffWeight = 1.0;
 
@@ -266,6 +268,7 @@ void WVJJData::clearVars() {
   lep2_q = -999.0;
   lep2_dxy = -999.0;
   lep2_dz = -999.0;
+  lep2_sip3d = -999.0;
   lep2_iso = -999.0;
   lep2_idEffWeight = 1.0;
 
@@ -292,10 +295,13 @@ void WVJJData::clearVars() {
   MET = -999.0;
   MET_phi = -999.0;
 
-  MET_2017raw = -999.0;
+  MET_2017 = -999.0;
 
   MET_scaleUp = -999.0;
   MET_scaleDn = -999.0;
+
+  PuppiMET = -999.0;
+  PuppiMET_phi = -999.0;
 
   neu_pz_type0 = -999.0;
   neu_pz_type0_scaleUp = -999.0;
@@ -388,6 +394,7 @@ void WVJJData::clearVars() {
   bos_j1_AK4_eta = -999.0;
   bos_j1_AK4_phi = -999.0;
   bos_j1_AK4_m = -999.0;
+  bos_j1_AK4_qgid = -999.0;
 
   //Boson AK4 jet 1 variations
   bos_j1_AK4_pt_scaleUp = -999.0;
@@ -400,6 +407,7 @@ void WVJJData::clearVars() {
   bos_j2_AK4_eta = -999.0;
   bos_j2_AK4_phi = -999.0;
   bos_j2_AK4_m = -999.0;
+  bos_j2_AK4_qgid = -999.0;
 
   //Boson AK4 jet 2 variations
   bos_j2_AK4_pt_scaleUp = -999.0;

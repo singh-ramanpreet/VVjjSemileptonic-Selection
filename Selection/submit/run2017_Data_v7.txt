@@ -1,0 +1,21 @@
+DoubleEG_2017B /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleEG/Run2017B/200817_180337/
+DoubleEG_2017C /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleEG/Run2017C/200817_180337/
+DoubleEG_2017D /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleEG/Run2017D/200817_180337/
+DoubleEG_2017E /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleEG/Run2017E/200817_180337/
+DoubleEG_2017F /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleEG/Run2017F/200817_180337/
+DoubleMuon_2017B /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleMuon/Run2017B/200817_180337/
+DoubleMuon_2017C /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleMuon/Run2017C/200817_180337/
+DoubleMuon_2017D /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleMuon/Run2017D/200817_180337/
+DoubleMuon_2017E /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleMuon/Run2017E/200817_180337/
+DoubleMuon_2017F /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/DoubleMuon/Run2017F/200817_180337/
+SingleMuon_2017B /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleMuon/Run2017B/200817_180337/
+SingleMuon_2017C /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleMuon/Run2017C/200817_180337/
+SingleMuon_2017D /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleMuon/Run2017D/200817_180337/
+SingleMuon_2017E /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleMuon/Run2017E/200817_180337/
+SingleMuon_2017F /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleMuon/Run2017F/200817_180337/
+SingleElectron_2017B /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleElectron/Run2017B/200817_180337/
+SingleElectron_2017C /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleElectron/Run2017C/200817_180337/
+SingleElectron_2017D /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleElectron/Run2017D/200817_180337/
+SingleElectron_2017E /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleElectron/Run2017E/200817_180337/
+SingleElectron_2017F /store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_18Aug2020_Hadd/SingleElectron/Run2017F/200817_180337/
+

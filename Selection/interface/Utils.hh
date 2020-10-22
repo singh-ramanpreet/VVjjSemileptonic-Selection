@@ -19,7 +19,7 @@ float deltaR(float eta1, float phi1, float eta2, float phi2) {
 
 }
 
-float GetSFs_Lepton(double pt, double eta, TH1F *h1){
+float GetSFs_Lepton(double pt, double eta, TH1 *h1){
   if (pt > h1->GetYaxis()->GetXmax())
     pt = h1->GetYaxis()->GetXmax() - 1.0;
   if (pt < h1->GetYaxis()->GetXmin())
