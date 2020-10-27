@@ -110,11 +110,18 @@ int main (int ac, char** av) {
     
     //std::cout << filetoopen << std::endl;
     
-    NanoReader nr = NanoReader(t,era,nanoVersion,isMC);
+    NanoReader nr = NanoReader(t);
 
-    NanoAOD_Weights NanoWeightReader = NanoAOD_Weights(r);
+    NanoReader NanoWeightReader = NanoReader(r);
     NanoWeightReader.GetEntry(0);
-    totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+NanoWeightReader.genEventSumw_);
+    float genEventSumw=0.0;
+    if (isMC && nanoVersion == 6) {
+      genEventSumw = *NanoWeightReader.genEventSumw_;
+    }
+    else if (isMC && nanoVersion == 7) {
+      genEventSumw = *NanoWeightReader.genEventSumw;
+    }
+    totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+genEventSumw);
       
     for (uint i=0; i < t->GetEntries(); i++) {
     //for (uint i=0; i < 1000000; i++) {
@@ -124,78 +131,103 @@ int main (int ac, char** av) {
       if (i%100000==0) std::cout <<"event " << i << std::endl;
 
       if (isMC==1) {
-	WVJJTree->genWeight=nr.Generator_weight;
+	WVJJTree->genWeight=*nr.Generator_weight;
       }
-      
+
       if (era==2018) {
 
-      	if ( nr.HLT_IsoMu24 || nr.HLT_IsoMu27 || 
-	     nr.HLT_IsoMu30 || nr.HLT_Mu50 ) 
+      	if ( *nr.HLT_IsoMu24 || *nr.HLT_IsoMu27 || 
+	     *nr.HLT_IsoMu30 || *nr.HLT_Mu50 ) 
 	  WVJJTree->trigger_1Mu = true;
 
-	if ( nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 || 
-	     nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
-	     nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 || 
-	     nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 ) 
+	if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 || 
+	     *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
+	     *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 || 
+	     *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 ) 
 	  WVJJTree->trigger_2Mu = true;
 
-	if ( nr.HLT_Ele27_WPTight_Gsf || nr.HLT_Ele28_WPTight_Gsf || 
-	     nr.HLT_Ele32_WPTight_Gsf || nr.HLT_Ele35_WPTight_Gsf || 
-	     nr.HLT_Ele38_WPTight_Gsf || nr.HLT_Ele40_WPTight_Gsf ) 
+	if ( *nr.HLT_Ele27_WPTight_Gsf || *nr.HLT_Ele28_WPTight_Gsf || 
+	     *nr.HLT_Ele32_WPTight_Gsf || *nr.HLT_Ele35_WPTight_Gsf || 
+	     *nr.HLT_Ele38_WPTight_Gsf || *nr.HLT_Ele40_WPTight_Gsf ) 
 	  WVJJTree->trigger_1El = true;
 	
-	if ( nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || 
-	     nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
-	     nr.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG || 
-	     nr.HLT_DoubleEle33_CaloIdL_MW ||
-	     nr.HLT_DoubleEle25_CaloIdL_MW || 
-	     nr.HLT_DoubleEle27_CaloIdL_MW ) 
+	if ( *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || 
+	     *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
+	     *nr.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG || 
+	     *nr.HLT_DoubleEle33_CaloIdL_MW ||
+	     *nr.HLT_DoubleEle25_CaloIdL_MW || 
+	     *nr.HLT_DoubleEle27_CaloIdL_MW ) 
 	  WVJJTree->trigger_2El = true;
       	
       }
       else if (era==2017) {
 
-      	if ( nr.HLT_IsoMu24 || nr.HLT_IsoMu27 || 
-	     nr.HLT_IsoMu30 || nr.HLT_Mu50 ) 
-	  WVJJTree->trigger_1Mu = true;
-
-	if ( nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 || 
-	     nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
-	     nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 || 
-	     nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 ) 
-	  WVJJTree->trigger_2Mu = true;
-
-	if ( nr.HLT_Ele27_WPTight_Gsf || 
-	     nr.HLT_Ele32_WPTight_Gsf || 
-	     nr.HLT_Ele35_WPTight_Gsf ) 
-	  WVJJTree->trigger_1El = true;
-
-	if ( nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || 
-	     nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
-	     nr.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG || 
-	     nr.HLT_DoubleEle33_CaloIdL_MW || 
-	     nr.HLT_DoubleEle25_CaloIdL_MW ) 
-	  WVJJTree->trigger_2El = true;
+      if (isMC) {
+        if ( *nr.HLT_IsoMu24 || *nr.HLT_IsoMu27 ||
+            *nr.HLT_IsoMu30 || *nr.HLT_Mu50 )
+          WVJJTree->trigger_1Mu = true;
       }
+      else {
+        WVJJTree->trigger_1Mu = ( *nr.HLT_IsoMu24 || *nr.HLT_IsoMu27 ||
+                                 *nr.HLT_Mu50 );
+      }
+
+    if (isMC) {
+	if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 ||
+	     *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
+	     *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 ||
+	     *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 )
+	  WVJJTree->trigger_2Mu = true;
+    }
+    else {
+      WVJJTree->trigger_2Mu = ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8);
+    }
+
+    if (isMC) {
+	if ( *nr.HLT_Ele27_WPTight_Gsf ||
+	     *nr.HLT_Ele32_WPTight_Gsf ||
+	     *nr.HLT_Ele35_WPTight_Gsf )
+	  WVJJTree->trigger_1El = true;
+    }
+    else {
+      WVJJTree->trigger_1El = ( *nr.HLT_Ele27_WPTight_Gsf ||
+                               *nr.HLT_Ele35_WPTight_Gsf );
+    }
+
+    if (isMC) {
+	if ( *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ ||
+	     *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
+	     *nr.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG ||
+	     *nr.HLT_DoubleEle33_CaloIdL_MW ||
+	     *nr.HLT_DoubleEle25_CaloIdL_MW )
+	  WVJJTree->trigger_2El = true;
+    }
+    else{
+      WVJJTree->trigger_2El = ( *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ ||
+                               *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
+                               *nr.HLT_DoubleEle33_CaloIdL_MW);
+    }
+      }
+
 
       else if (era==2016) {
 
-	if ( nr.HLT_IsoMu22 || nr.HLT_IsoTkMu22 ||
-	     nr.HLT_IsoMu24 || nr.HLT_IsoTkMu24 ) 
+	if ( *nr.HLT_IsoMu22 || *nr.HLT_IsoTkMu22 ||
+	     *nr.HLT_IsoMu24 || *nr.HLT_IsoTkMu24 ) 
 	  WVJJTree->trigger_1Mu = true;
 
-	if ( nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ || 
-	     nr.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ || 
-	     nr.HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ ) 
+	if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ || 
+	     *nr.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ || 
+	     *nr.HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ ) 
 	  WVJJTree->trigger_2Mu = true;
 
-	if ( nr.HLT_Ele25_eta2p1_WPTight_Gsf ||
-	     nr.HLT_Ele27_eta2p1_WPLoose_Gsf || 
-	     nr.HLT_Ele27_WPTight_Gsf ||
-	     nr.HLT_Ele35_WPLooose_Gsf ) 
+	if ( *nr.HLT_Ele25_eta2p1_WPTight_Gsf ||
+	     *nr.HLT_Ele27_eta2p1_WPLoose_Gsf || 
+	     *nr.HLT_Ele27_WPTight_Gsf ||
+	     *nr.HLT_Ele35_WPLooose_Gsf ) 
 	  WVJJTree->trigger_1El = true;
 
-	if ( nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ )
+	if ( *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ )
 	  WVJJTree->trigger_2El = true;
 
       }
@@ -211,16 +243,16 @@ int main (int ac, char** av) {
 
       tightMuon.clear();
       tightEle.clear();
+
+      WVJJTree->run = *nr.run;
+      WVJJTree->evt = *nr.event;
+      WVJJTree->ls = *nr.luminosityBlock;
       
-      WVJJTree->run = nr.run;
-      WVJJTree->evt = nr.event;
-      WVJJTree->ls = nr.luminosityBlock;
-      
-      WVJJTree->nPV = nr.PV_npvsGood;
-      WVJJTree->nPU_mean = nr.Pileup_nPU;
+      WVJJTree->nPV = *nr.PV_npvsGood;
+      if (isMC) WVJJTree->nPU_mean = *nr.Pileup_nPU;
       
       WVJJTree->puWeight = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, 0);
-      
+
       // LEPTON SELECTION
       
       int nTightEle=0;
@@ -228,7 +260,7 @@ int main (int ac, char** av) {
       int nVetoEle=0;
       int nVetoMu=0;
       
-      for (uint j=0; j < nr.nMuon; j++) {
+      for (uint j=0; j < *nr.nMuon; j++) {
 	if ( abs(nr.Muon_eta[j]) > MU_ETA_CUT ) continue;
 	//using conservative uncertainty value of 3%
 	if ( 1.03*nr.Muon_pt[j] < LEP_PT_VETO_CUT ) continue;
@@ -286,7 +318,7 @@ int main (int ac, char** av) {
 	  }
       }
       
-      for (uint j=0; j < nr.nElectron; j++) {
+      for (uint j=0; j < *nr.nElectron; j++) {
 	if ( abs(nr.Electron_eta[j]) > EL_ETA_CUT ) continue;
 	//using conservative uncertainty value of 3%
 	if ( 1.03*nr.Electron_pt[j] < LEP_PT_VETO_CUT ) continue;
@@ -374,7 +406,7 @@ int main (int ac, char** av) {
       if (passLepSel==false && (nTightMu+nTightEle)==0 && ((nVetoEle>0) ^ (nVetoMu>0))) {
 	if (nVetoEle>0) {
 
-	  for (uint j=0; j < nr.nElectron; j++) {
+	  for (uint j=0; j < *nr.nElectron; j++) {
 	    if ( abs(nr.Electron_eta[j]) > EL_ETA_CUT ) continue;
 	    if ( 1.03*nr.Electron_pt[j] < EL_PT_CUT ) continue;
 	    if ( nr.Electron_cutBased[j]<2 ) continue;
@@ -405,7 +437,7 @@ int main (int ac, char** av) {
 
 	if (nVetoMu>0) {
 
-	  for (uint j=0; j < nr.nMuon; j++) {
+	  for (uint j=0; j < *nr.nMuon; j++) {
 	    if ( abs(nr.Muon_eta[j]) > MU_ETA_CUT ) continue;
 	    if (nr.Muon_pfRelIso04_all[j]>0.25) continue;
 	    if ( 1.03*nr.Muon_pt[j] < MU_PT_CUT ) continue;
@@ -533,19 +565,19 @@ int main (int ac, char** av) {
       
       // MET
       
-      if (nr.MET_pt < 0) continue;
-      WVJJTree->MET = nr.MET_pt_nom;
-      WVJJTree->MET_phi = nr.MET_phi;
+      if (*nr.MET_pt < 0) continue;
+      WVJJTree->MET = *nr.MET_pt_nom;
+      WVJJTree->MET_phi = *nr.MET_phi;
       if (era==2017) {
-	WVJJTree->MET_2017 = nr.METFixEE2017_pt;
+	WVJJTree->MET_2017 = *nr.METFixEE2017_pt;
       }
 
-      WVJJTree->PuppiMET = nr.PuppiMET_pt;
-      WVJJTree->PuppiMET_phi = nr.PuppiMET_phi
+      WVJJTree->PuppiMET = *nr.PuppiMET_pt;
+      WVJJTree->PuppiMET_phi = *nr.PuppiMET_phi
 ;
       if (isMC) {
-	WVJJTree->MET_scaleUp = nr.MET_pt_jesTotalUp;
-	WVJJTree->MET_scaleDn = nr.MET_pt_jesTotalDown;
+	WVJJTree->MET_scaleUp = *nr.MET_pt_jesTotalUp;
+	WVJJTree->MET_scaleDn = *nr.MET_pt_jesTotalDown;
       }
       
 
@@ -605,7 +637,7 @@ int main (int ac, char** av) {
       float dmW = 3000.0;
       int nGoodFatJet=0;
 
-      for (uint j=0; j<nr.nFatJet; j++) {
+      for (uint j=0; j<*nr.nFatJet; j++) {
 
 	if ( fabs(nr.FatJet_eta[j]) > AK8_MAX_ETA ) continue;
 
@@ -668,7 +700,7 @@ int main (int ac, char** av) {
       }
       
       goodJetIndex.clear();
-      for (uint j=0; j<nr.nJet; j++) {
+      for (uint j=0; j<*nr.nJet; j++) {
 	
 	//jet energy scale variations
 	if ( isMC && ( nr.Jet_pt_nom[j] < AK4_PT_CUT && nr.Jet_pt_jesTotalUp[j] < AK4_PT_CUT && 
@@ -954,8 +986,8 @@ int main (int ac, char** av) {
 
       if (isMC==1) {
       
-      	WVJJTree->nScaleWeight = nr.nLHEScaleWeight;
-      	WVJJTree->nPdfWeight = nr.nLHEPdfWeight;
+      	WVJJTree->nScaleWeight = *nr.nLHEScaleWeight;
+      	WVJJTree->nPdfWeight = *nr.nLHEPdfWeight;
       	
       	for (uint j=0; j<WVJJTree->nScaleWeight; j++) {
       	  //LHE scale variation weights (w_var / w_nominal); [0] is MUR="0.5" MUF="0.5"; 
@@ -971,8 +1003,8 @@ int main (int ac, char** av) {
       	
       }
       
-      if (isMC==1 && nr.nLHEReweightingWeight!=0) {
-      	WVJJTree->nAqgcWeight=nr.nLHEReweightingWeight;
+      if (isMC==1 && *nr.nLHEReweightingWeight!=0) {
+      	WVJJTree->nAqgcWeight=*nr.nLHEReweightingWeight;
       
       	for (uint j=0; j<WVJJTree->nAqgcWeight; j++) {
       	  WVJJTree->aqgcWeight[j]=nr.LHEReweightingWeight[0];
@@ -980,10 +1012,12 @@ int main (int ac, char** av) {
       
       }
       
-      WVJJTree->btagWeight = nr.btagWeight_DeepCSVB;
-      WVJJTree->L1PFWeight = nr.L1PreFiringWeight_Nom;
-      WVJJTree->L1PFWeight_Up = nr.L1PreFiringWeight_Up;
-      WVJJTree->L1PFWeight_Dn = nr.L1PreFiringWeight_Dn;
+      if (isMC) {
+        WVJJTree->btagWeight = *nr.btagWeight_DeepCSVB;
+        WVJJTree->L1PFWeight = *nr.L1PreFiringWeight_Nom;
+        WVJJTree->L1PFWeight_Up = *nr.L1PreFiringWeight_Up;
+        WVJJTree->L1PFWeight_Dn = *nr.L1PreFiringWeight_Dn;
+      }
       
       ot->Fill();
     }
