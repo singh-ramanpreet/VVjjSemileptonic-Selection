@@ -2,2562 +2,1199 @@
 #define NanoReader_h
 
 #include <TROOT.h>
-#include <TChain.h>
 #include <TFile.h>
+#include <TTreeReader.h>
+#include <TTreeReaderValue.h>
+#include <TTreeReaderArray.h>
 
 class NanoReader {
 public :
-  TTree *fChain;
-  int fCurrent_;
+  TTreeReader fReader;
+  TTreeReader fReaderNull;
+  TTree *tree_;
 
-  int era_;
-  int nanoVersion_;
-  bool isMC_;
-
-  NanoReader(TTree *tree, int era, int nanoVersion, int isMC) {
-
-    if (era!=2016 && era!=2017 && era!=2018) {
-      //std::cout << "unknown era, assuming 2018" << std::endl;
-      era_ = 2018;
-    }
-    else { era_ = era; }
-    
-    if (nanoVersion!=6 && nanoVersion!=7) {
-      nanoVersion_ = 7;
-    }
-    else { nanoVersion_ = nanoVersion; }
-
-    if (isMC==1) { isMC_ = true; }
-    else { isMC_ = false; }
-
-    Init(tree);
-
-    if (isMC_) InitMC();
-    else InitData();
-
+  NanoReader(TTree *tree) : tree_(tree) {
+    fReader.SetTree(tree_);
   }
 
   virtual ~NanoReader() {};
-
-  virtual int GetEntry(Long64_t entry);
-  virtual Long64_t LoadTree(Long64_t entry);
-
-  virtual void Init(TTree *tree);
-  virtual void InitMC();
-  virtual void InitData();
-
-  // Variables
-
-  UInt_t          run;
-  UInt_t          luminosityBlock;
-  ULong64_t       event;
-  Float_t         btagWeight_CSVV2;
-  Float_t         btagWeight_CMVA;
-  Float_t         btagWeight_DeepCSVB;
-  Float_t         L1PreFiringWeight_Dn;
-  Float_t         L1PreFiringWeight_Nom;
-  Float_t         L1PreFiringWeight_Up;
-
-  TBranch        *b_run;   //!                                                                                       
-  TBranch        *b_luminosityBlock;   //!                                                                           
-  TBranch        *b_event;   //!                                                                                     
-  TBranch        *b_btagWeight_CSVV2;   //!                                                                          
-  TBranch        *b_btagWeight_CMVA;   //!                                                                          
-  TBranch        *b_btagWeight_DeepCSVB;   //!
-  TBranch        *b_L1PreFiringWeight_Dn;
-  TBranch        *b_L1PreFiringWeight_Nom;
-  TBranch        *b_L1PreFiringWeight_Up;
-
-  Bool_t          Flag_ecalBadCalibFilterV2;
-
-  TBranch        *b_Flag_ecalBadCalibFilterV2;   //!
-
-  Bool_t          Flag_HBHENoiseFilter;
-  Bool_t          Flag_HBHENoiseIsoFilter;
-  Bool_t          Flag_CSCTightHaloFilter;
-  Bool_t          Flag_CSCTightHaloTrkMuUnvetoFilter;
-  Bool_t          Flag_CSCTightHalo2015Filter;
-  Bool_t          Flag_globalTightHalo2016Filter;
-  Bool_t          Flag_globalSuperTightHalo2016Filter;
-  Bool_t          Flag_HcalStripHaloFilter;
-  Bool_t          Flag_hcalLaserEventFilter;
-  Bool_t          Flag_EcalDeadCellTriggerPrimitiveFilter;
-  Bool_t          Flag_EcalDeadCellBoundaryEnergyFilter;
-  Bool_t          Flag_ecalBadCalibFilter;
-  Bool_t          Flag_goodVertices;
-  Bool_t          Flag_eeBadScFilter;
-  Bool_t          Flag_ecalLaserCorrFilter;
-  Bool_t          Flag_trkPOGFilters;
-  Bool_t          Flag_chargedHadronTrackResolutionFilter;
-  Bool_t          Flag_muonBadTrackFilter;
-  Bool_t          Flag_BadChargedCandidateFilter;
-  Bool_t          Flag_BadPFMuonFilter;
-  Bool_t          Flag_BadChargedCandidateSummer16Filter;
-  Bool_t          Flag_BadPFMuonSummer16Filter;
-  Bool_t          Flag_trkPOG_manystripclus53X;
-  Bool_t          Flag_trkPOG_toomanystripclus53X;
-  Bool_t          Flag_trkPOG_logErrorTooManyClusters;
-  Bool_t          Flag_METFilters;
-
-  TBranch        *b_Flag_HBHENoiseFilter;   //!                                                                      
-  TBranch        *b_Flag_HBHENoiseIsoFilter;   //!                                                                   
-  TBranch        *b_Flag_CSCTightHaloFilter;   //!                                                                   
-  TBranch        *b_Flag_CSCTightHaloTrkMuUnvetoFilter;   //!                                                        
-  TBranch        *b_Flag_CSCTightHalo2015Filter;   //!                                                               
-  TBranch        *b_Flag_globalTightHalo2016Filter;   //!                                                            
-  TBranch        *b_Flag_globalSuperTightHalo2016Filter;   //!                                                       
-  TBranch        *b_Flag_HcalStripHaloFilter;   //!                                                                  
-  TBranch        *b_Flag_hcalLaserEventFilter;   //!                                                                 
-  TBranch        *b_Flag_EcalDeadCellTriggerPrimitiveFilter;   //!                                                   
-  TBranch        *b_Flag_EcalDeadCellBoundaryEnergyFilter;   //!                                                     
-  TBranch        *b_Flag_ecalBadCalibFilter;   //!                                                                   
-  TBranch        *b_Flag_goodVertices;   //!                                                                         
-  TBranch        *b_Flag_eeBadScFilter;   //!                                                                        
-  TBranch        *b_Flag_ecalLaserCorrFilter;   //!                                                                  
-  TBranch        *b_Flag_trkPOGFilters;   //!                                                                        
-  TBranch        *b_Flag_chargedHadronTrackResolutionFilter;   //!                                                   
-  TBranch        *b_Flag_muonBadTrackFilter;   //!                                                                   
-  TBranch        *b_Flag_BadChargedCandidateFilter;   //!                                                            
-  TBranch        *b_Flag_BadPFMuonFilter;   //!                                                                      
-  TBranch        *b_Flag_BadChargedCandidateSummer16Filter;   //!                                                    
-  TBranch        *b_Flag_BadPFMuonSummer16Filter;   //!                                                              
-  TBranch        *b_Flag_trkPOG_manystripclus53X;   //!                                                              
-  TBranch        *b_Flag_trkPOG_toomanystripclus53X;   //!                                                           
-  TBranch        *b_Flag_trkPOG_logErrorTooManyClusters;   //!                                                       
-  TBranch        *b_Flag_METFilters;   //!
-
-  // Electrons
-
-  UInt_t          nElectron;
-  Float_t         Electron_deltaEtaSC[10];   //[nElectron]                                                                                          
-  Float_t         Electron_dr03EcalRecHitSumEt[10];   //[nElectron]                                                                                 
-  Float_t         Electron_dr03HcalDepth1TowerSumEt[10];   //[nElectron]                                                                            
-  Float_t         Electron_dr03TkSumPt[10];   //[nElectron]                                                                                         
-  Float_t         Electron_dr03TkSumPtHEEP[10];   //[nElectron]                                                                                     
-  Float_t         Electron_dxy[10];   //[nElectron]                                                                                                 
-  Float_t         Electron_dxyErr[10];   //[nElectron]                                                                                              
-  Float_t         Electron_dz[10];   //[nElectron]                                                                                                  
-  Float_t         Electron_dzErr[10];   //[nElectron]                                                                                               
-  Float_t         Electron_eCorr[10];   //[nElectron]                                                                                               
-  Float_t         Electron_eInvMinusPInv[10];   //[nElectron]                                                                                       
-  Float_t         Electron_energyErr[10];   //[nElectron]                                                                                           
-  Float_t         Electron_eta[10];   //[nElectron]                                                                                                 
-  Float_t         Electron_hoe[10];   //[nElectron]                                                                                                 
-  Float_t         Electron_ip3d[10];   //[nElectron]                                                                                                
-  Float_t         Electron_jetPtRelv2[10];   //[nElectron]                                                                                          
-  Float_t         Electron_jetRelIso[10];   //[nElectron]                                                                                           
-  Float_t         Electron_mass[10];   //[nElectron]                                                                                                
-  Float_t         Electron_miniPFRelIso_all[10];   //[nElectron]                                                                                    
-  Float_t         Electron_miniPFRelIso_chg[10];   //[nElectron]                                                                                    
-  Float_t         Electron_mvaFall17V1Iso[10];   //[nElectron]                                                                                      
-  Float_t         Electron_mvaFall17V1noIso[10];   //[nElectron]                                                                                    
-  Float_t         Electron_mvaFall17V2Iso[10];   //[nElectron]                                                                                      
-  Float_t         Electron_mvaFall17V2noIso[10];   //[nElectron]                                                                                    
-  Float_t         Electron_pfRelIso03_all[10];   //[nElectron]                                                                                      
-  Float_t         Electron_pfRelIso03_chg[10];   //[nElectron]                                                                                      
-  Float_t         Electron_phi[10];   //[nElectron]                                                                                                 
-  Float_t         Electron_pt[10];   //[nElectron]                                                                                                  
-  Float_t         Electron_r9[10];   //[nElectron]                                                                                                  
-  Float_t         Electron_sieie[10];   //[nElectron]                                                                                               
-  Float_t         Electron_sip3d[10];   //[nElectron]                                                                                               
-  Float_t         Electron_mvaTTH[10];   //[nElectron]
-  Int_t           Electron_charge[10];   //[nElectron]                                                                                              
-  Int_t           Electron_cutBased[10];   //[nElectron]                                                                                            
-  Int_t           Electron_cutBased_Fall17_V1[10];   //[nElectron]                                                                                  
-  Int_t           Electron_jetIdx[10];   //[nElectron]                                                                                              
-  Int_t           Electron_pdgId[10];   //[nElectron]                                                                                               
-  Int_t           Electron_photonIdx[10];   //[nElectron]                                                                                           
-  Int_t           Electron_tightCharge[10];   //[nElectron]                                                                                         
-  Int_t           Electron_vidNestedWPBitmap[10];   //[nElectron]                                                                                   
-  Int_t           Electron_vidNestedWPBitmapHEEP[10];   //[nElectron]                                                                               
-  Bool_t          Electron_convVeto[10];   //[nElectron]                                                                                            
-  Bool_t          Electron_cutBased_HEEP[10];   //[nElectron]                                                                                       
-  Bool_t          Electron_isPFcand[10];   //[nElectron]                                                                                            
-  UChar_t         Electron_lostHits[10];   //[nElectron]                                                                                            
-  Bool_t          Electron_mvaFall17V1Iso_WP80[10];   //[nElectron]                                                                                 
-  Bool_t          Electron_mvaFall17V1Iso_WP90[10];   //[nElectron]                                                                                 
-  Bool_t          Electron_mvaFall17V1Iso_WPL[10];   //[nElectron]                                                                                  
-  Bool_t          Electron_mvaFall17V1noIso_WP80[10];   //[nElectron]                                                                               
-  Bool_t          Electron_mvaFall17V1noIso_WP90[10];   //[nElectron]                                                                               
-  Bool_t          Electron_mvaFall17V1noIso_WPL[10];   //[nElectron]                                                                                
-  Bool_t          Electron_mvaFall17V2Iso_WP80[10];   //[nElectron]                                                                                 
-  Bool_t          Electron_mvaFall17V2Iso_WP90[10];   //[nElectron]                                                                                 
-  Bool_t          Electron_mvaFall17V2Iso_WPL[10];   //[nElectron]                                                                                  
-  Bool_t          Electron_mvaFall17V2noIso_WP80[10];   //[nElectron]                                                                               
-  Bool_t          Electron_mvaFall17V2noIso_WP90[10];   //[nElectron]                                                                               
-  Bool_t          Electron_mvaFall17V2noIso_WPL[10];   //[nElectron]                                                                                
-  UChar_t         Electron_seedGain[10];   //[nElectron]
-
-  TBranch        *b_nElectron;   //!                                                                                 
-  TBranch        *b_Electron_deltaEtaSC;   //!                                                                       
-  TBranch        *b_Electron_dr03EcalRecHitSumEt;   //!                                                              
-  TBranch        *b_Electron_dr03HcalDepth1TowerSumEt;   //!                                                         
-  TBranch        *b_Electron_dr03TkSumPt;   //!                                                                      
-  TBranch        *b_Electron_dr03TkSumPtHEEP;   //!                                                                  
-  TBranch        *b_Electron_dxy;   //!                                                                              
-  TBranch        *b_Electron_dxyErr;   //!                                                                           
-  TBranch        *b_Electron_dz;   //!                                                                               
-  TBranch        *b_Electron_dzErr;   //!                                                                            
-  TBranch        *b_Electron_eCorr;   //!                                                                            
-  TBranch        *b_Electron_eInvMinusPInv;   //!                                                                    
-  TBranch        *b_Electron_energyErr;   //!                                                                        
-  TBranch        *b_Electron_eta;   //!                                                                              
-  TBranch        *b_Electron_hoe;   //!                                                                              
-  TBranch        *b_Electron_ip3d;   //!                                                                             
-  TBranch        *b_Electron_jetPtRelv2;   //!                                                                       
-  TBranch        *b_Electron_jetRelIso;   //!                                                                        
-  TBranch        *b_Electron_mass;   //!                                                                             
-  TBranch        *b_Electron_miniPFRelIso_all;   //!                                                                 
-  TBranch        *b_Electron_miniPFRelIso_chg;   //!                                                                 
-  TBranch        *b_Electron_mvaFall17V1Iso;   //!                                                                   
-  TBranch        *b_Electron_mvaFall17V1noIso;   //!                                                                 
-  TBranch        *b_Electron_mvaFall17V2Iso;   //!                                                                   
-  TBranch        *b_Electron_mvaFall17V2noIso;   //!                                                                 
-  TBranch        *b_Electron_pfRelIso03_all;   //!                                                                   
-  TBranch        *b_Electron_pfRelIso03_chg;   //!                                                                   
-  TBranch        *b_Electron_phi;   //!                                                                              
-  TBranch        *b_Electron_pt;   //!                                                                               
-  TBranch        *b_Electron_r9;   //!                                                                               
-  TBranch        *b_Electron_sieie;   //!                                                                            
-  TBranch        *b_Electron_sip3d;   //!                                                                            
-  TBranch        *b_Electron_mvaTTH;   //!                                                                           
-  TBranch        *b_Electron_charge;   //!                                                                           
-  TBranch        *b_Electron_cutBased;   //!                                                                         
-  TBranch        *b_Electron_cutBased_Fall17_V1;   //!                                                               
-  TBranch        *b_Electron_jetIdx;   //!                                                                           
-  TBranch        *b_Electron_pdgId;   //!                                                                            
-  TBranch        *b_Electron_photonIdx;   //!                                                                        
-  TBranch        *b_Electron_tightCharge;   //!                                                                      
-  TBranch        *b_Electron_vidNestedWPBitmap;   //!                                                                
-  TBranch        *b_Electron_vidNestedWPBitmapHEEP;   //!                                                            
-  TBranch        *b_Electron_convVeto;   //!                                                                         
-  TBranch        *b_Electron_cutBased_HEEP;   //!                                                                    
-  TBranch        *b_Electron_isPFcand;   //!                                                                         
-  TBranch        *b_Electron_lostHits;   //!                                                                         
-  TBranch        *b_Electron_mvaFall17V1Iso_WP80;   //!                                                              
-  TBranch        *b_Electron_mvaFall17V1Iso_WP90;   //!                                                              
-  TBranch        *b_Electron_mvaFall17V1Iso_WPL;   //!                                                               
-  TBranch        *b_Electron_mvaFall17V1noIso_WP80;   //!                                                            
-  TBranch        *b_Electron_mvaFall17V1noIso_WP90;   //!                                                            
-  TBranch        *b_Electron_mvaFall17V1noIso_WPL;   //!                                                             
-  TBranch        *b_Electron_mvaFall17V2Iso_WP80;   //!                                                              
-  TBranch        *b_Electron_mvaFall17V2Iso_WP90;   //!                                                              
-  TBranch        *b_Electron_mvaFall17V2Iso_WPL;   //!                                                               
-  TBranch        *b_Electron_mvaFall17V2noIso_WP80;   //!                                                            
-  TBranch        *b_Electron_mvaFall17V2noIso_WP90;   //!                                                            
-  TBranch        *b_Electron_mvaFall17V2noIso_WPL;   //!                                                             
-  TBranch        *b_Electron_seedGain;   //!
-
-  // FatJets
-
-  UInt_t          nFatJet;
-  Float_t         FatJet_area[5];   //[nFatJet]
-  Float_t         FatJet_btagCMVA[5];   //[nFatJet]
-  Float_t         FatJet_btagCSVV2[5];   //[nFatJet]
-  Float_t         FatJet_btagDDBvL[5];   //[nFatJet]
-  Float_t         FatJet_btagDDBvL_noMD[5];   //[nFatJet]
-  Float_t         FatJet_btagDDCvB[5];   //[nFatJet]
-  Float_t         FatJet_btagDDCvB_noMD[5];   //[nFatJet]
-  Float_t         FatJet_btagDDCvL[5];   //[nFatJet]
-  Float_t         FatJet_btagDDCvL_noMD[5];   //[nFatJet]
-  Float_t         FatJet_btagDeepB[5];   //[nFatJet]
-  Float_t         FatJet_btagHbb[5];   //[nFatJet]
-  Float_t         FatJet_deepTagMD_H4qvsQCD[5];   //[nFatJet]  
-  Float_t         FatJet_deepTagMD_HbbvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTagMD_TvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTagMD_WvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTagMD_ZHbbvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTagMD_ZHccvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTagMD_ZbbvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTagMD_ZvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTagMD_bbvsLight[5];   //[nFatJet]
-  Float_t         FatJet_deepTagMD_ccvsLight[5];   //[nFatJet]
-  Float_t         FatJet_deepTag_H[5];   //[nFatJet]
-  Float_t         FatJet_deepTag_QCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTag_QCDothers[5];   //[nFatJet]
-  Float_t         FatJet_deepTag_TvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTag_WvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_deepTag_ZvsQCD[5];   //[nFatJet]
-  Float_t         FatJet_eta[5];   //[nFatJet]
-  Float_t         FatJet_mass[5];   //[nFatJet]
-  Float_t         FatJet_msoftdrop[5];   //[nFatJet]
-  Float_t         FatJet_n2b1[5];   //[nFatJet]
-  Float_t         FatJet_n3b1[5];   //[nFatJet]
-  Float_t         FatJet_phi[5];   //[nFatJet]
-  Float_t         FatJet_pt[5];   //[nFatJet]
-  Float_t         FatJet_rawFactor[5];   //[nFatJet]
-  Float_t         FatJet_tau1[5];   //[nFatJet]
-  Float_t         FatJet_tau2[5];   //[nFatJet]
-  Float_t         FatJet_tau3[5];   //[nFatJet]
-  Float_t         FatJet_tau4[5];   //[nFatJet]
-  Int_t           FatJet_jetId[5];   //[nFatJet]
-  Int_t           FatJet_subJetIdx1[5];   //[nFatJet]
-  Int_t           FatJet_subJetIdx2[5];   //[nFatJet]
-
-  TBranch        *b_nFatJet;   //!                                                                                   
-  TBranch        *b_FatJet_area;   //!                                                                               
-  TBranch        *b_FatJet_btagCMVA;   //!                                                                           
-  TBranch        *b_FatJet_btagCSVV2;   //!                                                                          
-  TBranch        *b_FatJet_btagDDBvL;   //!                                                                          
-  TBranch        *b_FatJet_btagDDBvL_noMD;   //!                                                                     
-  TBranch        *b_FatJet_btagDDCvB;   //!                                                                          
-  TBranch        *b_FatJet_btagDDCvB_noMD;   //!                                                                     
-  TBranch        *b_FatJet_btagDDCvL;   //!                                                                          
-  TBranch        *b_FatJet_btagDDCvL_noMD;   //!                                                                     
-  TBranch        *b_FatJet_btagDeepB;   //!                                                                          
-  TBranch        *b_FatJet_btagHbb;   //!                                                                            
-  TBranch        *b_FatJet_deepTagMD_H4qvsQCD;   //!                                                                 
-  TBranch        *b_FatJet_deepTagMD_HbbvsQCD;   //!                                                                 
-  TBranch        *b_FatJet_deepTagMD_TvsQCD;   //!                                                                   
-  TBranch        *b_FatJet_deepTagMD_WvsQCD;   //!                                                                   
-  TBranch        *b_FatJet_deepTagMD_ZHbbvsQCD;   //!                                                                
-  TBranch        *b_FatJet_deepTagMD_ZHccvsQCD;   //!                                                                
-  TBranch        *b_FatJet_deepTagMD_ZbbvsQCD;   //!                                                                 
-  TBranch        *b_FatJet_deepTagMD_ZvsQCD;   //!                                                                   
-  TBranch        *b_FatJet_deepTagMD_bbvsLight;   //!                                                                
-  TBranch        *b_FatJet_deepTagMD_ccvsLight;   //!                                                                
-  TBranch        *b_FatJet_deepTag_H;   //!                                                                          
-  TBranch        *b_FatJet_deepTag_QCD;   //!                                                                        
-  TBranch        *b_FatJet_deepTag_QCDothers;   //!                                                                  
-  TBranch        *b_FatJet_deepTag_TvsQCD;   //!                                                                     
-  TBranch        *b_FatJet_deepTag_WvsQCD;   //!                                                                     
-  TBranch        *b_FatJet_deepTag_ZvsQCD;   //!                                                                     
-  TBranch        *b_FatJet_eta;   //!                                                                                
-  TBranch        *b_FatJet_mass;   //!                                                                               
-  TBranch        *b_FatJet_msoftdrop;   //!                                                                          
-  TBranch        *b_FatJet_n2b1;   //!                                                                               
-  TBranch        *b_FatJet_n3b1;   //!                                                                               
-  TBranch        *b_FatJet_phi;   //!                                                                                
-  TBranch        *b_FatJet_pt;   //!                                                                                 
-  TBranch        *b_FatJet_rawFactor;   //!
-  TBranch        *b_FatJet_tau1;   //!                                                                               
-  TBranch        *b_FatJet_tau2;   //!                                                                               
-  TBranch        *b_FatJet_tau3;   //!                                                                               
-  TBranch        *b_FatJet_tau4;   //!                                                                               
-  TBranch        *b_FatJet_jetId;   //!                                                                              
-  TBranch        *b_FatJet_subJetIdx1;   //!                                                                         
-  TBranch        *b_FatJet_subJetIdx2;   //!
-
-   // Jets
-
-  UInt_t          nJet;
-  Float_t         Jet_area[30];   //[nJet]                                                                           
-  Float_t         Jet_btagCMVA[30];   //[nJet]                                                                       
-  Float_t         Jet_btagCSVV2[30];   //[nJet]                                                                      
-  Float_t         Jet_btagDeepB[30];   //[nJet]                                                                      
-  Float_t         Jet_btagDeepC[30];   //[nJet]                                                                      
-  Float_t         Jet_btagDeepFlavB[30];   //[nJet]                                                                  
-  Float_t         Jet_btagDeepFlavC[30];   //[nJet]                                                                  
-  Float_t         Jet_chEmEF[30];   //[nJet]                                                                         
-  Float_t         Jet_chHEF[30];   //[nJet]                                                                          
-  Float_t         Jet_eta[30];   //[nJet]                                                                            
-  Float_t         Jet_jercCHF[30];   //[nJet]                                                                        
-  Float_t         Jet_jercCHPUF[30];   //[nJet]                                                                      
-  Float_t         Jet_mass[30];   //[nJet]                                                                           
-  Float_t         Jet_muEF[30];   //[nJet]                                                                           
-  Float_t         Jet_muonSubtrFactor[30];   //[nJet]                                                                
-  Float_t         Jet_neEmEF[30];   //[nJet]                                                                         
-  Float_t         Jet_neHEF[30];   //[nJet]                                                                          
-  Float_t         Jet_phi[30];   //[nJet]                                                                            
-  Float_t         Jet_pt[30];   //[nJet]                                                                             
-  Float_t         Jet_qgl[30];   //[nJet]                                                                            
-  Float_t         Jet_rawFactor[30];   //[nJet]                                                                      
-  Float_t         Jet_bRegCorr[30];   //[nJet]                                                                       
-  Float_t         Jet_bRegRes[30];   //[nJet]                                                                        
-  Int_t           Jet_electronIdx1[30];   //[nJet]                                                                   
-  Int_t           Jet_electronIdx2[30];   //[nJet]                                                                   
-  Int_t           Jet_jetId[30];   //[nJet]                                                                          
-  Int_t           Jet_muonIdx1[30];   //[nJet]                                                                       
-  Int_t           Jet_muonIdx2[30];   //[nJet]                                                                       
-  Int_t           Jet_nConstituents[30];   //[nJet]                                                                  
-  Int_t           Jet_nElectrons[30];   //[nJet]                                                                     
-  Int_t           Jet_nMuons[30];   //[nJet]                                                                         
-  Int_t           Jet_puId[30];   //[nJet]
-
-  TBranch        *b_nJet;   //!                                                                                      
-  TBranch        *b_Jet_area;   //!                                                                                  
-  TBranch        *b_Jet_btagCMVA;   //!                                                                              
-  TBranch        *b_Jet_btagCSVV2;   //!                                                                             
-  TBranch        *b_Jet_btagDeepB;   //!                                                                             
-  TBranch        *b_Jet_btagDeepC;   //!                                                                             
-  TBranch        *b_Jet_btagDeepFlavB;   //!                                                                         
-  TBranch        *b_Jet_btagDeepFlavC;   //!                                                                         
-  TBranch        *b_Jet_chEmEF;   //!                                                                                
-  TBranch        *b_Jet_chHEF;   //!                                                                                 
-  TBranch        *b_Jet_eta;   //!                                                                                   
-  TBranch        *b_Jet_jercCHF;   //!                                                                               
-  TBranch        *b_Jet_jercCHPUF;   //!                                                                             
-  TBranch        *b_Jet_mass;   //!                                                                                  
-  TBranch        *b_Jet_muEF;   //!                                                                                  
-  TBranch        *b_Jet_muonSubtrFactor;   //!                                                                       
-  TBranch        *b_Jet_neEmEF;   //!                                                                                
-  TBranch        *b_Jet_neHEF;   //!                                                                                 
-  TBranch        *b_Jet_phi;   //!                                                                                   
-  TBranch        *b_Jet_pt;   //!                                                                                    
-  TBranch        *b_Jet_qgl;   //!                                                                                   
-  TBranch        *b_Jet_rawFactor;   //!                                                                             
-  TBranch        *b_Jet_bRegCorr;   //!                                                                              
-  TBranch        *b_Jet_bRegRes;   //!                                                                               
-  TBranch        *b_Jet_electronIdx1;   //!                                                                          
-  TBranch        *b_Jet_electronIdx2;   //!                                                                          
-  TBranch        *b_Jet_jetId;   //!                                                                                 
-  TBranch        *b_Jet_muonIdx1;   //!                                                                              
-  TBranch        *b_Jet_muonIdx2;   //!                                                                              
-  TBranch        *b_Jet_nConstituents;   //!                                                                         
-  TBranch        *b_Jet_nElectrons;   //!                                                                            
-  TBranch        *b_Jet_nMuons;   //!                                                                                
-  TBranch        *b_Jet_puId;   //!
- 
-  // MET
-
-  Float_t         MET_MetUnclustEnUpDeltaX;
-  Float_t         MET_MetUnclustEnUpDeltaY;
-  Float_t         MET_covXX;
-  Float_t         MET_covXY;
-  Float_t         MET_covYY;
-  Float_t         MET_phi;
-  Float_t         MET_pt;
-  Float_t         MET_significance;
-  Float_t         MET_sumEt;
-  Float_t         METFixEE2017_phi;
-  Float_t         METFixEE2017_pt;
-  Float_t         METFixEE2017_significance;
-  Float_t         METFixEE2017_sumEt;
-
-  TBranch        *b_MET_MetUnclustEnUpDeltaX;   //!                                                                  
-  TBranch        *b_MET_MetUnclustEnUpDeltaY;   //!                                                                  
-  TBranch        *b_MET_covXX;   //!                                                                                 
-  TBranch        *b_MET_covXY;   //!                                                                                 
-  TBranch        *b_MET_covYY;   //!                                                                                 
-  TBranch        *b_MET_phi;   //!                                                                                   
-  TBranch        *b_MET_pt;   //!                                                                                    
-  TBranch        *b_MET_significance;   //!                                                                          
-  TBranch        *b_MET_sumEt;   //!
-  TBranch        *b_METFixEE2017_phi;   //!                                                                              
-  TBranch        *b_METFixEE2017_pt;   //!                                                                               
-  TBranch        *b_METFixEE2017_significance;   //!                                                                     
-  TBranch        *b_METFixEE2017_sumEt;   //!                                                                            
-
-  Float_t         CaloMET_phi;
-  Float_t         CaloMET_pt;
-  Float_t         CaloMET_sumEt;
-  Float_t         ChsMET_phi;
-  Float_t         ChsMET_pt;
-  Float_t         ChsMET_sumEt;
-
-  TBranch        *b_CaloMET_phi;   //!                                                                               
-  TBranch        *b_CaloMET_pt;   //!                                                                                
-  TBranch        *b_CaloMET_sumEt;   //!                                                                             
-  TBranch        *b_ChsMET_phi;   //!                                                                                
-  TBranch        *b_ChsMET_pt;   //!                                                                                 
-  TBranch        *b_ChsMET_sumEt;   //!
-
-  Float_t         PuppiMET_phi;
-  Float_t         PuppiMET_pt;
-  Float_t         PuppiMET_sumEt;
-  Float_t         RawMET_phi;
-  Float_t         RawMET_pt;
-  Float_t         RawMET_sumEt;
-
-  TBranch        *b_PuppiMET_phi;   //!                                                                              
-  TBranch        *b_PuppiMET_pt;   //!                                                                               
-  TBranch        *b_PuppiMET_sumEt;   //!                                                                            
-  TBranch        *b_RawMET_phi;   //!                                                                                
-  TBranch        *b_RawMET_pt;   //!                                                                                 
-  TBranch        *b_RawMET_sumEt;   //!
-
-  Float_t         TkMET_phi;
-  Float_t         TkMET_pt;
-  Float_t         TkMET_sumEt;
-
-  TBranch        *b_TkMET_phi;   //!                                                                                 
-  TBranch        *b_TkMET_pt;   //!                                                                                  
-  TBranch        *b_TkMET_sumEt;   //!
-
-  // Muons
-
-  UInt_t          nMuon;
-  Float_t         Muon_dxy[15];   //[nMuon]                                                                          
-  Float_t         Muon_dxyErr[15];   //[nMuon]                                                                       
-  Float_t         Muon_dz[15];   //[nMuon]                                                                           
-  Float_t         Muon_dzErr[15];   //[nMuon]                                                                        
-  Float_t         Muon_eta[15];   //[nMuon]                                                                          
-  Float_t         Muon_ip3d[15];   //[nMuon]                                                                         
-  Float_t         Muon_jetPtRelv2[15];   //[nMuon]                                                                   
-  Float_t         Muon_jetRelIso[15];   //[nMuon]                                                                    
-  Float_t         Muon_mass[15];   //[nMuon]                                                                         
-  Float_t         Muon_miniPFRelIso_all[15];   //[nMuon]                                                             
-  Float_t         Muon_miniPFRelIso_chg[15];   //[nMuon]                                                             
-  Float_t         Muon_pfRelIso03_all[15];   //[nMuon]                                                               
-  Float_t         Muon_pfRelIso03_chg[15];   //[nMuon]                                                               
-  Float_t         Muon_pfRelIso04_all[15];   //[nMuon]                                                               
-  Float_t         Muon_phi[15];   //[nMuon]                                                                          
-  Float_t         Muon_pt[15];   //[nMuon]                                                                           
-  Float_t         Muon_ptErr[15];   //[nMuon]                                                                        
-  Float_t         Muon_segmentComp[15];   //[nMuon]                                                                  
-  Float_t         Muon_sip3d[15];   //[nMuon]                                                                        
-  Float_t         Muon_softMva[15];   //[nMuon]                                                                      
-  Float_t         Muon_tkRelIso[15];   //[nMuon]                                                                     
-  Float_t         Muon_tunepRelPt[15];   //[nMuon]                                                                   
-  Float_t         Muon_mvaLowPt[15];   //[nMuon]                                                                     
-  Float_t         Muon_mvaTTH[15];   //[nMuon]
-  Int_t           Muon_charge[15];   //[nMuon]                                                                       
-  Int_t           Muon_jetIdx[15];   //[nMuon]                                                                       
-  Int_t           Muon_nStations[15];   //[nMuon]                                                                    
-  Int_t           Muon_nTrackerLayers[15];   //[nMuon]                                                               
-  Int_t           Muon_pdgId[15];   //[nMuon]                                                                        
-  Int_t           Muon_tightCharge[15];   //[nMuon]                                                                  
-  Int_t           Muon_fsrPhotonIdx[15];   //[nMuon]                                                                 
-  UChar_t         Muon_highPtId[15];   //[nMuon]                                                                     
-  Bool_t          Muon_inTimeMuon[15];   //[nMuon]                                                                   
-  Bool_t          Muon_isGlobal[15];   //[nMuon]                                                                     
-  Bool_t          Muon_isPFcand[15];   //[nMuon]                                                                     
-  Bool_t          Muon_isTracker[15];   //[nMuon]                                                                    
-  Bool_t          Muon_looseId[15];   //[nMuon]                                                                      
-  Bool_t          Muon_mediumId[15];   //[nMuon]                                                                     
-  Bool_t          Muon_mediumPromptId[15];   //[nMuon]                                                               
-  UChar_t         Muon_miniIsoId[15];   //[nMuon]                                                                    
-  UChar_t         Muon_multiIsoId[15];   //[nMuon]                                                                   
-  UChar_t         Muon_mvaId[15];   //[nMuon]                                                                        
-  UChar_t         Muon_pfIsoId[15];   //[nMuon]                                                                      
-  Bool_t          Muon_softId[15];   //[nMuon]                                                                       
-  Bool_t          Muon_softMvaId[15];   //[nMuon]                                                                    
-  Bool_t          Muon_tightId[15];   //[nMuon]                                                                      
-  UChar_t         Muon_tkIsoId[15];   //[nMuon]                                                                      
-  Bool_t          Muon_triggerIdLoose[15];   //[nMuon]
-
-  TBranch        *b_nMuon;   //!                                                                                     
-  TBranch        *b_Muon_dxy;   //!                                                                                  
-  TBranch        *b_Muon_dxyErr;   //!                                                                               
-  TBranch        *b_Muon_dz;   //!                                                                                   
-  TBranch        *b_Muon_dzErr;   //!                                                                                
-  TBranch        *b_Muon_eta;   //!                                                                                  
-  TBranch        *b_Muon_ip3d;   //!                                                                                 
-  TBranch        *b_Muon_jetPtRelv2;   //!                                                                           
-  TBranch        *b_Muon_jetRelIso;   //!                                                                            
-  TBranch        *b_Muon_mass;   //!                                                                                 
-  TBranch        *b_Muon_miniPFRelIso_all;   //!                                                                     
-  TBranch        *b_Muon_miniPFRelIso_chg;   //!                                                                     
-  TBranch        *b_Muon_pfRelIso03_all;   //!                                                                       
-  TBranch        *b_Muon_pfRelIso03_chg;   //!                                                                       
-  TBranch        *b_Muon_pfRelIso04_all;   //!                                                                       
-  TBranch        *b_Muon_phi;   //!                                                                                  
-  TBranch        *b_Muon_pt;   //!
-  TBranch        *b_Muon_ptErr;   //!                                                                                
-  TBranch        *b_Muon_segmentComp;   //!                                                                          
-  TBranch        *b_Muon_sip3d;   //!                                                                                
-  TBranch        *b_Muon_softMva;   //!                                                                              
-  TBranch        *b_Muon_tkRelIso;   //!                                                                             
-  TBranch        *b_Muon_tunepRelPt;   //!                                                                           
-  TBranch        *b_Muon_mvaLowPt;   //!                                                                             
-  TBranch        *b_Muon_mvaTTH;   //!                                                                               
-  TBranch        *b_Muon_charge;   //!                                                                               
-  TBranch        *b_Muon_jetIdx;   //!                                                                               
-  TBranch        *b_Muon_nStations;   //!                                                                            
-  TBranch        *b_Muon_nTrackerLayers;   //!                                                                       
-  TBranch        *b_Muon_pdgId;   //!                                                                                
-  TBranch        *b_Muon_tightCharge;   //!                                                                          
-  TBranch        *b_Muon_fsrPhotonIdx;   //!                                                                         
-  TBranch        *b_Muon_highPtId;   //!                                                                             
-  TBranch        *b_Muon_inTimeMuon;   //!                                                                           
-  TBranch        *b_Muon_isGlobal;   //!                                                                             
-  TBranch        *b_Muon_isPFcand;   //!                                                                             
-  TBranch        *b_Muon_isTracker;   //!                                                                            
-  TBranch        *b_Muon_looseId;   //!                                                                              
-  TBranch        *b_Muon_mediumId;   //!                                                                             
-  TBranch        *b_Muon_mediumPromptId;   //!                                                                       
-  TBranch        *b_Muon_miniIsoId;   //!                                                                            
-  TBranch        *b_Muon_multiIsoId;   //!                                                                           
-  TBranch        *b_Muon_mvaId;   //!                                                                                
-  TBranch        *b_Muon_pfIsoId;   //!                                                                              
-  TBranch        *b_Muon_softId;   //!                                                                               
-  TBranch        *b_Muon_softMvaId;   //!                                                                            
-  TBranch        *b_Muon_tightId;   //!                                                                              
-  TBranch        *b_Muon_tkIsoId;   //!                                                                              
-  TBranch        *b_Muon_triggerIdLoose;   //!
-
-  //Photons
-
-  UInt_t          nPhoton;
-  Float_t         Photon_eCorr[10];   //[nPhoton]                                                                    
-  Float_t         Photon_energyErr[10];   //[nPhoton]                                                                
-  Float_t         Photon_eta[10];   //[nPhoton]                                                                      
-  Float_t         Photon_hoe[10];   //[nPhoton]                                                                      
-  Float_t         Photon_mass[10];   //[nPhoton]                                                                     
-  Float_t         Photon_mvaID[10];   //[nPhoton]                                                                    
-  Float_t         Photon_mvaIDV1[10];   //[nPhoton]                                                                  
-  Float_t         Photon_pfRelIso03_all[10];   //[nPhoton]                                                           
-  Float_t         Photon_pfRelIso03_chg[10];   //[nPhoton]                                                           
-  Float_t         Photon_phi[10];   //[nPhoton]                                                                      
-  Float_t         Photon_pt[10];   //[nPhoton]                                                                       
-  Float_t         Photon_r9[10];   //[nPhoton]                                                                       
-  Float_t         Photon_sieie[10];   //[nPhoton]                                                                    
-  Int_t           Photon_charge[10];   //[nPhoton]                                                                   
-  Int_t           Photon_cutBasedBitmap[10];   //[nPhoton]                                                           
-  Int_t           Photon_cutBasedV1Bitmap[10];   //[nPhoton]                                                         
-  Int_t           Photon_electronIdx[10];   //[nPhoton]                                                              
-  Int_t           Photon_jetIdx[10];   //[nPhoton]                                                                   
-  Int_t           Photon_pdgId[10];   //[nPhoton]                                                                    
-  Int_t           Photon_vidNestedWPBitmap[10];   //[nPhoton]                                                        
-  Bool_t          Photon_electronVeto[10];   //[nPhoton]                                                             
-  Bool_t          Photon_isScEtaEB[10];   //[nPhoton]                                                                
-  Bool_t          Photon_isScEtaEE[10];   //[nPhoton]                                                                
-  Bool_t          Photon_mvaID_WP80[10];   //[nPhoton]                                                               
-  Bool_t          Photon_mvaID_WP90[10];   //[nPhoton]                                                               
-  Bool_t          Photon_pixelSeed[10];   //[nPhoton]                                                                
-  UChar_t         Photon_seedGain[10];   //[nPhoton]
-
-  TBranch        *b_nPhoton;   //!                                                                                   
-  TBranch        *b_Photon_eCorr;   //!                                                                              
-  TBranch        *b_Photon_energyErr;   //!                                                                          
-  TBranch        *b_Photon_eta;   //!                                                                                
-  TBranch        *b_Photon_hoe;   //!                                                                                
-  TBranch        *b_Photon_mass;   //!                                                                               
-  TBranch        *b_Photon_mvaID;   //!                                                                              
-  TBranch        *b_Photon_mvaIDV1;   //!                                                                            
-  TBranch        *b_Photon_pfRelIso03_all;   //!                                                                     
-  TBranch        *b_Photon_pfRelIso03_chg;   //!                                                                     
-  TBranch        *b_Photon_phi;   //!                                                                                
-  TBranch        *b_Photon_pt;   //!                                                                                 
-  TBranch        *b_Photon_r9;   //!                                                                                 
-  TBranch        *b_Photon_sieie;   //!                                                                              
-  TBranch        *b_Photon_charge;   //!                                                                             
-  TBranch        *b_Photon_cutBasedBitmap;   //!                                                                     
-  TBranch        *b_Photon_cutBasedV1Bitmap;   //!                                                                   
-  TBranch        *b_Photon_electronIdx;   //!                                                                        
-  TBranch        *b_Photon_jetIdx;   //!                                                                             
-  TBranch        *b_Photon_pdgId;   //!                                                                              
-  TBranch        *b_Photon_vidNestedWPBitmap;   //!                                                                  
-  TBranch        *b_Photon_electronVeto;   //!                                                                       
-  TBranch        *b_Photon_isScEtaEB;   //!                                                                          
-  TBranch        *b_Photon_isScEtaEE;   //!                                                                          
-  TBranch        *b_Photon_mvaID_WP80;   //!                                                                         
-  TBranch        *b_Photon_mvaID_WP90;   //!                                                                         
-  TBranch        *b_Photon_pixelSeed;   //!                                                                          
-  TBranch        *b_Photon_seedGain;   //!
-
-  // Pileup
-
-  Float_t         Pileup_nTrueInt;
-  Float_t         Pileup_pudensity;
-  Float_t         Pileup_gpudensity;
-  Int_t           Pileup_nPU;
-  Int_t           Pileup_sumEOOT;
-  Int_t           Pileup_sumLOOT;
-  Float_t         fixedGridRhoFastjetAll;
-  Float_t         fixedGridRhoFastjetCentral;
-  Float_t         fixedGridRhoFastjetCentralCalo;
-  Float_t         fixedGridRhoFastjetCentralChargedPileUp;
-  Float_t         fixedGridRhoFastjetCentralNeutral;
-
-  TBranch        *b_Pileup_nTrueInt;   //!                                                                           
-  TBranch        *b_Pileup_pudensity;   //!                                                                          
-  TBranch        *b_Pileup_gpudensity;   //!                                                                         
-  TBranch        *b_Pileup_nPU;   //!                                                                                
-  TBranch        *b_Pileup_sumEOOT;   //!                                                                            
-  TBranch        *b_Pileup_sumLOOT;   //!
-  TBranch        *b_fixedGridRhoFastjetAll;   //!                                                                    
-  TBranch        *b_fixedGridRhoFastjetCentral;   //!                                                                
-  TBranch        *b_fixedGridRhoFastjetCentralCalo;   //!                                                            
-  TBranch        *b_fixedGridRhoFastjetCentralChargedPileUp;   //!                                                   
-  TBranch        *b_fixedGridRhoFastjetCentralNeutral;   //!
-
-  // Subjets
-
-  UInt_t          nSubJet;
-  Float_t         SubJet_btagCMVA[10];   //[nSubJet]                                                                 
-  Float_t         SubJet_btagCSVV2[10];   //[nSubJet]                                                                
-  Float_t         SubJet_btagDeepB[10];   //[nSubJet]                                                                
-  Float_t         SubJet_eta[10];   //[nSubJet]                                                                      
-  Float_t         SubJet_mass[10];   //[nSubJet]                                                                     
-  Float_t         SubJet_n2b1[10];   //[nSubJet]                                                                     
-  Float_t         SubJet_n3b1[10];   //[nSubJet]                                                                     
-  Float_t         SubJet_phi[10];   //[nSubJet]                                                                      
-  Float_t         SubJet_pt[10];   //[nSubJet]                                                                       
-  Float_t         SubJet_rawFactor[10];   //[nSubJet]                                                                
-  Float_t         SubJet_tau1[10];   //[nSubJet]                                                                     
-  Float_t         SubJet_tau2[10];   //[nSubJet]                                                                     
-  Float_t         SubJet_tau3[10];   //[nSubJet]                                                                     
-  Float_t         SubJet_tau4[10];   //[nSubJet]
-
-  TBranch        *b_nSubJet;   //!                                                                                   
-  TBranch        *b_SubJet_btagCMVA;   //!                                                                           
-  TBranch        *b_SubJet_btagCSVV2;   //!                                                                          
-  TBranch        *b_SubJet_btagDeepB;   //!                                                                          
-  TBranch        *b_SubJet_eta;   //!                                                                                
-  TBranch        *b_SubJet_mass;   //!                                                                               
-  TBranch        *b_SubJet_n2b1;   //!                                                                               
-  TBranch        *b_SubJet_n3b1;   //!                                                                               
-  TBranch        *b_SubJet_phi;   //!                                                                                
-  TBranch        *b_SubJet_pt;   //!                                                                                 
-  TBranch        *b_SubJet_rawFactor;   //!                                                                          
-  TBranch        *b_SubJet_tau1;   //!                                                                               
-  TBranch        *b_SubJet_tau2;   //!                                                                               
-  TBranch        *b_SubJet_tau3;   //!                                                                               
-  TBranch        *b_SubJet_tau4;   //!
-
-  // PVs
-
-  UInt_t          nOtherPV;
-  Float_t         OtherPV_z[3];   //[nOtherPV]                                                                       
-  Float_t         PV_ndof;
-  Float_t         PV_x;
-  Float_t         PV_y;
-  Float_t         PV_z;
-  Float_t         PV_chi2;
-  Float_t         PV_score;
-  Int_t           PV_npvs;
-  Int_t           PV_npvsGood;
-
-  TBranch        *b_nOtherPV;   //!                                                                                  
-  TBranch        *b_OtherPV_z;   //!                                                                                 
-  TBranch        *b_PV_ndof;   //!                                                                                   
-  TBranch        *b_PV_x;   //!                                                                                      
-  TBranch        *b_PV_y;   //!                                                                                      
-  TBranch        *b_PV_z;   //!                                                                                      
-  TBranch        *b_PV_chi2;   //!                                                                                   
-  TBranch        *b_PV_score;   //!                                                                                  
-  TBranch        *b_PV_npvs;   //!                                                                                   
-  TBranch        *b_PV_npvsGood;   //!
-
-  // Triggers
-
-  UInt_t          nTrigObj;
-  Float_t         TrigObj_pt[36];   //[nTrigObj]                                                                     
-  Float_t         TrigObj_eta[36];   //[nTrigObj]                                                                    
-  Float_t         TrigObj_phi[36];   //[nTrigObj]                                                                    
-  Float_t         TrigObj_l1pt[36];   //[nTrigObj]                                                                   
-  Float_t         TrigObj_l1pt_2[36];   //[nTrigObj]                                                                 
-  Float_t         TrigObj_l2pt[36];   //[nTrigObj]                                                                   
-  Int_t           TrigObj_id[36];   //[nTrigObj]                                                                     
-  Int_t           TrigObj_l1iso[36];   //[nTrigObj]                                                                  
-  Int_t           TrigObj_l1charge[36];   //[nTrigObj]                                                               
-  Int_t           TrigObj_filterBits[36];   //[nTrigObj] 
-
-  TBranch        *b_nTrigObj;   //!                                                                                  
-  TBranch        *b_TrigObj_pt;   //!                                                                                
-  TBranch        *b_TrigObj_eta;   //!                                                                               
-  TBranch        *b_TrigObj_phi;   //!                                                                               
-  TBranch        *b_TrigObj_l1pt;   //!                                                                              
-  TBranch        *b_TrigObj_l1pt_2;   //!                                                                            
-  TBranch        *b_TrigObj_l2pt;   //!                                                                              
-  TBranch        *b_TrigObj_id;   //!                                                                                
-  TBranch        *b_TrigObj_l1iso;   //!                                                                             
-  TBranch        *b_TrigObj_l1charge;   //!                                                                          
-  TBranch        *b_TrigObj_filterBits;   //!
-
-  // SingleMuon triggers
-
-  Bool_t HLT_IsoMu22;
-  Bool_t HLT_IsoTkMu22;
-  Bool_t HLT_IsoMu24;
-  Bool_t HLT_IsoTkMu24;
-  Bool_t HLT_IsoMu27;
-  Bool_t HLT_IsoMu30;
-  Bool_t HLT_Mu50;
-
-  TBranch  *b_HLT_IsoMu22;
-  TBranch  *b_HLT_IsoTkMu22;
-  TBranch  *b_HLT_IsoMu24;
-  TBranch  *b_HLT_IsoTkMu24;
-  TBranch  *b_HLT_IsoMu27;
-  TBranch  *b_HLT_IsoMu30;
-  TBranch  *b_HLT_Mu50;
-
-  // DoubleMuon triggers
-
-  Bool_t HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ;
-  Bool_t HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ;
-  Bool_t HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ;
-  Bool_t HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8;
-  Bool_t HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8;
-  Bool_t HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8;
-  Bool_t HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8;
-
-  TBranch  *b_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ;
-  TBranch  *b_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ;
-  TBranch  *b_HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ;
-  TBranch  *b_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8;
-  TBranch  *b_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8;
-  TBranch  *b_HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8;
-  TBranch  *b_HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8;
-
-  // SingleElectron triggers
-
-  Bool_t HLT_Ele25_eta2p1_WPTight_Gsf;
-  Bool_t HLT_Ele27_eta2p1_WPLoose_Gsf;
-  Bool_t HLT_Ele27_WPTight_Gsf;
-  Bool_t HLT_Ele28_WPTight_Gsf;
-  Bool_t HLT_Ele32_WPTight_Gsf;
-  Bool_t HLT_Ele35_WPLooose_Gsf;
-  Bool_t HLT_Ele35_WPTight_Gsf;
-  Bool_t HLT_Ele38_WPTight_Gsf;
-  Bool_t HLT_Ele40_WPTight_Gsf;
-
-  TBranch  *b_HLT_Ele25_eta2p1_WPTight_Gsf;
-  TBranch  *b_HLT_Ele27_eta2p1_WPLoose_Gsf;
-  TBranch  *b_HLT_Ele27_WPTight_Gsf;
-  TBranch  *b_HLT_Ele28_WPTight_Gsf;
-  TBranch  *b_HLT_Ele32_WPTight_Gsf;
-  TBranch  *b_HLT_Ele35_WPLooose_Gsf;
-  TBranch  *b_HLT_Ele35_WPTight_Gsf;
-  TBranch  *b_HLT_Ele38_WPTight_Gsf;
-  TBranch  *b_HLT_Ele40_WPTight_Gsf;
-
-  // DoubleElectron triggers
-
-  Bool_t HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ;
-  Bool_t HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL;
-  Bool_t HLT_DiEle27_WPTightCaloOnly_L1DoubleEG;
-  Bool_t HLT_DoubleEle25_CaloIdL_MW;
-  Bool_t HLT_DoubleEle27_CaloIdL_MW;
-  Bool_t HLT_DoubleEle33_CaloIdL_MW;
-
-  TBranch  *b_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ;
-  TBranch  *b_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL;
-  TBranch  *b_HLT_DiEle27_WPTightCaloOnly_L1DoubleEG;
-  TBranch  *b_HLT_DoubleEle25_CaloIdL_MW;
-  TBranch  *b_HLT_DoubleEle27_CaloIdL_MW;
-  TBranch  *b_HLT_DoubleEle33_CaloIdL_MW;
-
-  // Corrected objects
-
-  Float_t         Jet_pt_raw[30];   //[nJet]                                                                         
-  Float_t         Jet_pt_nom[30];   //[nJet]                                                                         
-  Float_t         Jet_mass_raw[30];   //[nJet]                                                                       
-  Float_t         Jet_mass_nom[30];   //[nJet]                                                                       
-  Float_t         Jet_corr_JEC[30];   //[nJet]                                                                       
-  Float_t         Jet_corr_JER[30];   //[nJet]                                                                       
-  Float_t         MET_pt_nom;
-  Float_t         MET_phi_nom;
-  Float_t         MET_pt_jer;
-  Float_t         MET_phi_jer;
-
-  TBranch        *b_Jet_pt_raw;   //!                                                                                
-  TBranch        *b_Jet_pt_nom;   //!                                                                                
-  TBranch        *b_Jet_mass_raw;   //!                                                                              
-  TBranch        *b_Jet_mass_nom;   //!                                                                              
-  TBranch        *b_Jet_corr_JEC;   //!                                                                              
-  TBranch        *b_Jet_corr_JER;   //!                                                                              
-  TBranch        *b_MET_pt_nom;   //!                                                                                
-  TBranch        *b_MET_phi_nom;   //!                                                                               
-  TBranch        *b_MET_pt_jer;   //!                                                                                
-  TBranch        *b_MET_phi_jer;   //!
-
-  Float_t         FatJet_pt_raw[5];   //[nFatJet]                                                                    
-  Float_t         FatJet_pt_nom[5];   //[nFatJet]                                                                    
-  Float_t         FatJet_mass_raw[5];   //[nFatJet]                                                                  
-  Float_t         FatJet_mass_nom[5];   //[nFatJet]                                                                  
-  Float_t         FatJet_corr_JEC[5];   //[nFatJet]                                                                  
-  Float_t         FatJet_corr_JER[5];   //[nFatJet]                                                                  
-  Float_t         FatJet_corr_JMS[5];   //[nFatJet]                                                                  
-  Float_t         FatJet_corr_JMR[5];   //[nFatJet]                                                                  
-  Float_t         FatJet_msoftdrop_raw[5];   //[nFatJet]                                                             
-  Float_t         FatJet_msoftdrop_nom[5];   //[nFatJet]                                                             
-  Float_t         FatJet_msoftdrop_corr_JMR[5];   //[nFatJet]                                                        
-  Float_t         FatJet_msoftdrop_corr_JMS[5];   //[nFatJet]                                                        
-  Float_t         FatJet_msoftdrop_corr_PUPPI[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_tau21DDT_nom[5];   //[nFatJet]
-
-  TBranch        *b_FatJet_pt_raw;   //!                                                                             
-  TBranch        *b_FatJet_pt_nom;   //!                                                                             
-  TBranch        *b_FatJet_mass_raw;   //!                                                                           
-  TBranch        *b_FatJet_mass_nom;   //!                                                                           
-  TBranch        *b_FatJet_corr_JEC;   //!                                                                           
-  TBranch        *b_FatJet_corr_JER;   //!                                                                           
-  TBranch        *b_FatJet_corr_JMS;   //!                                                                           
-  TBranch        *b_FatJet_corr_JMR;   //!                                                                           
-  TBranch        *b_FatJet_msoftdrop_raw;   //!                                                                      
-  TBranch        *b_FatJet_msoftdrop_nom;   //!                                                                      
-  TBranch        *b_FatJet_msoftdrop_corr_JMR;   //!                                                                 
-  TBranch        *b_FatJet_msoftdrop_corr_JMS;   //!                                                                 
-  TBranch        *b_FatJet_msoftdrop_corr_PUPPI;   //!                                                               
-  TBranch        *b_FatJet_msoftdrop_tau21DDT_nom;   //!
-
-  // MC only variables
-
-  Float_t         Generator_binvar;
-  Float_t         Generator_scalePDF;
-  Float_t         Generator_weight;
-  Float_t         Generator_x1;
-  Float_t         Generator_x2;
-  Float_t         Generator_xpdf1;
-  Float_t         Generator_xpdf2;
-  Int_t           Generator_id1;
-  Int_t           Generator_id2;
-  Float_t         genWeight;
-  Float_t         LHEWeight_originalXWGTUP;
-  UInt_t          nLHEPdfWeight;
-  Float_t         LHEPdfWeight[200];   //[nLHEPdfWeight]                                                               
-  UInt_t          nLHEReweightingWeight;
-  Float_t         LHEReweightingWeight[1000];   //[nLHEReweightingWeight]                                               
-  UInt_t          nLHEScaleWeight;
-  Float_t         LHEScaleWeight[50];   //[nLHEScaleWeight]                                                           
-  UInt_t          nPSWeight;
-  Float_t         PSWeight[4];   //[nPSWeight]
-
-  TBranch        *b_Generator_binvar;   //!                                                                          
-  TBranch        *b_Generator_scalePDF;   //!                                                                        
-  TBranch        *b_Generator_weight;   //!                                                                          
-  TBranch        *b_Generator_x1;   //!                                                                              
-  TBranch        *b_Generator_x2;   //!                                                                              
-  TBranch        *b_Generator_xpdf1;   //!                                                                           
-  TBranch        *b_Generator_xpdf2;   //!                                                                           
-  TBranch        *b_Generator_id1;   //!                                                                             
-  TBranch        *b_Generator_id2;   //!                                                                             
-  TBranch        *b_nGenVisTau;   //!                                                                                
-  TBranch        *b_GenVisTau_eta;   //!                                                                             
-  TBranch        *b_GenVisTau_mass;   //!                                                                            
-  TBranch        *b_GenVisTau_phi;   //!                                                                             
-  TBranch        *b_GenVisTau_pt;   //!                                                                              
-  TBranch        *b_GenVisTau_charge;   //!                                                                          
-  TBranch        *b_GenVisTau_genPartIdxMother;   //!                                                                
-  TBranch        *b_GenVisTau_status;   //!                                                                          
-  TBranch        *b_genWeight;   //!                                                                                 
-  TBranch        *b_LHEWeight_originalXWGTUP;   //!                                                                  
-  TBranch        *b_nLHEPdfWeight;   //!                                                                             
-  TBranch        *b_LHEPdfWeight;   //!                                                                              
-  TBranch        *b_nLHEReweightingWeight;   //!                                                                     
-  TBranch        *b_LHEReweightingWeight;   //!                                                                      
-  TBranch        *b_nLHEScaleWeight;   //!                                                                           
-  TBranch        *b_LHEScaleWeight;   //!                                                                            
-  TBranch        *b_nPSWeight;   //!                                                                                 
-  TBranch        *b_PSWeight;   //!
+  virtual Int_t GetEntry(Long64_t entry) { return fReader.SetEntry(entry); };
+
+  //Define only required branches
+  //Common between Runs and Events TTree
+  TTreeReaderValue<UInt_t> run = {tree_->GetBranchStatus("run") ? fReader : fReaderNull, "run"};
   
-  Float_t         Jet_pt_jerUp[30];   //[nJet]                                                                       
-  Float_t         Jet_mass_jerUp[30];   //[nJet]                                                                     
-  Float_t         MET_pt_jerUp;
-  Float_t         MET_phi_jerUp;
-  Float_t         Jet_pt_jesAbsoluteStatUp[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesAbsoluteStatUp[30];   //[nJet]                                                         
-  Float_t         MET_pt_jesAbsoluteStatUp;
-  Float_t         MET_phi_jesAbsoluteStatUp;
-  Float_t         Jet_pt_jesAbsoluteScaleUp[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesAbsoluteScaleUp[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesAbsoluteScaleUp;
-  Float_t         MET_phi_jesAbsoluteScaleUp;
-  Float_t         Jet_pt_jesAbsoluteSampleUp[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesAbsoluteSampleUp[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesAbsoluteSampleUp;
-  Float_t         MET_phi_jesAbsoluteSampleUp;
-  Float_t         Jet_pt_jesAbsoluteFlavMapUp[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesAbsoluteFlavMapUp[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesAbsoluteFlavMapUp;
-  Float_t         MET_phi_jesAbsoluteFlavMapUp;
-  Float_t         Jet_pt_jesAbsoluteMPFBiasUp[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesAbsoluteMPFBiasUp[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesAbsoluteMPFBiasUp;
-  Float_t         MET_phi_jesAbsoluteMPFBiasUp;
-  Float_t         Jet_pt_jesFragmentationUp[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesFragmentationUp[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesFragmentationUp;
-  Float_t         MET_phi_jesFragmentationUp;
-  Float_t         Jet_pt_jesSinglePionECALUp[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesSinglePionECALUp[30];   //[nJet]
-  Float_t         MET_pt_jesSinglePionECALUp;
-  Float_t         MET_phi_jesSinglePionECALUp;
-  Float_t         Jet_pt_jesSinglePionHCALUp[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesSinglePionHCALUp[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesSinglePionHCALUp;
-  Float_t         MET_phi_jesSinglePionHCALUp;
-  Float_t         Jet_pt_jesFlavorQCDUp[30];   //[nJet]                                                              
-  Float_t         Jet_mass_jesFlavorQCDUp[30];   //[nJet]                                                            
-  Float_t         MET_pt_jesFlavorQCDUp;
-  Float_t         MET_phi_jesFlavorQCDUp;
-  Float_t         Jet_pt_jesTimePtEtaUp[30];   //[nJet]                                                              
-  Float_t         Jet_mass_jesTimePtEtaUp[30];   //[nJet]                                                            
-  Float_t         MET_pt_jesTimePtEtaUp;
-  Float_t         MET_phi_jesTimePtEtaUp;
-  Float_t         Jet_pt_jesRelativeJEREC1Up[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesRelativeJEREC1Up[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesRelativeJEREC1Up;
-  Float_t         MET_phi_jesRelativeJEREC1Up;
-  Float_t         Jet_pt_jesRelativeJEREC2Up[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesRelativeJEREC2Up[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesRelativeJEREC2Up;
-  Float_t         MET_phi_jesRelativeJEREC2Up;
-  Float_t         Jet_pt_jesRelativeJERHFUp[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesRelativeJERHFUp[30];   //[nJet]
-  Float_t         MET_pt_jesRelativeJERHFUp;
-  Float_t         MET_phi_jesRelativeJERHFUp;
-  Float_t         Jet_pt_jesRelativePtBBUp[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesRelativePtBBUp[30];   //[nJet]                                                         
-  Float_t         MET_pt_jesRelativePtBBUp;
-  Float_t         MET_phi_jesRelativePtBBUp;
-  Float_t         Jet_pt_jesRelativePtEC1Up[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesRelativePtEC1Up[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesRelativePtEC1Up;
-  Float_t         MET_phi_jesRelativePtEC1Up;
-  Float_t         Jet_pt_jesRelativePtEC2Up[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesRelativePtEC2Up[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesRelativePtEC2Up;
-  Float_t         MET_phi_jesRelativePtEC2Up;
-  Float_t         Jet_pt_jesRelativePtHFUp[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesRelativePtHFUp[30];   //[nJet]                                                         
-  Float_t         MET_pt_jesRelativePtHFUp;
-  Float_t         MET_phi_jesRelativePtHFUp;
-  Float_t         Jet_pt_jesRelativeBalUp[30];   //[nJet]                                                            
-  Float_t         Jet_mass_jesRelativeBalUp[30];   //[nJet]                                                          
-  Float_t         MET_pt_jesRelativeBalUp;
-  Float_t         MET_phi_jesRelativeBalUp;
-  Float_t         Jet_pt_jesRelativeSampleUp[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesRelativeSampleUp[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesRelativeSampleUp;
-  Float_t         MET_phi_jesRelativeSampleUp;
-  Float_t         Jet_pt_jesRelativeFSRUp[30];   //[nJet]                                                            
-  Float_t         Jet_mass_jesRelativeFSRUp[30];   //[nJet]                                                          
-  Float_t         MET_pt_jesRelativeFSRUp;
-  Float_t         MET_phi_jesRelativeFSRUp;
-  Float_t         Jet_pt_jesRelativeStatFSRUp[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesRelativeStatFSRUp[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesRelativeStatFSRUp;
-  Float_t         MET_phi_jesRelativeStatFSRUp;
-  Float_t         Jet_pt_jesRelativeStatECUp[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesRelativeStatECUp[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesRelativeStatECUp;
-  Float_t         MET_phi_jesRelativeStatECUp;
-  Float_t         Jet_pt_jesRelativeStatHFUp[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesRelativeStatHFUp[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesRelativeStatHFUp;
-  Float_t         MET_phi_jesRelativeStatHFUp;
-  Float_t         Jet_pt_jesPileUpDataMCUp[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesPileUpDataMCUp[30];   //[nJet]                                                         
-  Float_t         MET_pt_jesPileUpDataMCUp;
-  Float_t         MET_phi_jesPileUpDataMCUp;
-  Float_t         Jet_pt_jesPileUpPtRefUp[30];   //[nJet]                                                            
-  Float_t         Jet_mass_jesPileUpPtRefUp[30];   //[nJet]                                                          
-  Float_t         MET_pt_jesPileUpPtRefUp;
-  Float_t         MET_phi_jesPileUpPtRefUp;
-  Float_t         Jet_pt_jesPileUpPtBBUp[30];   //[nJet]                                                             
-  Float_t         Jet_mass_jesPileUpPtBBUp[30];   //[nJet]                                                           
-  Float_t         MET_pt_jesPileUpPtBBUp;
-  Float_t         MET_phi_jesPileUpPtBBUp;
-  Float_t         Jet_pt_jesPileUpPtEC1Up[30];   //[nJet]                                                            
-  Float_t         Jet_mass_jesPileUpPtEC1Up[30];   //[nJet]                                                          
-  Float_t         MET_pt_jesPileUpPtEC1Up;
-  Float_t         MET_phi_jesPileUpPtEC1Up;
-  Float_t         Jet_pt_jesPileUpPtEC2Up[30];   //[nJet]                                                            
-  Float_t         Jet_mass_jesPileUpPtEC2Up[30];   //[nJet]                                                          
-  Float_t         MET_pt_jesPileUpPtEC2Up;
-  Float_t         MET_phi_jesPileUpPtEC2Up;
-  Float_t         Jet_pt_jesPileUpPtHFUp[30];   //[nJet]                                                             
-  Float_t         Jet_mass_jesPileUpPtHFUp[30];   //[nJet]                                                           
-  Float_t         MET_pt_jesPileUpPtHFUp;
-  Float_t         MET_phi_jesPileUpPtHFUp;
-  Float_t         Jet_pt_jesPileUpMuZeroUp[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesPileUpMuZeroUp[30];   //[nJet] 
-  Float_t         MET_pt_jesPileUpMuZeroUp;
-  Float_t         MET_phi_jesPileUpMuZeroUp;
-  Float_t         Jet_pt_jesPileUpEnvelopeUp[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesPileUpEnvelopeUp[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesPileUpEnvelopeUp;
-  Float_t         MET_phi_jesPileUpEnvelopeUp;
-  Float_t         Jet_pt_jesSubTotalPileUpUp[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesSubTotalPileUpUp[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesSubTotalPileUpUp;
-  Float_t         MET_phi_jesSubTotalPileUpUp;
-  Float_t         Jet_pt_jesSubTotalRelativeUp[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesSubTotalRelativeUp[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesSubTotalRelativeUp;
-  Float_t         MET_phi_jesSubTotalRelativeUp;
-  Float_t         Jet_pt_jesSubTotalPtUp[30];   //[nJet]                                                             
-  Float_t         Jet_mass_jesSubTotalPtUp[30];   //[nJet]                                                           
-  Float_t         MET_pt_jesSubTotalPtUp;
-  Float_t         MET_phi_jesSubTotalPtUp;
-  Float_t         Jet_pt_jesSubTotalScaleUp[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesSubTotalScaleUp[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesSubTotalScaleUp;
-  Float_t         MET_phi_jesSubTotalScaleUp;
-  Float_t         Jet_pt_jesSubTotalAbsoluteUp[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesSubTotalAbsoluteUp[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesSubTotalAbsoluteUp;
-  Float_t         MET_phi_jesSubTotalAbsoluteUp;
-  Float_t         Jet_pt_jesSubTotalMCUp[30];   //[nJet]                                                             
-  Float_t         Jet_mass_jesSubTotalMCUp[30];   //[nJet]                                                           
-  Float_t         MET_pt_jesSubTotalMCUp;
-  Float_t         MET_phi_jesSubTotalMCUp;
-  Float_t         Jet_pt_jesTotalUp[30];   //[nJet]                                                                  
-  Float_t         Jet_mass_jesTotalUp[30];   //[nJet]
-  Float_t         MET_pt_jesTotalUp;
-  Float_t         MET_phi_jesTotalUp;
-  Float_t         Jet_pt_jesTotalNoFlavorUp[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesTotalNoFlavorUp[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesTotalNoFlavorUp;
-  Float_t         MET_phi_jesTotalNoFlavorUp;
-  Float_t         Jet_pt_jesTotalNoTimeUp[30];   //[nJet]                                                            
-  Float_t         Jet_mass_jesTotalNoTimeUp[30];   //[nJet]                                                          
-  Float_t         MET_pt_jesTotalNoTimeUp;
-  Float_t         MET_phi_jesTotalNoTimeUp;
-  Float_t         Jet_pt_jesTotalNoFlavorNoTimeUp[30];   //[nJet]                                                    
-  Float_t         Jet_mass_jesTotalNoFlavorNoTimeUp[30];   //[nJet]                                                  
-  Float_t         MET_pt_jesTotalNoFlavorNoTimeUp;
-  Float_t         MET_phi_jesTotalNoFlavorNoTimeUp;
-  Float_t         Jet_pt_jesFlavorZJetUp[30];   //[nJet]                                                             
-  Float_t         Jet_mass_jesFlavorZJetUp[30];   //[nJet]                                                           
-  Float_t         MET_pt_jesFlavorZJetUp;
-  Float_t         MET_phi_jesFlavorZJetUp;
-  Float_t         Jet_pt_jesFlavorPhotonJetUp[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesFlavorPhotonJetUp[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesFlavorPhotonJetUp;
-  Float_t         MET_phi_jesFlavorPhotonJetUp;
-  Float_t         Jet_pt_jesFlavorPureGluonUp[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesFlavorPureGluonUp[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesFlavorPureGluonUp;
-  Float_t         MET_phi_jesFlavorPureGluonUp;
-  Float_t         Jet_pt_jesFlavorPureQuarkUp[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesFlavorPureQuarkUp[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesFlavorPureQuarkUp;
-  Float_t         MET_phi_jesFlavorPureQuarkUp;
-  Float_t         Jet_pt_jesFlavorPureCharmUp[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesFlavorPureCharmUp[30];   //[nJet]
-  Float_t         MET_pt_jesFlavorPureCharmUp;
-  Float_t         MET_phi_jesFlavorPureCharmUp;
-  Float_t         Jet_pt_jesFlavorPureBottomUp[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesFlavorPureBottomUp[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesFlavorPureBottomUp;
-  Float_t         MET_phi_jesFlavorPureBottomUp;
-  Float_t         Jet_pt_jesTimeRunAUp[30];   //[nJet]                                                               
-  Float_t         Jet_mass_jesTimeRunAUp[30];   //[nJet]                                                             
-  Float_t         MET_pt_jesTimeRunAUp;
-  Float_t         MET_phi_jesTimeRunAUp;
-  Float_t         Jet_pt_jesTimeRunBUp[30];   //[nJet]                                                               
-  Float_t         Jet_mass_jesTimeRunBUp[30];   //[nJet]                                                             
-  Float_t         MET_pt_jesTimeRunBUp;
-  Float_t         MET_phi_jesTimeRunBUp;
-  Float_t         Jet_pt_jesTimeRunCUp[30];   //[nJet]                                                               
-  Float_t         Jet_mass_jesTimeRunCUp[30];   //[nJet]                                                             
-  Float_t         MET_pt_jesTimeRunCUp;
-  Float_t         MET_phi_jesTimeRunCUp;
-  Float_t         Jet_pt_jesTimeRunDUp[30];   //[nJet]                                                               
-  Float_t         Jet_mass_jesTimeRunDUp[30];   //[nJet]                                                             
-  Float_t         MET_pt_jesTimeRunDUp;
-  Float_t         MET_phi_jesTimeRunDUp;
-  Float_t         Jet_pt_jesCorrelationGroupMPFInSituUp[30];   //[nJet]                                              
-  Float_t         Jet_mass_jesCorrelationGroupMPFInSituUp[30];   //[nJet]                                            
-  Float_t         MET_pt_jesCorrelationGroupMPFInSituUp;
-  Float_t         MET_phi_jesCorrelationGroupMPFInSituUp;
-  Float_t         Jet_pt_jesCorrelationGroupIntercalibrationUp[30];   //[nJet]                                       
-  Float_t         Jet_mass_jesCorrelationGroupIntercalibrationUp[30];   //[nJet]                                     
-  Float_t         MET_pt_jesCorrelationGroupIntercalibrationUp;
-  Float_t         MET_phi_jesCorrelationGroupIntercalibrationUp;
-  Float_t         Jet_pt_jesCorrelationGroupbJESUp[30];   //[nJet]                                                   
-  Float_t         Jet_mass_jesCorrelationGroupbJESUp[30];   //[nJet]                                                 
-  Float_t         MET_pt_jesCorrelationGroupbJESUp;
-  Float_t         MET_phi_jesCorrelationGroupbJESUp;
-  Float_t         Jet_pt_jesCorrelationGroupFlavorUp[30];   //[nJet]                                                 
-  Float_t         Jet_mass_jesCorrelationGroupFlavorUp[30];   //[nJet]                                               
-  Float_t         MET_pt_jesCorrelationGroupFlavorUp;
-  Float_t         MET_phi_jesCorrelationGroupFlavorUp;
-  Float_t         Jet_pt_jesCorrelationGroupUncorrelatedUp[30];   //[nJet]                                           
-  Float_t         Jet_mass_jesCorrelationGroupUncorrelatedUp[30];   //[nJet]                                         
-  Float_t         MET_pt_jesCorrelationGroupUncorrelatedUp;
-  Float_t         MET_phi_jesCorrelationGroupUncorrelatedUp;
-  Float_t         MET_pt_unclustEnUp;
-  Float_t         MET_phi_unclustEnUp;
-  Float_t         Jet_pt_jerDown[30];   //[nJet]                                                                     
-  Float_t         Jet_mass_jerDown[30];   //[nJet]                                                                   
-  Float_t         MET_pt_jerDown;
-  Float_t         MET_phi_jerDown;
-  Float_t         Jet_pt_jesAbsoluteStatDown[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesAbsoluteStatDown[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesAbsoluteStatDown;
-  Float_t         MET_phi_jesAbsoluteStatDown;
-  Float_t         Jet_pt_jesAbsoluteScaleDown[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesAbsoluteScaleDown[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesAbsoluteScaleDown;
-  Float_t         MET_phi_jesAbsoluteScaleDown;
-  Float_t         Jet_pt_jesAbsoluteSampleDown[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesAbsoluteSampleDown[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesAbsoluteSampleDown;
-  Float_t         MET_phi_jesAbsoluteSampleDown;
-  Float_t         Jet_pt_jesAbsoluteFlavMapDown[30];   //[nJet]                                                      
-  Float_t         Jet_mass_jesAbsoluteFlavMapDown[30];   //[nJet]                                                    
-  Float_t         MET_pt_jesAbsoluteFlavMapDown;
-  Float_t         MET_phi_jesAbsoluteFlavMapDown;
-  Float_t         Jet_pt_jesAbsoluteMPFBiasDown[30];   //[nJet]                                                      
-  Float_t         Jet_mass_jesAbsoluteMPFBiasDown[30];   //[nJet]                                                    
-  Float_t         MET_pt_jesAbsoluteMPFBiasDown;
-  Float_t         MET_phi_jesAbsoluteMPFBiasDown;
-  Float_t         Jet_pt_jesFragmentationDown[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesFragmentationDown[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesFragmentationDown;
-  Float_t         MET_phi_jesFragmentationDown;
-  Float_t         Jet_pt_jesSinglePionECALDown[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesSinglePionECALDown[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesSinglePionECALDown;
-  Float_t         MET_phi_jesSinglePionECALDown;
-  Float_t         Jet_pt_jesSinglePionHCALDown[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesSinglePionHCALDown[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesSinglePionHCALDown;
-  Float_t         MET_phi_jesSinglePionHCALDown;
-  Float_t         Jet_pt_jesFlavorQCDDown[30];   //[nJet]                                                            
-  Float_t         Jet_mass_jesFlavorQCDDown[30];   //[nJet]                                                          
-  Float_t         MET_pt_jesFlavorQCDDown;
-  Float_t         MET_phi_jesFlavorQCDDown;
-  Float_t         Jet_pt_jesTimePtEtaDown[30];   //[nJet]                                                            
-  Float_t         Jet_mass_jesTimePtEtaDown[30];   //[nJet]                                                          
-  Float_t         MET_pt_jesTimePtEtaDown;
-  Float_t         MET_phi_jesTimePtEtaDown;
-  Float_t         Jet_pt_jesRelativeJEREC1Down[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesRelativeJEREC1Down[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesRelativeJEREC1Down;
-  Float_t         MET_phi_jesRelativeJEREC1Down;
-  Float_t         Jet_pt_jesRelativeJEREC2Down[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesRelativeJEREC2Down[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesRelativeJEREC2Down;
-  Float_t         MET_phi_jesRelativeJEREC2Down;
-  Float_t         Jet_pt_jesRelativeJERHFDown[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesRelativeJERHFDown[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesRelativeJERHFDown;
-  Float_t         MET_phi_jesRelativeJERHFDown;
-  Float_t         Jet_pt_jesRelativePtBBDown[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesRelativePtBBDown[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesRelativePtBBDown;
-  Float_t         MET_phi_jesRelativePtBBDown;
-  Float_t         Jet_pt_jesRelativePtEC1Down[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesRelativePtEC1Down[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesRelativePtEC1Down;
-  Float_t         MET_phi_jesRelativePtEC1Down;
-  Float_t         Jet_pt_jesRelativePtEC2Down[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesRelativePtEC2Down[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesRelativePtEC2Down;
-  Float_t         MET_phi_jesRelativePtEC2Down;
-  Float_t         Jet_pt_jesRelativePtHFDown[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesRelativePtHFDown[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesRelativePtHFDown;
-  Float_t         MET_phi_jesRelativePtHFDown;
-  Float_t         Jet_pt_jesRelativeBalDown[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesRelativeBalDown[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesRelativeBalDown;
-  Float_t         MET_phi_jesRelativeBalDown;
-  Float_t         Jet_pt_jesRelativeSampleDown[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesRelativeSampleDown[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesRelativeSampleDown;
-  Float_t         MET_phi_jesRelativeSampleDown;
-  Float_t         Jet_pt_jesRelativeFSRDown[30];   //[nJet]
-  Float_t         Jet_mass_jesRelativeFSRDown[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesRelativeFSRDown;
-  Float_t         MET_phi_jesRelativeFSRDown;
-  Float_t         Jet_pt_jesRelativeStatFSRDown[30];   //[nJet]                                                      
-  Float_t         Jet_mass_jesRelativeStatFSRDown[30];   //[nJet]                                                    
-  Float_t         MET_pt_jesRelativeStatFSRDown;
-  Float_t         MET_phi_jesRelativeStatFSRDown;
-  Float_t         Jet_pt_jesRelativeStatECDown[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesRelativeStatECDown[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesRelativeStatECDown;
-  Float_t         MET_phi_jesRelativeStatECDown;
-  Float_t         Jet_pt_jesRelativeStatHFDown[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesRelativeStatHFDown[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesRelativeStatHFDown;
-  Float_t         MET_phi_jesRelativeStatHFDown;
-  Float_t         Jet_pt_jesPileUpDataMCDown[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesPileUpDataMCDown[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesPileUpDataMCDown;
-  Float_t         MET_phi_jesPileUpDataMCDown;
-  Float_t         Jet_pt_jesPileUpPtRefDown[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesPileUpPtRefDown[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesPileUpPtRefDown;
-  Float_t         MET_phi_jesPileUpPtRefDown;
-  Float_t         Jet_pt_jesPileUpPtBBDown[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesPileUpPtBBDown[30];   //[nJet]                                                         
-  Float_t         MET_pt_jesPileUpPtBBDown;
-  Float_t         MET_phi_jesPileUpPtBBDown;
-  Float_t         Jet_pt_jesPileUpPtEC1Down[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesPileUpPtEC1Down[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesPileUpPtEC1Down;
-  Float_t         MET_phi_jesPileUpPtEC1Down;
-  Float_t         Jet_pt_jesPileUpPtEC2Down[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesPileUpPtEC2Down[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesPileUpPtEC2Down;
-  Float_t         MET_phi_jesPileUpPtEC2Down;
-  Float_t         Jet_pt_jesPileUpPtHFDown[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesPileUpPtHFDown[30];   //[nJet]                                                         
-  Float_t         MET_pt_jesPileUpPtHFDown;
-  Float_t         MET_phi_jesPileUpPtHFDown;
-  Float_t         Jet_pt_jesPileUpMuZeroDown[30];   //[nJet]                                                         
-  Float_t         Jet_mass_jesPileUpMuZeroDown[30];   //[nJet]                                                       
-  Float_t         MET_pt_jesPileUpMuZeroDown;
-  Float_t         MET_phi_jesPileUpMuZeroDown;
-  Float_t         Jet_pt_jesPileUpEnvelopeDown[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesPileUpEnvelopeDown[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesPileUpEnvelopeDown;
-  Float_t         MET_phi_jesPileUpEnvelopeDown;
-  Float_t         Jet_pt_jesSubTotalPileUpDown[30];   //[nJet]                                                       
-  Float_t         Jet_mass_jesSubTotalPileUpDown[30];   //[nJet]                                                     
-  Float_t         MET_pt_jesSubTotalPileUpDown;
-  Float_t         MET_phi_jesSubTotalPileUpDown;
-  Float_t         Jet_pt_jesSubTotalRelativeDown[30];   //[nJet]                                                     
-  Float_t         Jet_mass_jesSubTotalRelativeDown[30];   //[nJet]                                                   
-  Float_t         MET_pt_jesSubTotalRelativeDown;
-  Float_t         MET_phi_jesSubTotalRelativeDown;
-  Float_t         Jet_pt_jesSubTotalPtDown[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesSubTotalPtDown[30];   //[nJet]                                                         
-  Float_t         MET_pt_jesSubTotalPtDown;
-  Float_t         MET_phi_jesSubTotalPtDown;
-  Float_t         Jet_pt_jesSubTotalScaleDown[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesSubTotalScaleDown[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesSubTotalScaleDown;
-  Float_t         MET_phi_jesSubTotalScaleDown;
-  Float_t         Jet_pt_jesSubTotalAbsoluteDown[30];   //[nJet]                                                     
-  Float_t         Jet_mass_jesSubTotalAbsoluteDown[30];   //[nJet]                                                   
-  Float_t         MET_pt_jesSubTotalAbsoluteDown;
-  Float_t         MET_phi_jesSubTotalAbsoluteDown;
-  Float_t         Jet_pt_jesSubTotalMCDown[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesSubTotalMCDown[30];   //[nJet]                                                         
-  Float_t         MET_pt_jesSubTotalMCDown;
-  Float_t         MET_phi_jesSubTotalMCDown;
-  Float_t         Jet_pt_jesTotalDown[30];   //[nJet]                                                                
-  Float_t         Jet_mass_jesTotalDown[30];   //[nJet]                                                              
-  Float_t         MET_pt_jesTotalDown;
-  Float_t         MET_phi_jesTotalDown;
-  Float_t         Jet_pt_jesTotalNoFlavorDown[30];   //[nJet]                                                        
-  Float_t         Jet_mass_jesTotalNoFlavorDown[30];   //[nJet]                                                      
-  Float_t         MET_pt_jesTotalNoFlavorDown;
-  Float_t         MET_phi_jesTotalNoFlavorDown;
-  Float_t         Jet_pt_jesTotalNoTimeDown[30];   //[nJet]                                                          
-  Float_t         Jet_mass_jesTotalNoTimeDown[30];   //[nJet]                                                        
-  Float_t         MET_pt_jesTotalNoTimeDown;
-  Float_t         MET_phi_jesTotalNoTimeDown;
-  Float_t         Jet_pt_jesTotalNoFlavorNoTimeDown[30];   //[nJet]                                                  
-  Float_t         Jet_mass_jesTotalNoFlavorNoTimeDown[30];   //[nJet]                                                
-  Float_t         MET_pt_jesTotalNoFlavorNoTimeDown;
-  Float_t         MET_phi_jesTotalNoFlavorNoTimeDown;
-  Float_t         Jet_pt_jesFlavorZJetDown[30];   //[nJet]                                                           
-  Float_t         Jet_mass_jesFlavorZJetDown[30];   //[nJet]                                                         
-  Float_t         MET_pt_jesFlavorZJetDown;
-  Float_t         MET_phi_jesFlavorZJetDown;
-  Float_t         Jet_pt_jesFlavorPhotonJetDown[30];   //[nJet]                                                      
-  Float_t         Jet_mass_jesFlavorPhotonJetDown[30];   //[nJet]                                                    
-  Float_t         MET_pt_jesFlavorPhotonJetDown;
-  Float_t         MET_phi_jesFlavorPhotonJetDown;
-  Float_t         Jet_pt_jesFlavorPureGluonDown[30];   //[nJet]                                                      
-  Float_t         Jet_mass_jesFlavorPureGluonDown[30];   //[nJet]                                                    
-  Float_t         MET_pt_jesFlavorPureGluonDown;
-  Float_t         MET_phi_jesFlavorPureGluonDown;
-  Float_t         Jet_pt_jesFlavorPureQuarkDown[30];   //[nJet]                                                      
-  Float_t         Jet_mass_jesFlavorPureQuarkDown[30];   //[nJet]                                                    
-  Float_t         MET_pt_jesFlavorPureQuarkDown;
-  Float_t         MET_phi_jesFlavorPureQuarkDown;
-  Float_t         Jet_pt_jesFlavorPureCharmDown[30];   //[nJet]                                                      
-  Float_t         Jet_mass_jesFlavorPureCharmDown[30];   //[nJet]                                                    
-  Float_t         MET_pt_jesFlavorPureCharmDown;
-  Float_t         MET_phi_jesFlavorPureCharmDown;
-  Float_t         Jet_pt_jesFlavorPureBottomDown[30];   //[nJet]                                                     
-  Float_t         Jet_mass_jesFlavorPureBottomDown[30];   //[nJet]                                                   
-  Float_t         MET_pt_jesFlavorPureBottomDown;
-  Float_t         MET_phi_jesFlavorPureBottomDown;
-  Float_t         Jet_pt_jesTimeRunADown[30];   //[nJet]                                                             
-  Float_t         Jet_mass_jesTimeRunADown[30];   //[nJet]                                                           
-  Float_t         MET_pt_jesTimeRunADown;
-  Float_t         MET_phi_jesTimeRunADown;
-  Float_t         Jet_pt_jesTimeRunBDown[30];   //[nJet]                                                             
-  Float_t         Jet_mass_jesTimeRunBDown[30];   //[nJet]                                                           
-  Float_t         MET_pt_jesTimeRunBDown;
-  Float_t         MET_phi_jesTimeRunBDown;
-  Float_t         Jet_pt_jesTimeRunCDown[30];   //[nJet]                                                             
-  Float_t         Jet_mass_jesTimeRunCDown[30];   //[nJet]                                                           
-  Float_t         MET_pt_jesTimeRunCDown;
-  Float_t         MET_phi_jesTimeRunCDown;
-  Float_t         Jet_pt_jesTimeRunDDown[30];   //[nJet]                                                             
-  Float_t         Jet_mass_jesTimeRunDDown[30];   //[nJet]                                                           
-  Float_t         MET_pt_jesTimeRunDDown;
-  Float_t         MET_phi_jesTimeRunDDown;
-  Float_t         Jet_pt_jesCorrelationGroupMPFInSituDown[30];   //[nJet]                                            
-  Float_t         Jet_mass_jesCorrelationGroupMPFInSituDown[30];   //[nJet]                                          
-  Float_t         MET_pt_jesCorrelationGroupMPFInSituDown;
-  Float_t         MET_phi_jesCorrelationGroupMPFInSituDown;
-  Float_t         Jet_pt_jesCorrelationGroupIntercalibrationDown[30];   //[nJet]                                     
-  Float_t         Jet_mass_jesCorrelationGroupIntercalibrationDown[30];   //[nJet]                                   
-  Float_t         MET_pt_jesCorrelationGroupIntercalibrationDown;
-  Float_t         MET_phi_jesCorrelationGroupIntercalibrationDown;
-  Float_t         Jet_pt_jesCorrelationGroupbJESDown[30];   //[nJet]                                                 
-  Float_t         Jet_mass_jesCorrelationGroupbJESDown[30];   //[nJet]                                               
-  Float_t         MET_pt_jesCorrelationGroupbJESDown;
-  Float_t         MET_phi_jesCorrelationGroupbJESDown;
-  Float_t         Jet_pt_jesCorrelationGroupFlavorDown[30];   //[nJet]                                               
-  Float_t         Jet_mass_jesCorrelationGroupFlavorDown[30];   //[nJet]                                             
-  Float_t         MET_pt_jesCorrelationGroupFlavorDown;
-  Float_t         MET_phi_jesCorrelationGroupFlavorDown;
-  Float_t         Jet_pt_jesCorrelationGroupUncorrelatedDown[30];   //[nJet]                                         
-  Float_t         Jet_mass_jesCorrelationGroupUncorrelatedDown[30];   //[nJet]                                       
-  Float_t         MET_pt_jesCorrelationGroupUncorrelatedDown;
-  Float_t         MET_phi_jesCorrelationGroupUncorrelatedDown;
-  Float_t         MET_pt_unclustEnDown;
-  Float_t         MET_phi_unclustEnDown;
-  Float_t         FatJet_pt_jerUp[5];   //[nFatJet]                                                                  
-  Float_t         FatJet_mass_jerUp[5];   //[nFatJet]                                                                
-  Float_t         FatJet_mass_jmrUp[5];   //[nFatJet]                                                                
-  Float_t         FatJet_mass_jmsUp[5];   //[nFatJet]                                                                
-  Float_t         FatJet_msoftdrop_jerUp[5];   //[nFatJet]                                                           
-  Float_t         FatJet_msoftdrop_jmrUp[5];   //[nFatJet]                                                           
-  Float_t         FatJet_msoftdrop_jmsUp[5];   //[nFatJet]                                                           
-  Float_t         FatJet_msoftdrop_tau21DDT_jerUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_tau21DDT_jmrUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_tau21DDT_jmsUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_pt_jesAbsoluteStatUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_mass_jesAbsoluteStatUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesAbsoluteStatUp[5];   //[nFatJet]                                               
-  Float_t         FatJet_pt_jesAbsoluteScaleUp[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesAbsoluteScaleUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesAbsoluteScaleUp[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesAbsoluteSampleUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesAbsoluteSampleUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesAbsoluteSampleUp[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesAbsoluteFlavMapUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesAbsoluteFlavMapUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesAbsoluteFlavMapUp[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesAbsoluteMPFBiasUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesAbsoluteMPFBiasUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesAbsoluteMPFBiasUp[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesFragmentationUp[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesFragmentationUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesFragmentationUp[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesSinglePionECALUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesSinglePionECALUp[5];   //[nFatJet]
-  Float_t         FatJet_msoftdrop_jesSinglePionECALUp[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesSinglePionHCALUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesSinglePionHCALUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesSinglePionHCALUp[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesFlavorQCDUp[5];   //[nFatJet]                                                         
-  Float_t         FatJet_mass_jesFlavorQCDUp[5];   //[nFatJet]                                                       
-  Float_t         FatJet_msoftdrop_jesFlavorQCDUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_pt_jesTimePtEtaUp[5];   //[nFatJet]                                                         
-  Float_t         FatJet_mass_jesTimePtEtaUp[5];   //[nFatJet]                                                       
-  Float_t         FatJet_msoftdrop_jesTimePtEtaUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_pt_jesRelativeJEREC1Up[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesRelativeJEREC1Up[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesRelativeJEREC1Up[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesRelativeJEREC2Up[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesRelativeJEREC2Up[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesRelativeJEREC2Up[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesRelativeJERHFUp[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesRelativeJERHFUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesRelativeJERHFUp[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesRelativePtBBUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_mass_jesRelativePtBBUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesRelativePtBBUp[5];   //[nFatJet]                                               
-  Float_t         FatJet_pt_jesRelativePtEC1Up[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesRelativePtEC1Up[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesRelativePtEC1Up[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesRelativePtEC2Up[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesRelativePtEC2Up[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesRelativePtEC2Up[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesRelativePtHFUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_mass_jesRelativePtHFUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesRelativePtHFUp[5];   //[nFatJet]                                               
-  Float_t         FatJet_pt_jesRelativeBalUp[5];   //[nFatJet]                                                       
-  Float_t         FatJet_mass_jesRelativeBalUp[5];   //[nFatJet]                                                     
-  Float_t         FatJet_msoftdrop_jesRelativeBalUp[5];   //[nFatJet] 
-  Float_t         FatJet_pt_jesRelativeSampleUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesRelativeSampleUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesRelativeSampleUp[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesRelativeFSRUp[5];   //[nFatJet]                                                       
-  Float_t         FatJet_mass_jesRelativeFSRUp[5];   //[nFatJet]                                                     
-  Float_t         FatJet_msoftdrop_jesRelativeFSRUp[5];   //[nFatJet]                                                
-  Float_t         FatJet_pt_jesRelativeStatFSRUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesRelativeStatFSRUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesRelativeStatFSRUp[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesRelativeStatECUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesRelativeStatECUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesRelativeStatECUp[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesRelativeStatHFUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesRelativeStatHFUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesRelativeStatHFUp[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesPileUpDataMCUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_mass_jesPileUpDataMCUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesPileUpDataMCUp[5];   //[nFatJet]                                               
-  Float_t         FatJet_pt_jesPileUpPtRefUp[5];   //[nFatJet]                                                       
-  Float_t         FatJet_mass_jesPileUpPtRefUp[5];   //[nFatJet]                                                     
-  Float_t         FatJet_msoftdrop_jesPileUpPtRefUp[5];   //[nFatJet]                                                
-  Float_t         FatJet_pt_jesPileUpPtBBUp[5];   //[nFatJet]                                                        
-  Float_t         FatJet_mass_jesPileUpPtBBUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_jesPileUpPtBBUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_pt_jesPileUpPtEC1Up[5];   //[nFatJet]                                                       
-  Float_t         FatJet_mass_jesPileUpPtEC1Up[5];   //[nFatJet]                                                     
-  Float_t         FatJet_msoftdrop_jesPileUpPtEC1Up[5];   //[nFatJet]                                                
-  Float_t         FatJet_pt_jesPileUpPtEC2Up[5];   //[nFatJet]                                                       
-  Float_t         FatJet_mass_jesPileUpPtEC2Up[5];   //[nFatJet]                                                     
-  Float_t         FatJet_msoftdrop_jesPileUpPtEC2Up[5];   //[nFatJet]                                                
-  Float_t         FatJet_pt_jesPileUpPtHFUp[5];   //[nFatJet]                                                        
-  Float_t         FatJet_mass_jesPileUpPtHFUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_jesPileUpPtHFUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_pt_jesPileUpMuZeroUp[5];   //[nFatJet]
-  Float_t         FatJet_mass_jesPileUpMuZeroUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesPileUpMuZeroUp[5];   //[nFatJet]                                               
-  Float_t         FatJet_pt_jesPileUpEnvelopeUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesPileUpEnvelopeUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesPileUpEnvelopeUp[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesSubTotalPileUpUp[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesSubTotalPileUpUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesSubTotalPileUpUp[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesSubTotalRelativeUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesSubTotalRelativeUp[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesSubTotalRelativeUp[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesSubTotalPtUp[5];   //[nFatJet]                                                        
-  Float_t         FatJet_mass_jesSubTotalPtUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_jesSubTotalPtUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_pt_jesSubTotalScaleUp[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesSubTotalScaleUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesSubTotalScaleUp[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesSubTotalAbsoluteUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesSubTotalAbsoluteUp[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesSubTotalAbsoluteUp[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesSubTotalMCUp[5];   //[nFatJet]                                                        
-  Float_t         FatJet_mass_jesSubTotalMCUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_jesSubTotalMCUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_pt_jesTotalUp[5];   //[nFatJet]                                                             
-  Float_t         FatJet_mass_jesTotalUp[5];   //[nFatJet]                                                           
-  Float_t         FatJet_msoftdrop_jesTotalUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_pt_jesTotalNoFlavorUp[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesTotalNoFlavorUp[5];   //[nFatJet]
-  Float_t         FatJet_msoftdrop_jesTotalNoFlavorUp[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesTotalNoTimeUp[5];   //[nFatJet]                                                       
-  Float_t         FatJet_mass_jesTotalNoTimeUp[5];   //[nFatJet]                                                     
-  Float_t         FatJet_msoftdrop_jesTotalNoTimeUp[5];   //[nFatJet]                                                
-  Float_t         FatJet_pt_jesTotalNoFlavorNoTimeUp[5];   //[nFatJet]                                               
-  Float_t         FatJet_mass_jesTotalNoFlavorNoTimeUp[5];   //[nFatJet]                                             
-  Float_t         FatJet_msoftdrop_jesTotalNoFlavorNoTimeUp[5];   //[nFatJet]                                        
-  Float_t         FatJet_pt_jesFlavorZJetUp[5];   //[nFatJet]                                                        
-  Float_t         FatJet_mass_jesFlavorZJetUp[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_jesFlavorZJetUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_pt_jesFlavorPhotonJetUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesFlavorPhotonJetUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesFlavorPhotonJetUp[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesFlavorPureGluonUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesFlavorPureGluonUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesFlavorPureGluonUp[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesFlavorPureQuarkUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesFlavorPureQuarkUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesFlavorPureQuarkUp[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesFlavorPureCharmUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesFlavorPureCharmUp[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesFlavorPureCharmUp[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesFlavorPureBottomUp[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesFlavorPureBottomUp[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesFlavorPureBottomUp[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesTimeRunAUp[5];   //[nFatJet]                                                          
-  Float_t         FatJet_mass_jesTimeRunAUp[5];   //[nFatJet]                                                        
-  Float_t         FatJet_msoftdrop_jesTimeRunAUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_pt_jesTimeRunBUp[5];   //[nFatJet]                                                          
-  Float_t         FatJet_mass_jesTimeRunBUp[5];   //[nFatJet]                                                        
-  Float_t         FatJet_msoftdrop_jesTimeRunBUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_pt_jesTimeRunCUp[5];   //[nFatJet]                                                          
-  Float_t         FatJet_mass_jesTimeRunCUp[5];   //[nFatJet]                                                        
-  Float_t         FatJet_msoftdrop_jesTimeRunCUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_pt_jesTimeRunDUp[5];   //[nFatJet]                                                          
-  Float_t         FatJet_mass_jesTimeRunDUp[5];   //[nFatJet]                                                        
-  Float_t         FatJet_msoftdrop_jesTimeRunDUp[5];   //[nFatJet]                                                   
-  Float_t         FatJet_pt_jesCorrelationGroupMPFInSituUp[5];   //[nFatJet]                                         
-  Float_t         FatJet_mass_jesCorrelationGroupMPFInSituUp[5];   //[nFatJet]
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupMPFInSituUp[5];   //[nFatJet]                                  
-  Float_t         FatJet_pt_jesCorrelationGroupIntercalibrationUp[5];   //[nFatJet]                                  
-  Float_t         FatJet_mass_jesCorrelationGroupIntercalibrationUp[5];   //[nFatJet]                                
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupIntercalibrationUp[5];   //[nFatJet]                           
-  Float_t         FatJet_pt_jesCorrelationGroupbJESUp[5];   //[nFatJet]                                              
-  Float_t         FatJet_mass_jesCorrelationGroupbJESUp[5];   //[nFatJet]                                            
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupbJESUp[5];   //[nFatJet]                                       
-  Float_t         FatJet_pt_jesCorrelationGroupFlavorUp[5];   //[nFatJet]                                            
-  Float_t         FatJet_mass_jesCorrelationGroupFlavorUp[5];   //[nFatJet]                                          
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupFlavorUp[5];   //[nFatJet]                                     
-  Float_t         FatJet_pt_jesCorrelationGroupUncorrelatedUp[5];   //[nFatJet]                                      
-  Float_t         FatJet_mass_jesCorrelationGroupUncorrelatedUp[5];   //[nFatJet]                                    
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupUncorrelatedUp[5];   //[nFatJet]                               
-  Float_t         FatJet_pt_jerDown[5];   //[nFatJet]                                                                
-  Float_t         FatJet_mass_jerDown[5];   //[nFatJet]                                                              
-  Float_t         FatJet_mass_jmrDown[5];   //[nFatJet]                                                              
-  Float_t         FatJet_mass_jmsDown[5];   //[nFatJet]                                                              
-  Float_t         FatJet_msoftdrop_jerDown[5];   //[nFatJet]                                                         
-  Float_t         FatJet_msoftdrop_jmrDown[5];   //[nFatJet]                                                         
-  Float_t         FatJet_msoftdrop_jmsDown[5];   //[nFatJet]                                                         
-  Float_t         FatJet_msoftdrop_tau21DDT_jerDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_tau21DDT_jmrDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_tau21DDT_jmsDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_pt_jesAbsoluteStatDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesAbsoluteStatDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesAbsoluteStatDown[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesAbsoluteScaleDown[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesAbsoluteScaleDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesAbsoluteScaleDown[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesAbsoluteSampleDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesAbsoluteSampleDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesAbsoluteSampleDown[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesAbsoluteFlavMapDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_mass_jesAbsoluteFlavMapDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_msoftdrop_jesAbsoluteFlavMapDown[5];   //[nFatJet]                                          
-  Float_t         FatJet_pt_jesAbsoluteMPFBiasDown[5];   //[nFatJet]
-  Float_t         FatJet_mass_jesAbsoluteMPFBiasDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_msoftdrop_jesAbsoluteMPFBiasDown[5];   //[nFatJet]                                          
-  Float_t         FatJet_pt_jesFragmentationDown[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesFragmentationDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesFragmentationDown[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesSinglePionECALDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesSinglePionECALDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesSinglePionECALDown[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesSinglePionHCALDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesSinglePionHCALDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesSinglePionHCALDown[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesFlavorQCDDown[5];   //[nFatJet]                                                       
-  Float_t         FatJet_mass_jesFlavorQCDDown[5];   //[nFatJet]                                                     
-  Float_t         FatJet_msoftdrop_jesFlavorQCDDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_pt_jesTimePtEtaDown[5];   //[nFatJet]                                                       
-  Float_t         FatJet_mass_jesTimePtEtaDown[5];   //[nFatJet]                                                     
-  Float_t         FatJet_msoftdrop_jesTimePtEtaDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_pt_jesRelativeJEREC1Down[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesRelativeJEREC1Down[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesRelativeJEREC1Down[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesRelativeJEREC2Down[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesRelativeJEREC2Down[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesRelativeJEREC2Down[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesRelativeJERHFDown[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesRelativeJERHFDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesRelativeJERHFDown[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesRelativePtBBDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesRelativePtBBDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesRelativePtBBDown[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesRelativePtEC1Down[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesRelativePtEC1Down[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesRelativePtEC1Down[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesRelativePtEC2Down[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesRelativePtEC2Down[5];   //[nFatJet]
-  Float_t         FatJet_msoftdrop_jesRelativePtEC2Down[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesRelativePtHFDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesRelativePtHFDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesRelativePtHFDown[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesRelativeBalDown[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesRelativeBalDown[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesRelativeBalDown[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesRelativeSampleDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesRelativeSampleDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesRelativeSampleDown[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesRelativeFSRDown[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesRelativeFSRDown[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesRelativeFSRDown[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesRelativeStatFSRDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_mass_jesRelativeStatFSRDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_msoftdrop_jesRelativeStatFSRDown[5];   //[nFatJet]                                          
-  Float_t         FatJet_pt_jesRelativeStatECDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesRelativeStatECDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesRelativeStatECDown[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesRelativeStatHFDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesRelativeStatHFDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesRelativeStatHFDown[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesPileUpDataMCDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesPileUpDataMCDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesPileUpDataMCDown[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesPileUpPtRefDown[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesPileUpPtRefDown[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesPileUpPtRefDown[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesPileUpPtBBDown[5];   //[nFatJet]                                                      
-  Float_t         FatJet_mass_jesPileUpPtBBDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesPileUpPtBBDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_pt_jesPileUpPtEC1Down[5];   //[nFatJet]
-  Float_t         FatJet_mass_jesPileUpPtEC1Down[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesPileUpPtEC1Down[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesPileUpPtEC2Down[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesPileUpPtEC2Down[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesPileUpPtEC2Down[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesPileUpPtHFDown[5];   //[nFatJet]                                                      
-  Float_t         FatJet_mass_jesPileUpPtHFDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesPileUpPtHFDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_pt_jesPileUpMuZeroDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_mass_jesPileUpMuZeroDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_msoftdrop_jesPileUpMuZeroDown[5];   //[nFatJet]                                             
-  Float_t         FatJet_pt_jesPileUpEnvelopeDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesPileUpEnvelopeDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesPileUpEnvelopeDown[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesSubTotalPileUpDown[5];   //[nFatJet]                                                  
-  Float_t         FatJet_mass_jesSubTotalPileUpDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_msoftdrop_jesSubTotalPileUpDown[5];   //[nFatJet]                                           
-  Float_t         FatJet_pt_jesSubTotalRelativeDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_mass_jesSubTotalRelativeDown[5];   //[nFatJet]                                              
-  Float_t         FatJet_msoftdrop_jesSubTotalRelativeDown[5];   //[nFatJet]                                         
-  Float_t         FatJet_pt_jesSubTotalPtDown[5];   //[nFatJet]                                                      
-  Float_t         FatJet_mass_jesSubTotalPtDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesSubTotalPtDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_pt_jesSubTotalScaleDown[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesSubTotalScaleDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesSubTotalScaleDown[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesSubTotalAbsoluteDown[5];   //[nFatJet]                                                
-  Float_t         FatJet_mass_jesSubTotalAbsoluteDown[5];   //[nFatJet]                                              
-  Float_t         FatJet_msoftdrop_jesSubTotalAbsoluteDown[5];   //[nFatJet]                                         
-  Float_t         FatJet_pt_jesSubTotalMCDown[5];   //[nFatJet]                                                      
-  Float_t         FatJet_mass_jesSubTotalMCDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesSubTotalMCDown[5];   //[nFatJet]
-  Float_t         FatJet_pt_jesTotalDown[5];   //[nFatJet]                                                           
-  Float_t         FatJet_mass_jesTotalDown[5];   //[nFatJet]                                                         
-  Float_t         FatJet_msoftdrop_jesTotalDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_pt_jesTotalNoFlavorDown[5];   //[nFatJet]                                                   
-  Float_t         FatJet_mass_jesTotalNoFlavorDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_msoftdrop_jesTotalNoFlavorDown[5];   //[nFatJet]                                            
-  Float_t         FatJet_pt_jesTotalNoTimeDown[5];   //[nFatJet]                                                     
-  Float_t         FatJet_mass_jesTotalNoTimeDown[5];   //[nFatJet]                                                   
-  Float_t         FatJet_msoftdrop_jesTotalNoTimeDown[5];   //[nFatJet]                                              
-  Float_t         FatJet_pt_jesTotalNoFlavorNoTimeDown[5];   //[nFatJet]                                             
-  Float_t         FatJet_mass_jesTotalNoFlavorNoTimeDown[5];   //[nFatJet]                                           
-  Float_t         FatJet_msoftdrop_jesTotalNoFlavorNoTimeDown[5];   //[nFatJet]                                      
-  Float_t         FatJet_pt_jesFlavorZJetDown[5];   //[nFatJet]                                                      
-  Float_t         FatJet_mass_jesFlavorZJetDown[5];   //[nFatJet]                                                    
-  Float_t         FatJet_msoftdrop_jesFlavorZJetDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_pt_jesFlavorPhotonJetDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_mass_jesFlavorPhotonJetDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_msoftdrop_jesFlavorPhotonJetDown[5];   //[nFatJet]                                          
-  Float_t         FatJet_pt_jesFlavorPureGluonDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_mass_jesFlavorPureGluonDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_msoftdrop_jesFlavorPureGluonDown[5];   //[nFatJet]                                          
-  Float_t         FatJet_pt_jesFlavorPureQuarkDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_mass_jesFlavorPureQuarkDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_msoftdrop_jesFlavorPureQuarkDown[5];   //[nFatJet]                                          
-  Float_t         FatJet_pt_jesFlavorPureCharmDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_mass_jesFlavorPureCharmDown[5];   //[nFatJet]                                               
-  Float_t         FatJet_msoftdrop_jesFlavorPureCharmDown[5];   //[nFatJet]                                          
-  Float_t         FatJet_pt_jesFlavorPureBottomDown[5];   //[nFatJet]
-  Float_t         FatJet_mass_jesFlavorPureBottomDown[5];   //[nFatJet]                                              
-  Float_t         FatJet_msoftdrop_jesFlavorPureBottomDown[5];   //[nFatJet]                                         
-  Float_t         FatJet_pt_jesTimeRunADown[5];   //[nFatJet]                                                        
-  Float_t         FatJet_mass_jesTimeRunADown[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_jesTimeRunADown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_pt_jesTimeRunBDown[5];   //[nFatJet]                                                        
-  Float_t         FatJet_mass_jesTimeRunBDown[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_jesTimeRunBDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_pt_jesTimeRunCDown[5];   //[nFatJet]                                                        
-  Float_t         FatJet_mass_jesTimeRunCDown[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_jesTimeRunCDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_pt_jesTimeRunDDown[5];   //[nFatJet]                                                        
-  Float_t         FatJet_mass_jesTimeRunDDown[5];   //[nFatJet]                                                      
-  Float_t         FatJet_msoftdrop_jesTimeRunDDown[5];   //[nFatJet]                                                 
-  Float_t         FatJet_pt_jesCorrelationGroupMPFInSituDown[5];   //[nFatJet]                                       
-  Float_t         FatJet_mass_jesCorrelationGroupMPFInSituDown[5];   //[nFatJet]                                     
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupMPFInSituDown[5];   //[nFatJet]                                
-  Float_t         FatJet_pt_jesCorrelationGroupIntercalibrationDown[5];   //[nFatJet]                                
-  Float_t         FatJet_mass_jesCorrelationGroupIntercalibrationDown[5];   //[nFatJet]                              
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupIntercalibrationDown[5];   //[nFatJet]                         
-  Float_t         FatJet_pt_jesCorrelationGroupbJESDown[5];   //[nFatJet]                                            
-  Float_t         FatJet_mass_jesCorrelationGroupbJESDown[5];   //[nFatJet]                                          
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupbJESDown[5];   //[nFatJet]                                     
-  Float_t         FatJet_pt_jesCorrelationGroupFlavorDown[5];   //[nFatJet]                                          
-  Float_t         FatJet_mass_jesCorrelationGroupFlavorDown[5];   //[nFatJet]                                        
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupFlavorDown[5];   //[nFatJet]                                   
-  Float_t         FatJet_pt_jesCorrelationGroupUncorrelatedDown[5];   //[nFatJet]                                    
-  Float_t         FatJet_mass_jesCorrelationGroupUncorrelatedDown[5];   //[nFatJet]                                  
-  Float_t         FatJet_msoftdrop_jesCorrelationGroupUncorrelatedDown[5];   //[nFatJet]
+  //Runs TTree
+  //NanoAOD v6
+  TTreeReaderValue<Long64_t> genEventCount_ = {tree_->GetBranchStatus("genEventCount_") ? fReader : fReaderNull, "genEventCount_"};
+  TTreeReaderValue<Double_t> genEventSumw_ = {tree_->GetBranchStatus("genEventSumw_") ? fReader : fReaderNull, "genEventSumw_"};
+  TTreeReaderValue<Double_t> genEventSumw2_ = {tree_->GetBranchStatus("genEventSumw2_") ? fReader : fReaderNull, "genEventSumw2_"};
 
-  TBranch  *b_Jet_pt_jerUp;                                                                       
-  TBranch  *b_Jet_mass_jerUp;                                                                     
-  TBranch  *b_MET_pt_jerUp;
-  TBranch  *b_MET_phi_jerUp;
-  TBranch  *b_Jet_pt_jesAbsoluteStatUp;                                                           
-  TBranch  *b_Jet_mass_jesAbsoluteStatUp;                                                         
-  TBranch  *b_MET_pt_jesAbsoluteStatUp;
-  TBranch  *b_MET_phi_jesAbsoluteStatUp;
-  TBranch  *b_Jet_pt_jesAbsoluteScaleUp;                                                          
-  TBranch  *b_Jet_mass_jesAbsoluteScaleUp;                                                        
-  TBranch  *b_MET_pt_jesAbsoluteScaleUp;
-  TBranch  *b_MET_phi_jesAbsoluteScaleUp;
-  TBranch  *b_Jet_pt_jesAbsoluteSampleUp;                                                         
-  TBranch  *b_Jet_mass_jesAbsoluteSampleUp;                                                       
-  TBranch  *b_MET_pt_jesAbsoluteSampleUp;
-  TBranch  *b_MET_phi_jesAbsoluteSampleUp;
-  TBranch  *b_Jet_pt_jesAbsoluteFlavMapUp;                                                        
-  TBranch  *b_Jet_mass_jesAbsoluteFlavMapUp;                                                      
-  TBranch  *b_MET_pt_jesAbsoluteFlavMapUp;
-  TBranch  *b_MET_phi_jesAbsoluteFlavMapUp;
-  TBranch  *b_Jet_pt_jesAbsoluteMPFBiasUp;                                                        
-  TBranch  *b_Jet_mass_jesAbsoluteMPFBiasUp;                                                      
-  TBranch  *b_MET_pt_jesAbsoluteMPFBiasUp;
-  TBranch  *b_MET_phi_jesAbsoluteMPFBiasUp;
-  TBranch  *b_Jet_pt_jesFragmentationUp;                                                          
-  TBranch  *b_Jet_mass_jesFragmentationUp;                                                        
-  TBranch  *b_MET_pt_jesFragmentationUp;
-  TBranch  *b_MET_phi_jesFragmentationUp;
-  TBranch  *b_Jet_pt_jesSinglePionECALUp;                                                         
-  TBranch  *b_Jet_mass_jesSinglePionECALUp;
-  TBranch  *b_MET_pt_jesSinglePionECALUp;
-  TBranch  *b_MET_phi_jesSinglePionECALUp;
-  TBranch  *b_Jet_pt_jesSinglePionHCALUp;                                                         
-  TBranch  *b_Jet_mass_jesSinglePionHCALUp;                                                       
-  TBranch  *b_MET_pt_jesSinglePionHCALUp;
-  TBranch  *b_MET_phi_jesSinglePionHCALUp;
-  TBranch  *b_Jet_pt_jesFlavorQCDUp;                                                              
-  TBranch  *b_Jet_mass_jesFlavorQCDUp;                                                            
-  TBranch  *b_MET_pt_jesFlavorQCDUp;
-  TBranch  *b_MET_phi_jesFlavorQCDUp;
-  TBranch  *b_Jet_pt_jesTimePtEtaUp;                                                              
-  TBranch  *b_Jet_mass_jesTimePtEtaUp;                                                            
-  TBranch  *b_MET_pt_jesTimePtEtaUp;
-  TBranch  *b_MET_phi_jesTimePtEtaUp;
-  TBranch  *b_Jet_pt_jesRelativeJEREC1Up;                                                         
-  TBranch  *b_Jet_mass_jesRelativeJEREC1Up;                                                       
-  TBranch  *b_MET_pt_jesRelativeJEREC1Up;
-  TBranch  *b_MET_phi_jesRelativeJEREC1Up;
-  TBranch  *b_Jet_pt_jesRelativeJEREC2Up;                                                         
-  TBranch  *b_Jet_mass_jesRelativeJEREC2Up;                                                       
-  TBranch  *b_MET_pt_jesRelativeJEREC2Up;
-  TBranch  *b_MET_phi_jesRelativeJEREC2Up;
-  TBranch  *b_Jet_pt_jesRelativeJERHFUp;                                                          
-  TBranch  *b_Jet_mass_jesRelativeJERHFUp;
-  TBranch  *b_MET_pt_jesRelativeJERHFUp;
-  TBranch  *b_MET_phi_jesRelativeJERHFUp;
-  TBranch  *b_Jet_pt_jesRelativePtBBUp;                                                           
-  TBranch  *b_Jet_mass_jesRelativePtBBUp;                                                         
-  TBranch  *b_MET_pt_jesRelativePtBBUp;
-  TBranch  *b_MET_phi_jesRelativePtBBUp;
-  TBranch  *b_Jet_pt_jesRelativePtEC1Up;                                                          
-  TBranch  *b_Jet_mass_jesRelativePtEC1Up;                                                        
-  TBranch  *b_MET_pt_jesRelativePtEC1Up;
-  TBranch  *b_MET_phi_jesRelativePtEC1Up;
-  TBranch  *b_Jet_pt_jesRelativePtEC2Up;                                                          
-  TBranch  *b_Jet_mass_jesRelativePtEC2Up;                                                        
-  TBranch  *b_MET_pt_jesRelativePtEC2Up;
-  TBranch  *b_MET_phi_jesRelativePtEC2Up;
-  TBranch  *b_Jet_pt_jesRelativePtHFUp;                                                           
-  TBranch  *b_Jet_mass_jesRelativePtHFUp;                                                         
-  TBranch  *b_MET_pt_jesRelativePtHFUp;
-  TBranch  *b_MET_phi_jesRelativePtHFUp;
-  TBranch  *b_Jet_pt_jesRelativeBalUp;                                                            
-  TBranch  *b_Jet_mass_jesRelativeBalUp;                                                          
-  TBranch  *b_MET_pt_jesRelativeBalUp;
-  TBranch  *b_MET_phi_jesRelativeBalUp;
-  TBranch  *b_Jet_pt_jesRelativeSampleUp;                                                         
-  TBranch  *b_Jet_mass_jesRelativeSampleUp;                                                       
-  TBranch  *b_MET_pt_jesRelativeSampleUp;
-  TBranch  *b_MET_phi_jesRelativeSampleUp;
-  TBranch  *b_Jet_pt_jesRelativeFSRUp;                                                            
-  TBranch  *b_Jet_mass_jesRelativeFSRUp;                                                          
-  TBranch  *b_MET_pt_jesRelativeFSRUp;
-  TBranch  *b_MET_phi_jesRelativeFSRUp;
-  TBranch  *b_Jet_pt_jesRelativeStatFSRUp;                                                        
-  TBranch  *b_Jet_mass_jesRelativeStatFSRUp;                                                      
-  TBranch  *b_MET_pt_jesRelativeStatFSRUp;
-  TBranch  *b_MET_phi_jesRelativeStatFSRUp;
-  TBranch  *b_Jet_pt_jesRelativeStatECUp;                                                         
-  TBranch  *b_Jet_mass_jesRelativeStatECUp;                                                       
-  TBranch  *b_MET_pt_jesRelativeStatECUp;
-  TBranch  *b_MET_phi_jesRelativeStatECUp;
-  TBranch  *b_Jet_pt_jesRelativeStatHFUp;                                                         
-  TBranch  *b_Jet_mass_jesRelativeStatHFUp;                                                       
-  TBranch  *b_MET_pt_jesRelativeStatHFUp;
-  TBranch  *b_MET_phi_jesRelativeStatHFUp;
-  TBranch  *b_Jet_pt_jesPileUpDataMCUp;                                                           
-  TBranch  *b_Jet_mass_jesPileUpDataMCUp;                                                         
-  TBranch  *b_MET_pt_jesPileUpDataMCUp;
-  TBranch  *b_MET_phi_jesPileUpDataMCUp;
-  TBranch  *b_Jet_pt_jesPileUpPtRefUp;                                                            
-  TBranch  *b_Jet_mass_jesPileUpPtRefUp;                                                          
-  TBranch  *b_MET_pt_jesPileUpPtRefUp;
-  TBranch  *b_MET_phi_jesPileUpPtRefUp;
-  TBranch  *b_Jet_pt_jesPileUpPtBBUp;                                                             
-  TBranch  *b_Jet_mass_jesPileUpPtBBUp;                                                           
-  TBranch  *b_MET_pt_jesPileUpPtBBUp;
-  TBranch  *b_MET_phi_jesPileUpPtBBUp;
-  TBranch  *b_Jet_pt_jesPileUpPtEC1Up;                                                            
-  TBranch  *b_Jet_mass_jesPileUpPtEC1Up;                                                          
-  TBranch  *b_MET_pt_jesPileUpPtEC1Up;
-  TBranch  *b_MET_phi_jesPileUpPtEC1Up;
-  TBranch  *b_Jet_pt_jesPileUpPtEC2Up;                                                            
-  TBranch  *b_Jet_mass_jesPileUpPtEC2Up;                                                          
-  TBranch  *b_MET_pt_jesPileUpPtEC2Up;
-  TBranch  *b_MET_phi_jesPileUpPtEC2Up;
-  TBranch  *b_Jet_pt_jesPileUpPtHFUp;                                                             
-  TBranch  *b_Jet_mass_jesPileUpPtHFUp;                                                           
-  TBranch  *b_MET_pt_jesPileUpPtHFUp;
-  TBranch  *b_MET_phi_jesPileUpPtHFUp;
-  TBranch  *b_Jet_pt_jesPileUpMuZeroUp;                                                           
-  TBranch  *b_Jet_mass_jesPileUpMuZeroUp; 
-  TBranch  *b_MET_pt_jesPileUpMuZeroUp;
-  TBranch  *b_MET_phi_jesPileUpMuZeroUp;
-  TBranch  *b_Jet_pt_jesPileUpEnvelopeUp;                                                         
-  TBranch  *b_Jet_mass_jesPileUpEnvelopeUp;                                                       
-  TBranch  *b_MET_pt_jesPileUpEnvelopeUp;
-  TBranch  *b_MET_phi_jesPileUpEnvelopeUp;
-  TBranch  *b_Jet_pt_jesSubTotalPileUpUp;                                                         
-  TBranch  *b_Jet_mass_jesSubTotalPileUpUp;                                                       
-  TBranch  *b_MET_pt_jesSubTotalPileUpUp;
-  TBranch  *b_MET_phi_jesSubTotalPileUpUp;
-  TBranch  *b_Jet_pt_jesSubTotalRelativeUp;                                                       
-  TBranch  *b_Jet_mass_jesSubTotalRelativeUp;                                                     
-  TBranch  *b_MET_pt_jesSubTotalRelativeUp;
-  TBranch  *b_MET_phi_jesSubTotalRelativeUp;
-  TBranch  *b_Jet_pt_jesSubTotalPtUp;                                                             
-  TBranch  *b_Jet_mass_jesSubTotalPtUp;                                                           
-  TBranch  *b_MET_pt_jesSubTotalPtUp;
-  TBranch  *b_MET_phi_jesSubTotalPtUp;
-  TBranch  *b_Jet_pt_jesSubTotalScaleUp;                                                          
-  TBranch  *b_Jet_mass_jesSubTotalScaleUp;                                                        
-  TBranch  *b_MET_pt_jesSubTotalScaleUp;
-  TBranch  *b_MET_phi_jesSubTotalScaleUp;
-  TBranch  *b_Jet_pt_jesSubTotalAbsoluteUp;                                                       
-  TBranch  *b_Jet_mass_jesSubTotalAbsoluteUp;                                                     
-  TBranch  *b_MET_pt_jesSubTotalAbsoluteUp;
-  TBranch  *b_MET_phi_jesSubTotalAbsoluteUp;
-  TBranch  *b_Jet_pt_jesSubTotalMCUp;                                                             
-  TBranch  *b_Jet_mass_jesSubTotalMCUp;                                                           
-  TBranch  *b_MET_pt_jesSubTotalMCUp;
-  TBranch  *b_MET_phi_jesSubTotalMCUp;
-  TBranch  *b_Jet_pt_jesTotalUp;                                                                  
-  TBranch  *b_Jet_mass_jesTotalUp;
-  TBranch  *b_MET_pt_jesTotalUp;
-  TBranch  *b_MET_phi_jesTotalUp;
-  TBranch  *b_Jet_pt_jesTotalNoFlavorUp;                                                          
-  TBranch  *b_Jet_mass_jesTotalNoFlavorUp;                                                        
-  TBranch  *b_MET_pt_jesTotalNoFlavorUp;
-  TBranch  *b_MET_phi_jesTotalNoFlavorUp;
-  TBranch  *b_Jet_pt_jesTotalNoTimeUp;                                                            
-  TBranch  *b_Jet_mass_jesTotalNoTimeUp;                                                          
-  TBranch  *b_MET_pt_jesTotalNoTimeUp;
-  TBranch  *b_MET_phi_jesTotalNoTimeUp;
-  TBranch  *b_Jet_pt_jesTotalNoFlavorNoTimeUp;                                                    
-  TBranch  *b_Jet_mass_jesTotalNoFlavorNoTimeUp;                                                  
-  TBranch  *b_MET_pt_jesTotalNoFlavorNoTimeUp;
-  TBranch  *b_MET_phi_jesTotalNoFlavorNoTimeUp;
-  TBranch  *b_Jet_pt_jesFlavorZJetUp;                                                             
-  TBranch  *b_Jet_mass_jesFlavorZJetUp;                                                           
-  TBranch  *b_MET_pt_jesFlavorZJetUp;
-  TBranch  *b_MET_phi_jesFlavorZJetUp;
-  TBranch  *b_Jet_pt_jesFlavorPhotonJetUp;                                                        
-  TBranch  *b_Jet_mass_jesFlavorPhotonJetUp;                                                      
-  TBranch  *b_MET_pt_jesFlavorPhotonJetUp;
-  TBranch  *b_MET_phi_jesFlavorPhotonJetUp;
-  TBranch  *b_Jet_pt_jesFlavorPureGluonUp;                                                        
-  TBranch  *b_Jet_mass_jesFlavorPureGluonUp;                                                      
-  TBranch  *b_MET_pt_jesFlavorPureGluonUp;
-  TBranch  *b_MET_phi_jesFlavorPureGluonUp;
-  TBranch  *b_Jet_pt_jesFlavorPureQuarkUp;                                                        
-  TBranch  *b_Jet_mass_jesFlavorPureQuarkUp;                                                      
-  TBranch  *b_MET_pt_jesFlavorPureQuarkUp;
-  TBranch  *b_MET_phi_jesFlavorPureQuarkUp;
-  TBranch  *b_Jet_pt_jesFlavorPureCharmUp;                                                        
-  TBranch  *b_Jet_mass_jesFlavorPureCharmUp;
-  TBranch  *b_MET_pt_jesFlavorPureCharmUp;
-  TBranch  *b_MET_phi_jesFlavorPureCharmUp;
-  TBranch  *b_Jet_pt_jesFlavorPureBottomUp;                                                       
-  TBranch  *b_Jet_mass_jesFlavorPureBottomUp;                                                     
-  TBranch  *b_MET_pt_jesFlavorPureBottomUp;
-  TBranch  *b_MET_phi_jesFlavorPureBottomUp;
-  TBranch  *b_Jet_pt_jesTimeRunAUp;                                                               
-  TBranch  *b_Jet_mass_jesTimeRunAUp;                                                             
-  TBranch  *b_MET_pt_jesTimeRunAUp;
-  TBranch  *b_MET_phi_jesTimeRunAUp;
-  TBranch  *b_Jet_pt_jesTimeRunBUp;                                                               
-  TBranch  *b_Jet_mass_jesTimeRunBUp;                                                             
-  TBranch  *b_MET_pt_jesTimeRunBUp;
-  TBranch  *b_MET_phi_jesTimeRunBUp;
-  TBranch  *b_Jet_pt_jesTimeRunCUp;                                                               
-  TBranch  *b_Jet_mass_jesTimeRunCUp;                                                             
-  TBranch  *b_MET_pt_jesTimeRunCUp;
-  TBranch  *b_MET_phi_jesTimeRunCUp;
-  TBranch  *b_Jet_pt_jesTimeRunDUp;                                                               
-  TBranch  *b_Jet_mass_jesTimeRunDUp;                                                             
-  TBranch  *b_MET_pt_jesTimeRunDUp;
-  TBranch  *b_MET_phi_jesTimeRunDUp;
-  TBranch  *b_Jet_pt_jesCorrelationGroupMPFInSituUp;                                              
-  TBranch  *b_Jet_mass_jesCorrelationGroupMPFInSituUp;                                            
-  TBranch  *b_MET_pt_jesCorrelationGroupMPFInSituUp;
-  TBranch  *b_MET_phi_jesCorrelationGroupMPFInSituUp;
-  TBranch  *b_Jet_pt_jesCorrelationGroupIntercalibrationUp;                                       
-  TBranch  *b_Jet_mass_jesCorrelationGroupIntercalibrationUp;                                     
-  TBranch  *b_MET_pt_jesCorrelationGroupIntercalibrationUp;
-  TBranch  *b_MET_phi_jesCorrelationGroupIntercalibrationUp;
-  TBranch  *b_Jet_pt_jesCorrelationGroupbJESUp;                                                   
-  TBranch  *b_Jet_mass_jesCorrelationGroupbJESUp;                                                 
-  TBranch  *b_MET_pt_jesCorrelationGroupbJESUp;
-  TBranch  *b_MET_phi_jesCorrelationGroupbJESUp;
-  TBranch  *b_Jet_pt_jesCorrelationGroupFlavorUp;                                                 
-  TBranch  *b_Jet_mass_jesCorrelationGroupFlavorUp;                                               
-  TBranch  *b_MET_pt_jesCorrelationGroupFlavorUp;
-  TBranch  *b_MET_phi_jesCorrelationGroupFlavorUp;
-  TBranch  *b_Jet_pt_jesCorrelationGroupUncorrelatedUp;                                           
-  TBranch  *b_Jet_mass_jesCorrelationGroupUncorrelatedUp;                                         
-  TBranch  *b_MET_pt_jesCorrelationGroupUncorrelatedUp;
-  TBranch  *b_MET_phi_jesCorrelationGroupUncorrelatedUp;
-  TBranch  *b_MET_pt_unclustEnUp;
-  TBranch  *b_MET_phi_unclustEnUp;
-  TBranch  *b_Jet_pt_jerDown;                                                                     
-  TBranch  *b_Jet_mass_jerDown;                                                                   
-  TBranch  *b_MET_pt_jerDown;
-  TBranch  *b_MET_phi_jerDown;
-  TBranch  *b_Jet_pt_jesAbsoluteStatDown;                                                         
-  TBranch  *b_Jet_mass_jesAbsoluteStatDown;                                                       
-  TBranch  *b_MET_pt_jesAbsoluteStatDown;
-  TBranch  *b_MET_phi_jesAbsoluteStatDown;
-  TBranch  *b_Jet_pt_jesAbsoluteScaleDown;                                                        
-  TBranch  *b_Jet_mass_jesAbsoluteScaleDown;                                                      
-  TBranch  *b_MET_pt_jesAbsoluteScaleDown;
-  TBranch  *b_MET_phi_jesAbsoluteScaleDown;
-  TBranch  *b_Jet_pt_jesAbsoluteSampleDown;                                                       
-  TBranch  *b_Jet_mass_jesAbsoluteSampleDown;                                                     
-  TBranch  *b_MET_pt_jesAbsoluteSampleDown;
-  TBranch  *b_MET_phi_jesAbsoluteSampleDown;
-  TBranch  *b_Jet_pt_jesAbsoluteFlavMapDown;                                                      
-  TBranch  *b_Jet_mass_jesAbsoluteFlavMapDown;                                                    
-  TBranch  *b_MET_pt_jesAbsoluteFlavMapDown;
-  TBranch  *b_MET_phi_jesAbsoluteFlavMapDown;
-  TBranch  *b_Jet_pt_jesAbsoluteMPFBiasDown;                                                      
-  TBranch  *b_Jet_mass_jesAbsoluteMPFBiasDown;                                                    
-  TBranch  *b_MET_pt_jesAbsoluteMPFBiasDown;
-  TBranch  *b_MET_phi_jesAbsoluteMPFBiasDown;
-  TBranch  *b_Jet_pt_jesFragmentationDown;                                                        
-  TBranch  *b_Jet_mass_jesFragmentationDown;                                                      
-  TBranch  *b_MET_pt_jesFragmentationDown;
-  TBranch  *b_MET_phi_jesFragmentationDown;
-  TBranch  *b_Jet_pt_jesSinglePionECALDown;                                                       
-  TBranch  *b_Jet_mass_jesSinglePionECALDown;                                                     
-  TBranch  *b_MET_pt_jesSinglePionECALDown;
-  TBranch  *b_MET_phi_jesSinglePionECALDown;
-  TBranch  *b_Jet_pt_jesSinglePionHCALDown;                                                       
-  TBranch  *b_Jet_mass_jesSinglePionHCALDown;                                                     
-  TBranch  *b_MET_pt_jesSinglePionHCALDown;
-  TBranch  *b_MET_phi_jesSinglePionHCALDown;
-  TBranch  *b_Jet_pt_jesFlavorQCDDown;                                                            
-  TBranch  *b_Jet_mass_jesFlavorQCDDown;                                                          
-  TBranch  *b_MET_pt_jesFlavorQCDDown;
-  TBranch  *b_MET_phi_jesFlavorQCDDown;
-  TBranch  *b_Jet_pt_jesTimePtEtaDown;                                                            
-  TBranch  *b_Jet_mass_jesTimePtEtaDown;                                                          
-  TBranch  *b_MET_pt_jesTimePtEtaDown;
-  TBranch  *b_MET_phi_jesTimePtEtaDown;
-  TBranch  *b_Jet_pt_jesRelativeJEREC1Down;                                                       
-  TBranch  *b_Jet_mass_jesRelativeJEREC1Down;                                                     
-  TBranch  *b_MET_pt_jesRelativeJEREC1Down;
-  TBranch  *b_MET_phi_jesRelativeJEREC1Down;
-  TBranch  *b_Jet_pt_jesRelativeJEREC2Down;                                                       
-  TBranch  *b_Jet_mass_jesRelativeJEREC2Down;                                                     
-  TBranch  *b_MET_pt_jesRelativeJEREC2Down;
-  TBranch  *b_MET_phi_jesRelativeJEREC2Down;
-  TBranch  *b_Jet_pt_jesRelativeJERHFDown;                                                        
-  TBranch  *b_Jet_mass_jesRelativeJERHFDown;                                                      
-  TBranch  *b_MET_pt_jesRelativeJERHFDown;
-  TBranch  *b_MET_phi_jesRelativeJERHFDown;
-  TBranch  *b_Jet_pt_jesRelativePtBBDown;                                                         
-  TBranch  *b_Jet_mass_jesRelativePtBBDown;                                                       
-  TBranch  *b_MET_pt_jesRelativePtBBDown;
-  TBranch  *b_MET_phi_jesRelativePtBBDown;
-  TBranch  *b_Jet_pt_jesRelativePtEC1Down;                                                        
-  TBranch  *b_Jet_mass_jesRelativePtEC1Down;                                                      
-  TBranch  *b_MET_pt_jesRelativePtEC1Down;
-  TBranch  *b_MET_phi_jesRelativePtEC1Down;
-  TBranch  *b_Jet_pt_jesRelativePtEC2Down;                                                        
-  TBranch  *b_Jet_mass_jesRelativePtEC2Down;                                                      
-  TBranch  *b_MET_pt_jesRelativePtEC2Down;
-  TBranch  *b_MET_phi_jesRelativePtEC2Down;
-  TBranch  *b_Jet_pt_jesRelativePtHFDown;                                                         
-  TBranch  *b_Jet_mass_jesRelativePtHFDown;                                                       
-  TBranch  *b_MET_pt_jesRelativePtHFDown;
-  TBranch  *b_MET_phi_jesRelativePtHFDown;
-  TBranch  *b_Jet_pt_jesRelativeBalDown;                                                          
-  TBranch  *b_Jet_mass_jesRelativeBalDown;                                                        
-  TBranch  *b_MET_pt_jesRelativeBalDown;
-  TBranch  *b_MET_phi_jesRelativeBalDown;
-  TBranch  *b_Jet_pt_jesRelativeSampleDown;                                                       
-  TBranch  *b_Jet_mass_jesRelativeSampleDown;                                                     
-  TBranch  *b_MET_pt_jesRelativeSampleDown;
-  TBranch  *b_MET_phi_jesRelativeSampleDown;
-  TBranch  *b_Jet_pt_jesRelativeFSRDown;
-  TBranch  *b_Jet_mass_jesRelativeFSRDown;                                                        
-  TBranch  *b_MET_pt_jesRelativeFSRDown;
-  TBranch  *b_MET_phi_jesRelativeFSRDown;
-  TBranch  *b_Jet_pt_jesRelativeStatFSRDown;                                                      
-  TBranch  *b_Jet_mass_jesRelativeStatFSRDown;                                                    
-  TBranch  *b_MET_pt_jesRelativeStatFSRDown;
-  TBranch  *b_MET_phi_jesRelativeStatFSRDown;
-  TBranch  *b_Jet_pt_jesRelativeStatECDown;                                                       
-  TBranch  *b_Jet_mass_jesRelativeStatECDown;                                                     
-  TBranch  *b_MET_pt_jesRelativeStatECDown;
-  TBranch  *b_MET_phi_jesRelativeStatECDown;
-  TBranch  *b_Jet_pt_jesRelativeStatHFDown;                                                       
-  TBranch  *b_Jet_mass_jesRelativeStatHFDown;                                                     
-  TBranch  *b_MET_pt_jesRelativeStatHFDown;
-  TBranch  *b_MET_phi_jesRelativeStatHFDown;
-  TBranch  *b_Jet_pt_jesPileUpDataMCDown;                                                         
-  TBranch  *b_Jet_mass_jesPileUpDataMCDown;                                                       
-  TBranch  *b_MET_pt_jesPileUpDataMCDown;
-  TBranch  *b_MET_phi_jesPileUpDataMCDown;
-  TBranch  *b_Jet_pt_jesPileUpPtRefDown;                                                          
-  TBranch  *b_Jet_mass_jesPileUpPtRefDown;                                                        
-  TBranch  *b_MET_pt_jesPileUpPtRefDown;
-  TBranch  *b_MET_phi_jesPileUpPtRefDown;
-  TBranch  *b_Jet_pt_jesPileUpPtBBDown;                                                           
-  TBranch  *b_Jet_mass_jesPileUpPtBBDown;                                                         
-  TBranch  *b_MET_pt_jesPileUpPtBBDown;
-  TBranch  *b_MET_phi_jesPileUpPtBBDown;
-  TBranch  *b_Jet_pt_jesPileUpPtEC1Down;                                                          
-  TBranch  *b_Jet_mass_jesPileUpPtEC1Down;                                                        
-  TBranch  *b_MET_pt_jesPileUpPtEC1Down;
-  TBranch  *b_MET_phi_jesPileUpPtEC1Down;
-  TBranch  *b_Jet_pt_jesPileUpPtEC2Down;                                                          
-  TBranch  *b_Jet_mass_jesPileUpPtEC2Down;                                                        
-  TBranch  *b_MET_pt_jesPileUpPtEC2Down;
-  TBranch  *b_MET_phi_jesPileUpPtEC2Down;
-  TBranch  *b_Jet_pt_jesPileUpPtHFDown;                                                           
-  TBranch  *b_Jet_mass_jesPileUpPtHFDown;                                                         
-  TBranch  *b_MET_pt_jesPileUpPtHFDown;
-  TBranch  *b_MET_phi_jesPileUpPtHFDown;
-  TBranch  *b_Jet_pt_jesPileUpMuZeroDown;                                                         
-  TBranch  *b_Jet_mass_jesPileUpMuZeroDown;                                                       
-  TBranch  *b_MET_pt_jesPileUpMuZeroDown;
-  TBranch  *b_MET_phi_jesPileUpMuZeroDown;
-  TBranch  *b_Jet_pt_jesPileUpEnvelopeDown;                                                       
-  TBranch  *b_Jet_mass_jesPileUpEnvelopeDown;                                                     
-  TBranch  *b_MET_pt_jesPileUpEnvelopeDown;
-  TBranch  *b_MET_phi_jesPileUpEnvelopeDown;
-  TBranch  *b_Jet_pt_jesSubTotalPileUpDown;                                                       
-  TBranch  *b_Jet_mass_jesSubTotalPileUpDown;                                                     
-  TBranch  *b_MET_pt_jesSubTotalPileUpDown;
-  TBranch  *b_MET_phi_jesSubTotalPileUpDown;
-  TBranch  *b_Jet_pt_jesSubTotalRelativeDown;                                                     
-  TBranch  *b_Jet_mass_jesSubTotalRelativeDown;                                                   
-  TBranch  *b_MET_pt_jesSubTotalRelativeDown;
-  TBranch  *b_MET_phi_jesSubTotalRelativeDown;
-  TBranch  *b_Jet_pt_jesSubTotalPtDown;                                                           
-  TBranch  *b_Jet_mass_jesSubTotalPtDown;                                                         
-  TBranch  *b_MET_pt_jesSubTotalPtDown;
-  TBranch  *b_MET_phi_jesSubTotalPtDown;
-  TBranch  *b_Jet_pt_jesSubTotalScaleDown;                                                        
-  TBranch  *b_Jet_mass_jesSubTotalScaleDown;                                                      
-  TBranch  *b_MET_pt_jesSubTotalScaleDown;
-  TBranch  *b_MET_phi_jesSubTotalScaleDown;
-  TBranch  *b_Jet_pt_jesSubTotalAbsoluteDown;                                                     
-  TBranch  *b_Jet_mass_jesSubTotalAbsoluteDown;                                                   
-  TBranch  *b_MET_pt_jesSubTotalAbsoluteDown;
-  TBranch  *b_MET_phi_jesSubTotalAbsoluteDown;
-  TBranch  *b_Jet_pt_jesSubTotalMCDown;                                                           
-  TBranch  *b_Jet_mass_jesSubTotalMCDown;                                                         
-  TBranch  *b_MET_pt_jesSubTotalMCDown;
-  TBranch  *b_MET_phi_jesSubTotalMCDown;
-  TBranch  *b_Jet_pt_jesTotalDown;                                                                
-  TBranch  *b_Jet_mass_jesTotalDown;                                                              
-  TBranch  *b_MET_pt_jesTotalDown;
-  TBranch  *b_MET_phi_jesTotalDown;
-  TBranch  *b_Jet_pt_jesTotalNoFlavorDown;                                                        
-  TBranch  *b_Jet_mass_jesTotalNoFlavorDown;                                                      
-  TBranch  *b_MET_pt_jesTotalNoFlavorDown;
-  TBranch  *b_MET_phi_jesTotalNoFlavorDown;
-  TBranch  *b_Jet_pt_jesTotalNoTimeDown;                                                          
-  TBranch  *b_Jet_mass_jesTotalNoTimeDown;                                                        
-  TBranch  *b_MET_pt_jesTotalNoTimeDown;
-  TBranch  *b_MET_phi_jesTotalNoTimeDown;
-  TBranch  *b_Jet_pt_jesTotalNoFlavorNoTimeDown;                                                  
-  TBranch  *b_Jet_mass_jesTotalNoFlavorNoTimeDown;                                                
-  TBranch  *b_MET_pt_jesTotalNoFlavorNoTimeDown;
-  TBranch  *b_MET_phi_jesTotalNoFlavorNoTimeDown;
-  TBranch  *b_Jet_pt_jesFlavorZJetDown;                                                           
-  TBranch  *b_Jet_mass_jesFlavorZJetDown;                                                         
-  TBranch  *b_MET_pt_jesFlavorZJetDown;
-  TBranch  *b_MET_phi_jesFlavorZJetDown;
-  TBranch  *b_Jet_pt_jesFlavorPhotonJetDown;                                                      
-  TBranch  *b_Jet_mass_jesFlavorPhotonJetDown;                                                    
-  TBranch  *b_MET_pt_jesFlavorPhotonJetDown;
-  TBranch  *b_MET_phi_jesFlavorPhotonJetDown;
-  TBranch  *b_Jet_pt_jesFlavorPureGluonDown;                                                      
-  TBranch  *b_Jet_mass_jesFlavorPureGluonDown;                                                    
-  TBranch  *b_MET_pt_jesFlavorPureGluonDown;
-  TBranch  *b_MET_phi_jesFlavorPureGluonDown;
-  TBranch  *b_Jet_pt_jesFlavorPureQuarkDown;                                                      
-  TBranch  *b_Jet_mass_jesFlavorPureQuarkDown;                                                    
-  TBranch  *b_MET_pt_jesFlavorPureQuarkDown;
-  TBranch  *b_MET_phi_jesFlavorPureQuarkDown;
-  TBranch  *b_Jet_pt_jesFlavorPureCharmDown;                                                      
-  TBranch  *b_Jet_mass_jesFlavorPureCharmDown;                                                    
-  TBranch  *b_MET_pt_jesFlavorPureCharmDown;
-  TBranch  *b_MET_phi_jesFlavorPureCharmDown;
-  TBranch  *b_Jet_pt_jesFlavorPureBottomDown;                                                     
-  TBranch  *b_Jet_mass_jesFlavorPureBottomDown;                                                   
-  TBranch  *b_MET_pt_jesFlavorPureBottomDown;
-  TBranch  *b_MET_phi_jesFlavorPureBottomDown;
-  TBranch  *b_Jet_pt_jesTimeRunADown;                                                             
-  TBranch  *b_Jet_mass_jesTimeRunADown;                                                           
-  TBranch  *b_MET_pt_jesTimeRunADown;
-  TBranch  *b_MET_phi_jesTimeRunADown;
-  TBranch  *b_Jet_pt_jesTimeRunBDown;                                                             
-  TBranch  *b_Jet_mass_jesTimeRunBDown;                                                           
-  TBranch  *b_MET_pt_jesTimeRunBDown;
-  TBranch  *b_MET_phi_jesTimeRunBDown;
-  TBranch  *b_Jet_pt_jesTimeRunCDown;                                                             
-  TBranch  *b_Jet_mass_jesTimeRunCDown;                                                           
-  TBranch  *b_MET_pt_jesTimeRunCDown;
-  TBranch  *b_MET_phi_jesTimeRunCDown;
-  TBranch  *b_Jet_pt_jesTimeRunDDown;                                                             
-  TBranch  *b_Jet_mass_jesTimeRunDDown;                                                           
-  TBranch  *b_MET_pt_jesTimeRunDDown;
-  TBranch  *b_MET_phi_jesTimeRunDDown;
-  TBranch  *b_Jet_pt_jesCorrelationGroupMPFInSituDown;                                            
-  TBranch  *b_Jet_mass_jesCorrelationGroupMPFInSituDown;                                          
-  TBranch  *b_MET_pt_jesCorrelationGroupMPFInSituDown;
-  TBranch  *b_MET_phi_jesCorrelationGroupMPFInSituDown;
-  TBranch  *b_Jet_pt_jesCorrelationGroupIntercalibrationDown;                                     
-  TBranch  *b_Jet_mass_jesCorrelationGroupIntercalibrationDown;                                   
-  TBranch  *b_MET_pt_jesCorrelationGroupIntercalibrationDown;
-  TBranch  *b_MET_phi_jesCorrelationGroupIntercalibrationDown;
-  TBranch  *b_Jet_pt_jesCorrelationGroupbJESDown;                                                 
-  TBranch  *b_Jet_mass_jesCorrelationGroupbJESDown;                                               
-  TBranch  *b_MET_pt_jesCorrelationGroupbJESDown;
-  TBranch  *b_MET_phi_jesCorrelationGroupbJESDown;
-  TBranch  *b_Jet_pt_jesCorrelationGroupFlavorDown;                                               
-  TBranch  *b_Jet_mass_jesCorrelationGroupFlavorDown;                                             
-  TBranch  *b_MET_pt_jesCorrelationGroupFlavorDown;
-  TBranch  *b_MET_phi_jesCorrelationGroupFlavorDown;
-  TBranch  *b_Jet_pt_jesCorrelationGroupUncorrelatedDown;                                         
-  TBranch  *b_Jet_mass_jesCorrelationGroupUncorrelatedDown;                                       
-  TBranch  *b_MET_pt_jesCorrelationGroupUncorrelatedDown;
-  TBranch  *b_MET_phi_jesCorrelationGroupUncorrelatedDown;
-  TBranch  *b_MET_pt_unclustEnDown;
-  TBranch  *b_MET_phi_unclustEnDown;
-  TBranch  *b_FatJet_pt_jerUp;                                                                  
-  TBranch  *b_FatJet_mass_jerUp;                                                                
-  TBranch  *b_FatJet_mass_jmrUp;                                                                
-  TBranch  *b_FatJet_mass_jmsUp;                                                                
-  TBranch  *b_FatJet_msoftdrop_jerUp;                                                           
-  TBranch  *b_FatJet_msoftdrop_jmrUp;                                                           
-  TBranch  *b_FatJet_msoftdrop_jmsUp;                                                           
-  TBranch  *b_FatJet_msoftdrop_tau21DDT_jerUp;                                                  
-  TBranch  *b_FatJet_msoftdrop_tau21DDT_jmrUp;                                                  
-  TBranch  *b_FatJet_msoftdrop_tau21DDT_jmsUp;                                                  
-  TBranch  *b_FatJet_pt_jesAbsoluteStatUp;                                                      
-  TBranch  *b_FatJet_mass_jesAbsoluteStatUp;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteStatUp;                                               
-  TBranch  *b_FatJet_pt_jesAbsoluteScaleUp;                                                     
-  TBranch  *b_FatJet_mass_jesAbsoluteScaleUp;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteScaleUp;                                              
-  TBranch  *b_FatJet_pt_jesAbsoluteSampleUp;                                                    
-  TBranch  *b_FatJet_mass_jesAbsoluteSampleUp;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteSampleUp;                                             
-  TBranch  *b_FatJet_pt_jesAbsoluteFlavMapUp;                                                   
-  TBranch  *b_FatJet_mass_jesAbsoluteFlavMapUp;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteFlavMapUp;                                            
-  TBranch  *b_FatJet_pt_jesAbsoluteMPFBiasUp;                                                   
-  TBranch  *b_FatJet_mass_jesAbsoluteMPFBiasUp;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteMPFBiasUp;                                            
-  TBranch  *b_FatJet_pt_jesFragmentationUp;                                                     
-  TBranch  *b_FatJet_mass_jesFragmentationUp;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesFragmentationUp;                                              
-  TBranch  *b_FatJet_pt_jesSinglePionECALUp;                                                    
-  TBranch  *b_FatJet_mass_jesSinglePionECALUp;
-  TBranch  *b_FatJet_msoftdrop_jesSinglePionECALUp;                                             
-  TBranch  *b_FatJet_pt_jesSinglePionHCALUp;                                                    
-  TBranch  *b_FatJet_mass_jesSinglePionHCALUp;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesSinglePionHCALUp;                                             
-  TBranch  *b_FatJet_pt_jesFlavorQCDUp;                                                         
-  TBranch  *b_FatJet_mass_jesFlavorQCDUp;                                                       
-  TBranch  *b_FatJet_msoftdrop_jesFlavorQCDUp;                                                  
-  TBranch  *b_FatJet_pt_jesTimePtEtaUp;                                                         
-  TBranch  *b_FatJet_mass_jesTimePtEtaUp;                                                       
-  TBranch  *b_FatJet_msoftdrop_jesTimePtEtaUp;                                                  
-  TBranch  *b_FatJet_pt_jesRelativeJEREC1Up;                                                    
-  TBranch  *b_FatJet_mass_jesRelativeJEREC1Up;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesRelativeJEREC1Up;                                             
-  TBranch  *b_FatJet_pt_jesRelativeJEREC2Up;                                                    
-  TBranch  *b_FatJet_mass_jesRelativeJEREC2Up;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesRelativeJEREC2Up;                                             
-  TBranch  *b_FatJet_pt_jesRelativeJERHFUp;                                                     
-  TBranch  *b_FatJet_mass_jesRelativeJERHFUp;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesRelativeJERHFUp;                                              
-  TBranch  *b_FatJet_pt_jesRelativePtBBUp;                                                      
-  TBranch  *b_FatJet_mass_jesRelativePtBBUp;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesRelativePtBBUp;                                               
-  TBranch  *b_FatJet_pt_jesRelativePtEC1Up;                                                     
-  TBranch  *b_FatJet_mass_jesRelativePtEC1Up;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesRelativePtEC1Up;                                              
-  TBranch  *b_FatJet_pt_jesRelativePtEC2Up;                                                     
-  TBranch  *b_FatJet_mass_jesRelativePtEC2Up;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesRelativePtEC2Up;                                              
-  TBranch  *b_FatJet_pt_jesRelativePtHFUp;                                                      
-  TBranch  *b_FatJet_mass_jesRelativePtHFUp;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesRelativePtHFUp;                                               
-  TBranch  *b_FatJet_pt_jesRelativeBalUp;                                                       
-  TBranch  *b_FatJet_mass_jesRelativeBalUp;                                                     
-  TBranch  *b_FatJet_msoftdrop_jesRelativeBalUp; 
-  TBranch  *b_FatJet_pt_jesRelativeSampleUp;                                                    
-  TBranch  *b_FatJet_mass_jesRelativeSampleUp;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesRelativeSampleUp;                                             
-  TBranch  *b_FatJet_pt_jesRelativeFSRUp;                                                       
-  TBranch  *b_FatJet_mass_jesRelativeFSRUp;                                                     
-  TBranch  *b_FatJet_msoftdrop_jesRelativeFSRUp;                                                
-  TBranch  *b_FatJet_pt_jesRelativeStatFSRUp;                                                   
-  TBranch  *b_FatJet_mass_jesRelativeStatFSRUp;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesRelativeStatFSRUp;                                            
-  TBranch  *b_FatJet_pt_jesRelativeStatECUp;                                                    
-  TBranch  *b_FatJet_mass_jesRelativeStatECUp;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesRelativeStatECUp;                                             
-  TBranch  *b_FatJet_pt_jesRelativeStatHFUp;                                                    
-  TBranch  *b_FatJet_mass_jesRelativeStatHFUp;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesRelativeStatHFUp;                                             
-  TBranch  *b_FatJet_pt_jesPileUpDataMCUp;                                                      
-  TBranch  *b_FatJet_mass_jesPileUpDataMCUp;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesPileUpDataMCUp;                                               
-  TBranch  *b_FatJet_pt_jesPileUpPtRefUp;                                                       
-  TBranch  *b_FatJet_mass_jesPileUpPtRefUp;                                                     
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtRefUp;                                                
-  TBranch  *b_FatJet_pt_jesPileUpPtBBUp;                                                        
-  TBranch  *b_FatJet_mass_jesPileUpPtBBUp;                                                      
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtBBUp;                                                 
-  TBranch  *b_FatJet_pt_jesPileUpPtEC1Up;                                                       
-  TBranch  *b_FatJet_mass_jesPileUpPtEC1Up;                                                     
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtEC1Up;                                                
-  TBranch  *b_FatJet_pt_jesPileUpPtEC2Up;                                                       
-  TBranch  *b_FatJet_mass_jesPileUpPtEC2Up;                                                     
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtEC2Up;                                                
-  TBranch  *b_FatJet_pt_jesPileUpPtHFUp;                                                        
-  TBranch  *b_FatJet_mass_jesPileUpPtHFUp;                                                      
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtHFUp;                                                 
-  TBranch  *b_FatJet_pt_jesPileUpMuZeroUp;
-  TBranch  *b_FatJet_mass_jesPileUpMuZeroUp;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesPileUpMuZeroUp;                                               
-  TBranch  *b_FatJet_pt_jesPileUpEnvelopeUp;                                                    
-  TBranch  *b_FatJet_mass_jesPileUpEnvelopeUp;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesPileUpEnvelopeUp;                                             
-  TBranch  *b_FatJet_pt_jesSubTotalPileUpUp;                                                    
-  TBranch  *b_FatJet_mass_jesSubTotalPileUpUp;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalPileUpUp;                                             
-  TBranch  *b_FatJet_pt_jesSubTotalRelativeUp;                                                  
-  TBranch  *b_FatJet_mass_jesSubTotalRelativeUp;                                                
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalRelativeUp;                                           
-  TBranch  *b_FatJet_pt_jesSubTotalPtUp;                                                        
-  TBranch  *b_FatJet_mass_jesSubTotalPtUp;                                                      
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalPtUp;                                                 
-  TBranch  *b_FatJet_pt_jesSubTotalScaleUp;                                                     
-  TBranch  *b_FatJet_mass_jesSubTotalScaleUp;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalScaleUp;                                              
-  TBranch  *b_FatJet_pt_jesSubTotalAbsoluteUp;                                                  
-  TBranch  *b_FatJet_mass_jesSubTotalAbsoluteUp;                                                
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalAbsoluteUp;                                           
-  TBranch  *b_FatJet_pt_jesSubTotalMCUp;                                                        
-  TBranch  *b_FatJet_mass_jesSubTotalMCUp;                                                      
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalMCUp;                                                 
-  TBranch  *b_FatJet_pt_jesTotalUp;                                                             
-  TBranch  *b_FatJet_mass_jesTotalUp;                                                           
-  TBranch  *b_FatJet_msoftdrop_jesTotalUp;                                                      
-  TBranch  *b_FatJet_pt_jesTotalNoFlavorUp;                                                     
-  TBranch  *b_FatJet_mass_jesTotalNoFlavorUp;
-  TBranch  *b_FatJet_msoftdrop_jesTotalNoFlavorUp;                                              
-  TBranch  *b_FatJet_pt_jesTotalNoTimeUp;                                                       
-  TBranch  *b_FatJet_mass_jesTotalNoTimeUp;                                                     
-  TBranch  *b_FatJet_msoftdrop_jesTotalNoTimeUp;                                                
-  TBranch  *b_FatJet_pt_jesTotalNoFlavorNoTimeUp;                                               
-  TBranch  *b_FatJet_mass_jesTotalNoFlavorNoTimeUp;                                             
-  TBranch  *b_FatJet_msoftdrop_jesTotalNoFlavorNoTimeUp;                                        
-  TBranch  *b_FatJet_pt_jesFlavorZJetUp;                                                        
-  TBranch  *b_FatJet_mass_jesFlavorZJetUp;                                                      
-  TBranch  *b_FatJet_msoftdrop_jesFlavorZJetUp;                                                 
-  TBranch  *b_FatJet_pt_jesFlavorPhotonJetUp;                                                   
-  TBranch  *b_FatJet_mass_jesFlavorPhotonJetUp;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPhotonJetUp;                                            
-  TBranch  *b_FatJet_pt_jesFlavorPureGluonUp;                                                   
-  TBranch  *b_FatJet_mass_jesFlavorPureGluonUp;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPureGluonUp;                                            
-  TBranch  *b_FatJet_pt_jesFlavorPureQuarkUp;                                                   
-  TBranch  *b_FatJet_mass_jesFlavorPureQuarkUp;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPureQuarkUp;                                            
-  TBranch  *b_FatJet_pt_jesFlavorPureCharmUp;                                                   
-  TBranch  *b_FatJet_mass_jesFlavorPureCharmUp;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPureCharmUp;                                            
-  TBranch  *b_FatJet_pt_jesFlavorPureBottomUp;                                                  
-  TBranch  *b_FatJet_mass_jesFlavorPureBottomUp;                                                
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPureBottomUp;                                           
-  TBranch  *b_FatJet_pt_jesTimeRunAUp;                                                          
-  TBranch  *b_FatJet_mass_jesTimeRunAUp;                                                        
-  TBranch  *b_FatJet_msoftdrop_jesTimeRunAUp;                                                   
-  TBranch  *b_FatJet_pt_jesTimeRunBUp;                                                          
-  TBranch  *b_FatJet_mass_jesTimeRunBUp;                                                        
-  TBranch  *b_FatJet_msoftdrop_jesTimeRunBUp;                                                   
-  TBranch  *b_FatJet_pt_jesTimeRunCUp;                                                          
-  TBranch  *b_FatJet_mass_jesTimeRunCUp;                                                        
-  TBranch  *b_FatJet_msoftdrop_jesTimeRunCUp;                                                   
-  TBranch  *b_FatJet_pt_jesTimeRunDUp;                                                          
-  TBranch  *b_FatJet_mass_jesTimeRunDUp;                                                        
-  TBranch  *b_FatJet_msoftdrop_jesTimeRunDUp;                                                   
-  TBranch  *b_FatJet_pt_jesCorrelationGroupMPFInSituUp;                                         
-  TBranch  *b_FatJet_mass_jesCorrelationGroupMPFInSituUp;
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupMPFInSituUp;                                  
-  TBranch  *b_FatJet_pt_jesCorrelationGroupIntercalibrationUp;                                  
-  TBranch  *b_FatJet_mass_jesCorrelationGroupIntercalibrationUp;                                
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupIntercalibrationUp;                           
-  TBranch  *b_FatJet_pt_jesCorrelationGroupbJESUp;                                              
-  TBranch  *b_FatJet_mass_jesCorrelationGroupbJESUp;                                            
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupbJESUp;                                       
-  TBranch  *b_FatJet_pt_jesCorrelationGroupFlavorUp;                                            
-  TBranch  *b_FatJet_mass_jesCorrelationGroupFlavorUp;                                          
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupFlavorUp;                                     
-  TBranch  *b_FatJet_pt_jesCorrelationGroupUncorrelatedUp;                                      
-  TBranch  *b_FatJet_mass_jesCorrelationGroupUncorrelatedUp;                                    
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupUncorrelatedUp;                               
-  TBranch  *b_FatJet_pt_jerDown;                                                                
-  TBranch  *b_FatJet_mass_jerDown;                                                              
-  TBranch  *b_FatJet_mass_jmrDown;                                                              
-  TBranch  *b_FatJet_mass_jmsDown;                                                              
-  TBranch  *b_FatJet_msoftdrop_jerDown;                                                         
-  TBranch  *b_FatJet_msoftdrop_jmrDown;                                                         
-  TBranch  *b_FatJet_msoftdrop_jmsDown;                                                         
-  TBranch  *b_FatJet_msoftdrop_tau21DDT_jerDown;                                                
-  TBranch  *b_FatJet_msoftdrop_tau21DDT_jmrDown;                                                
-  TBranch  *b_FatJet_msoftdrop_tau21DDT_jmsDown;                                                
-  TBranch  *b_FatJet_pt_jesAbsoluteStatDown;                                                    
-  TBranch  *b_FatJet_mass_jesAbsoluteStatDown;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteStatDown;                                             
-  TBranch  *b_FatJet_pt_jesAbsoluteScaleDown;                                                   
-  TBranch  *b_FatJet_mass_jesAbsoluteScaleDown;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteScaleDown;                                            
-  TBranch  *b_FatJet_pt_jesAbsoluteSampleDown;                                                  
-  TBranch  *b_FatJet_mass_jesAbsoluteSampleDown;                                                
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteSampleDown;                                           
-  TBranch  *b_FatJet_pt_jesAbsoluteFlavMapDown;                                                 
-  TBranch  *b_FatJet_mass_jesAbsoluteFlavMapDown;                                               
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteFlavMapDown;                                          
-  TBranch  *b_FatJet_pt_jesAbsoluteMPFBiasDown;
-  TBranch  *b_FatJet_mass_jesAbsoluteMPFBiasDown;                                               
-  TBranch  *b_FatJet_msoftdrop_jesAbsoluteMPFBiasDown;                                          
-  TBranch  *b_FatJet_pt_jesFragmentationDown;                                                   
-  TBranch  *b_FatJet_mass_jesFragmentationDown;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesFragmentationDown;                                            
-  TBranch  *b_FatJet_pt_jesSinglePionECALDown;                                                  
-  TBranch  *b_FatJet_mass_jesSinglePionECALDown;                                                
-  TBranch  *b_FatJet_msoftdrop_jesSinglePionECALDown;                                           
-  TBranch  *b_FatJet_pt_jesSinglePionHCALDown;                                                  
-  TBranch  *b_FatJet_mass_jesSinglePionHCALDown;                                                
-  TBranch  *b_FatJet_msoftdrop_jesSinglePionHCALDown;                                           
-  TBranch  *b_FatJet_pt_jesFlavorQCDDown;                                                       
-  TBranch  *b_FatJet_mass_jesFlavorQCDDown;                                                     
-  TBranch  *b_FatJet_msoftdrop_jesFlavorQCDDown;                                                
-  TBranch  *b_FatJet_pt_jesTimePtEtaDown;                                                       
-  TBranch  *b_FatJet_mass_jesTimePtEtaDown;                                                     
-  TBranch  *b_FatJet_msoftdrop_jesTimePtEtaDown;                                                
-  TBranch  *b_FatJet_pt_jesRelativeJEREC1Down;                                                  
-  TBranch  *b_FatJet_mass_jesRelativeJEREC1Down;                                                
-  TBranch  *b_FatJet_msoftdrop_jesRelativeJEREC1Down;                                           
-  TBranch  *b_FatJet_pt_jesRelativeJEREC2Down;                                                  
-  TBranch  *b_FatJet_mass_jesRelativeJEREC2Down;                                                
-  TBranch  *b_FatJet_msoftdrop_jesRelativeJEREC2Down;                                           
-  TBranch  *b_FatJet_pt_jesRelativeJERHFDown;                                                   
-  TBranch  *b_FatJet_mass_jesRelativeJERHFDown;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesRelativeJERHFDown;                                            
-  TBranch  *b_FatJet_pt_jesRelativePtBBDown;                                                    
-  TBranch  *b_FatJet_mass_jesRelativePtBBDown;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesRelativePtBBDown;                                             
-  TBranch  *b_FatJet_pt_jesRelativePtEC1Down;                                                   
-  TBranch  *b_FatJet_mass_jesRelativePtEC1Down;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesRelativePtEC1Down;                                            
-  TBranch  *b_FatJet_pt_jesRelativePtEC2Down;                                                   
-  TBranch  *b_FatJet_mass_jesRelativePtEC2Down;
-  TBranch  *b_FatJet_msoftdrop_jesRelativePtEC2Down;                                            
-  TBranch  *b_FatJet_pt_jesRelativePtHFDown;                                                    
-  TBranch  *b_FatJet_mass_jesRelativePtHFDown;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesRelativePtHFDown;                                             
-  TBranch  *b_FatJet_pt_jesRelativeBalDown;                                                     
-  TBranch  *b_FatJet_mass_jesRelativeBalDown;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesRelativeBalDown;                                              
-  TBranch  *b_FatJet_pt_jesRelativeSampleDown;                                                  
-  TBranch  *b_FatJet_mass_jesRelativeSampleDown;                                                
-  TBranch  *b_FatJet_msoftdrop_jesRelativeSampleDown;                                           
-  TBranch  *b_FatJet_pt_jesRelativeFSRDown;                                                     
-  TBranch  *b_FatJet_mass_jesRelativeFSRDown;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesRelativeFSRDown;                                              
-  TBranch  *b_FatJet_pt_jesRelativeStatFSRDown;                                                 
-  TBranch  *b_FatJet_mass_jesRelativeStatFSRDown;                                               
-  TBranch  *b_FatJet_msoftdrop_jesRelativeStatFSRDown;                                          
-  TBranch  *b_FatJet_pt_jesRelativeStatECDown;                                                  
-  TBranch  *b_FatJet_mass_jesRelativeStatECDown;                                                
-  TBranch  *b_FatJet_msoftdrop_jesRelativeStatECDown;                                           
-  TBranch  *b_FatJet_pt_jesRelativeStatHFDown;                                                  
-  TBranch  *b_FatJet_mass_jesRelativeStatHFDown;                                                
-  TBranch  *b_FatJet_msoftdrop_jesRelativeStatHFDown;                                           
-  TBranch  *b_FatJet_pt_jesPileUpDataMCDown;                                                    
-  TBranch  *b_FatJet_mass_jesPileUpDataMCDown;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesPileUpDataMCDown;                                             
-  TBranch  *b_FatJet_pt_jesPileUpPtRefDown;                                                     
-  TBranch  *b_FatJet_mass_jesPileUpPtRefDown;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtRefDown;                                              
-  TBranch  *b_FatJet_pt_jesPileUpPtBBDown;                                                      
-  TBranch  *b_FatJet_mass_jesPileUpPtBBDown;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtBBDown;                                               
-  TBranch  *b_FatJet_pt_jesPileUpPtEC1Down;
-  TBranch  *b_FatJet_mass_jesPileUpPtEC1Down;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtEC1Down;                                              
-  TBranch  *b_FatJet_pt_jesPileUpPtEC2Down;                                                     
-  TBranch  *b_FatJet_mass_jesPileUpPtEC2Down;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtEC2Down;                                              
-  TBranch  *b_FatJet_pt_jesPileUpPtHFDown;                                                      
-  TBranch  *b_FatJet_mass_jesPileUpPtHFDown;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesPileUpPtHFDown;                                               
-  TBranch  *b_FatJet_pt_jesPileUpMuZeroDown;                                                    
-  TBranch  *b_FatJet_mass_jesPileUpMuZeroDown;                                                  
-  TBranch  *b_FatJet_msoftdrop_jesPileUpMuZeroDown;                                             
-  TBranch  *b_FatJet_pt_jesPileUpEnvelopeDown;                                                  
-  TBranch  *b_FatJet_mass_jesPileUpEnvelopeDown;                                                
-  TBranch  *b_FatJet_msoftdrop_jesPileUpEnvelopeDown;                                           
-  TBranch  *b_FatJet_pt_jesSubTotalPileUpDown;                                                  
-  TBranch  *b_FatJet_mass_jesSubTotalPileUpDown;                                                
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalPileUpDown;                                           
-  TBranch  *b_FatJet_pt_jesSubTotalRelativeDown;                                                
-  TBranch  *b_FatJet_mass_jesSubTotalRelativeDown;                                              
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalRelativeDown;                                         
-  TBranch  *b_FatJet_pt_jesSubTotalPtDown;                                                      
-  TBranch  *b_FatJet_mass_jesSubTotalPtDown;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalPtDown;                                               
-  TBranch  *b_FatJet_pt_jesSubTotalScaleDown;                                                   
-  TBranch  *b_FatJet_mass_jesSubTotalScaleDown;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalScaleDown;                                            
-  TBranch  *b_FatJet_pt_jesSubTotalAbsoluteDown;                                                
-  TBranch  *b_FatJet_mass_jesSubTotalAbsoluteDown;                                              
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalAbsoluteDown;                                         
-  TBranch  *b_FatJet_pt_jesSubTotalMCDown;                                                      
-  TBranch  *b_FatJet_mass_jesSubTotalMCDown;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesSubTotalMCDown;
-  TBranch  *b_FatJet_pt_jesTotalDown;                                                           
-  TBranch  *b_FatJet_mass_jesTotalDown;                                                         
-  TBranch  *b_FatJet_msoftdrop_jesTotalDown;                                                    
-  TBranch  *b_FatJet_pt_jesTotalNoFlavorDown;                                                   
-  TBranch  *b_FatJet_mass_jesTotalNoFlavorDown;                                                 
-  TBranch  *b_FatJet_msoftdrop_jesTotalNoFlavorDown;                                            
-  TBranch  *b_FatJet_pt_jesTotalNoTimeDown;                                                     
-  TBranch  *b_FatJet_mass_jesTotalNoTimeDown;                                                   
-  TBranch  *b_FatJet_msoftdrop_jesTotalNoTimeDown;                                              
-  TBranch  *b_FatJet_pt_jesTotalNoFlavorNoTimeDown;                                             
-  TBranch  *b_FatJet_mass_jesTotalNoFlavorNoTimeDown;                                           
-  TBranch  *b_FatJet_msoftdrop_jesTotalNoFlavorNoTimeDown;                                      
-  TBranch  *b_FatJet_pt_jesFlavorZJetDown;                                                      
-  TBranch  *b_FatJet_mass_jesFlavorZJetDown;                                                    
-  TBranch  *b_FatJet_msoftdrop_jesFlavorZJetDown;                                               
-  TBranch  *b_FatJet_pt_jesFlavorPhotonJetDown;                                                 
-  TBranch  *b_FatJet_mass_jesFlavorPhotonJetDown;                                               
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPhotonJetDown;                                          
-  TBranch  *b_FatJet_pt_jesFlavorPureGluonDown;                                                 
-  TBranch  *b_FatJet_mass_jesFlavorPureGluonDown;                                               
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPureGluonDown;                                          
-  TBranch  *b_FatJet_pt_jesFlavorPureQuarkDown;                                                 
-  TBranch  *b_FatJet_mass_jesFlavorPureQuarkDown;                                               
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPureQuarkDown;                                          
-  TBranch  *b_FatJet_pt_jesFlavorPureCharmDown;                                                 
-  TBranch  *b_FatJet_mass_jesFlavorPureCharmDown;                                               
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPureCharmDown;                                          
-  TBranch  *b_FatJet_pt_jesFlavorPureBottomDown;
-  TBranch  *b_FatJet_mass_jesFlavorPureBottomDown;                                              
-  TBranch  *b_FatJet_msoftdrop_jesFlavorPureBottomDown;                                         
-  TBranch  *b_FatJet_pt_jesTimeRunADown;                                                        
-  TBranch  *b_FatJet_mass_jesTimeRunADown;                                                      
-  TBranch  *b_FatJet_msoftdrop_jesTimeRunADown;                                                 
-  TBranch  *b_FatJet_pt_jesTimeRunBDown;                                                        
-  TBranch  *b_FatJet_mass_jesTimeRunBDown;                                                      
-  TBranch  *b_FatJet_msoftdrop_jesTimeRunBDown;                                                 
-  TBranch  *b_FatJet_pt_jesTimeRunCDown;                                                        
-  TBranch  *b_FatJet_mass_jesTimeRunCDown;                                                      
-  TBranch  *b_FatJet_msoftdrop_jesTimeRunCDown;                                                 
-  TBranch  *b_FatJet_pt_jesTimeRunDDown;                                                        
-  TBranch  *b_FatJet_mass_jesTimeRunDDown;                                                      
-  TBranch  *b_FatJet_msoftdrop_jesTimeRunDDown;                                                 
-  TBranch  *b_FatJet_pt_jesCorrelationGroupMPFInSituDown;                                       
-  TBranch  *b_FatJet_mass_jesCorrelationGroupMPFInSituDown;                                     
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupMPFInSituDown;                                
-  TBranch  *b_FatJet_pt_jesCorrelationGroupIntercalibrationDown;                                
-  TBranch  *b_FatJet_mass_jesCorrelationGroupIntercalibrationDown;                              
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupIntercalibrationDown;                         
-  TBranch  *b_FatJet_pt_jesCorrelationGroupbJESDown;                                            
-  TBranch  *b_FatJet_mass_jesCorrelationGroupbJESDown;                                          
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupbJESDown;                                     
-  TBranch  *b_FatJet_pt_jesCorrelationGroupFlavorDown;                                          
-  TBranch  *b_FatJet_mass_jesCorrelationGroupFlavorDown;                                        
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupFlavorDown;                                   
-  TBranch  *b_FatJet_pt_jesCorrelationGroupUncorrelatedDown;                                    
-  TBranch  *b_FatJet_mass_jesCorrelationGroupUncorrelatedDown;                                  
-  TBranch  *b_FatJet_msoftdrop_jesCorrelationGroupUncorrelatedDown;
-  
+  //NanoAOD v7
+  TTreeReaderValue<Long64_t> genEventCount = {tree_->GetBranchStatus("genEventCount") ? fReader : fReaderNull, "genEventCount"};
+  TTreeReaderValue<Double_t> genEventSumw = {tree_->GetBranchStatus("genEventSumw") ? fReader : fReaderNull, "genEventSumw"};
+  TTreeReaderValue<Double_t> genEventSumw2 = {tree_->GetBranchStatus("genEventSumw2") ? fReader : fReaderNull, "genEventSumw2"};
+
+  //Events TTree
+  TTreeReaderValue<UInt_t> luminosityBlock = {tree_->GetBranchStatus("luminosityBlock") ? fReader : fReaderNull, "luminosityBlock"};
+  TTreeReaderValue<ULong64_t> event = {tree_->GetBranchStatus("event") ? fReader : fReaderNull, "event"};
+
+  //
+  TTreeReaderValue<Float_t> Generator_weight = {tree_->GetBranchStatus("Generator_weight") ? fReader : fReaderNull, "Generator_weight"};
+
+  //HLT
+  TTreeReaderValue<Bool_t> HLT_IsoMu22 = {tree_->GetBranchStatus("HLT_IsoMu22") ? fReader : fReaderNull, "HLT_IsoMu22"};
+  TTreeReaderValue<Bool_t> HLT_IsoTkMu22 = {tree_->GetBranchStatus("HLT_IsoTkMu22") ? fReader : fReaderNull, "HLT_IsoTkMu22"};
+  TTreeReaderValue<Bool_t> HLT_IsoMu24 = {tree_->GetBranchStatus("HLT_IsoMu24") ? fReader : fReaderNull, "HLT_IsoMu24"};
+  TTreeReaderValue<Bool_t> HLT_IsoTkMu24 = {tree_->GetBranchStatus("HLT_IsoTkMu24") ? fReader : fReaderNull, "HLT_IsoTkMu24"};
+  TTreeReaderValue<Bool_t> HLT_IsoMu27 = {tree_->GetBranchStatus("HLT_IsoMu27") ? fReader : fReaderNull, "HLT_IsoMu27"};
+  TTreeReaderValue<Bool_t> HLT_IsoMu30 = {tree_->GetBranchStatus("HLT_IsoMu30") ? fReader : fReaderNull, "HLT_IsoMu30"};
+  TTreeReaderValue<Bool_t> HLT_Mu50 = {tree_->GetBranchStatus("HLT_Mu50") ? fReader : fReaderNull, "HLT_Mu50"};
+
+  TTreeReaderValue<Bool_t> HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ = {tree_->GetBranchStatus("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ") ? fReader : fReaderNull, "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"};
+  TTreeReaderValue<Bool_t> HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ = {tree_->GetBranchStatus("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ") ? fReader : fReaderNull, "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"};
+  TTreeReaderValue<Bool_t> HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ = {tree_->GetBranchStatus("HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ") ? fReader : fReaderNull, "HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"};
+
+  TTreeReaderValue<Bool_t> HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 = {tree_->GetBranchStatus("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8") ? fReader : fReaderNull, "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8"};
+  TTreeReaderValue<Bool_t> HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 = {tree_->GetBranchStatus("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8") ? fReader : fReaderNull, "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"};
+  TTreeReaderValue<Bool_t> HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 = {tree_->GetBranchStatus("HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8") ? fReader : fReaderNull, "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8"};
+  TTreeReaderValue<Bool_t> HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 = {tree_->GetBranchStatus("HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8") ? fReader : fReaderNull, "HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8"};
+
+  TTreeReaderValue<Bool_t> HLT_Ele27_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele27_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele27_WPTight_Gsf"};
+  TTreeReaderValue<Bool_t> HLT_Ele28_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele28_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele28_WPTight_Gsf"};
+  TTreeReaderValue<Bool_t> HLT_Ele32_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele32_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele32_WPTight_Gsf"};
+  TTreeReaderValue<Bool_t> HLT_Ele35_WPLooose_Gsf = {tree_->GetBranchStatus("HLT_Ele35_WPLooose_Gsf") ? fReader : fReaderNull, "HLT_Ele35_WPLooose_Gsf"};
+  TTreeReaderValue<Bool_t> HLT_Ele35_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele35_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele35_WPTight_Gsf"};
+  TTreeReaderValue<Bool_t> HLT_Ele38_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele38_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele38_WPTight_Gsf"};
+  TTreeReaderValue<Bool_t> HLT_Ele40_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele40_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele40_WPTight_Gsf"};
+
+  TTreeReaderValue<Bool_t> HLT_Ele25_eta2p1_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele25_eta2p1_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele25_eta2p1_WPTight_Gsf"};
+  TTreeReaderValue<Bool_t> HLT_Ele27_eta2p1_WPLoose_Gsf = {tree_->GetBranchStatus("HLT_Ele27_eta2p1_WPLoose_Gsf") ? fReader : fReaderNull, "HLT_Ele27_eta2p1_WPLoose_Gsf"};
+
+  TTreeReaderValue<Bool_t> HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ = {tree_->GetBranchStatus("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ") ? fReader : fReaderNull, "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"};
+  TTreeReaderValue<Bool_t> HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL = {tree_->GetBranchStatus("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL") ? fReader : fReaderNull, "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL"};
+  TTreeReaderValue<Bool_t> HLT_DiEle27_WPTightCaloOnly_L1DoubleEG = {tree_->GetBranchStatus("HLT_DiEle27_WPTightCaloOnly_L1DoubleEG") ? fReader : fReaderNull, "HLT_DiEle27_WPTightCaloOnly_L1DoubleEG"};
+  TTreeReaderValue<Bool_t> HLT_DoubleEle33_CaloIdL_MW = {tree_->GetBranchStatus("HLT_DoubleEle33_CaloIdL_MW") ? fReader : fReaderNull, "HLT_DoubleEle33_CaloIdL_MW"};
+  TTreeReaderValue<Bool_t> HLT_DoubleEle25_CaloIdL_MW = {tree_->GetBranchStatus("HLT_DoubleEle25_CaloIdL_MW") ? fReader : fReaderNull, "HLT_DoubleEle25_CaloIdL_MW"};
+  TTreeReaderValue<Bool_t> HLT_DoubleEle27_CaloIdL_MW = {tree_->GetBranchStatus("HLT_DoubleEle27_CaloIdL_MW") ? fReader : fReaderNull, "HLT_DoubleEle27_CaloIdL_MW"};
+
+  //
+  TTreeReaderValue<Float_t> L1PreFiringWeight_Dn = {tree_->GetBranchStatus("L1PreFiringWeight_Dn") ? fReader : fReaderNull, "L1PreFiringWeight_Dn"};
+  TTreeReaderValue<Float_t> L1PreFiringWeight_Nom = {tree_->GetBranchStatus("L1PreFiringWeight_Nom") ? fReader : fReaderNull, "L1PreFiringWeight_Nom"};
+  TTreeReaderValue<Float_t> L1PreFiringWeight_Up = {tree_->GetBranchStatus("L1PreFiringWeight_Up") ? fReader : fReaderNull, "L1PreFiringWeight_Up"};
+
+  //
+  TTreeReaderValue<Float_t> btagWeight_CSVV2 = {tree_->GetBranchStatus("btagWeight_CSVV2") ? fReader : fReaderNull, "btagWeight_CSVV2"};
+  TTreeReaderValue<Float_t> btagWeight_DeepCSVB = {tree_->GetBranchStatus("btagWeight_DeepCSVB") ? fReader : fReaderNull, "btagWeight_DeepCSVB"};
+
+  //
+  TTreeReaderValue<Int_t> Pileup_nPU = {tree_->GetBranchStatus("Pileup_nPU") ? fReader : fReaderNull, "Pileup_nPU"};
+  TTreeReaderValue<Int_t> PV_npvsGood = {tree_->GetBranchStatus("PV_npvsGood") ? fReader : fReaderNull, "PV_npvsGood"};
+
+  //
+  TTreeReaderValue<Float_t> LHEWeight_originalXWGTUP = {tree_->GetBranchStatus("LHEWeight_originalXWGTUP") ? fReader : fReaderNull, "LHEWeight_originalXWGTUP"};
+  TTreeReaderValue<UInt_t> nLHEPdfWeight = {tree_->GetBranchStatus("nLHEPdfWeight") ? fReader : fReaderNull, "nLHEPdfWeight"};
+  TTreeReaderArray<Float_t> LHEPdfWeight = {tree_->GetBranchStatus("LHEPdfWeight") ? fReader : fReaderNull, "LHEPdfWeight"};
+  TTreeReaderValue<UInt_t> nLHEReweightingWeight = {tree_->GetBranchStatus("nLHEReweightingWeight") ? fReader : fReaderNull, "nLHEReweightingWeight"};
+  TTreeReaderArray<Float_t> LHEReweightingWeight = {tree_->GetBranchStatus("LHEReweightingWeight") ? fReader : fReaderNull, "LHEReweightingWeight"};
+  TTreeReaderValue<UInt_t> nLHEScaleWeight = {tree_->GetBranchStatus("nLHEScaleWeight") ? fReader : fReaderNull, "nLHEScaleWeight"};
+  TTreeReaderArray<Float_t> LHEScaleWeight = {tree_->GetBranchStatus("LHEScaleWeight") ? fReader : fReaderNull, "LHEScaleWeight"};
+  TTreeReaderValue<Float_t> LHE_HT = {tree_->GetBranchStatus("LHE_HT") ? fReader : fReaderNull, "LHE_HT"};
+  TTreeReaderValue<Float_t> LHE_HTIncoming = {tree_->GetBranchStatus("LHE_HTIncoming") ? fReader : fReaderNull, "LHE_HTIncoming"};
+  TTreeReaderValue<Float_t> LHE_Vpt = {tree_->GetBranchStatus("LHE_Vpt") ? fReader : fReaderNull, "LHE_Vpt"};
+  TTreeReaderValue<Float_t> LHE_AlphaS = {tree_->GetBranchStatus("LHE_AlphaS") ? fReader : fReaderNull, "LHE_AlphaS"};
+  TTreeReaderValue<UChar_t> LHE_Njets = {tree_->GetBranchStatus("LHE_Njets") ? fReader : fReaderNull, "LHE_Njets"};
+  TTreeReaderValue<UChar_t> LHE_Nb = {tree_->GetBranchStatus("LHE_Nb") ? fReader : fReaderNull, "LHE_Nb"};
+  TTreeReaderValue<UChar_t> LHE_Nc = {tree_->GetBranchStatus("LHE_Nc") ? fReader : fReaderNull, "LHE_Nc"};
+  TTreeReaderValue<UChar_t> LHE_Nuds = {tree_->GetBranchStatus("LHE_Nuds") ? fReader : fReaderNull, "LHE_Nuds"};
+  TTreeReaderValue<UChar_t> LHE_Nglu = {tree_->GetBranchStatus("LHE_Nglu") ? fReader : fReaderNull, "LHE_Nglu"};
+  TTreeReaderValue<UChar_t> LHE_NpNLO = {tree_->GetBranchStatus("LHE_NpNLO") ? fReader : fReaderNull, "LHE_NpNLO"};
+  TTreeReaderValue<UChar_t> LHE_NpLO = {tree_->GetBranchStatus("LHE_NpLO") ? fReader : fReaderNull, "LHE_NpLO"};
+  TTreeReaderValue<UInt_t> nLHEPart = {tree_->GetBranchStatus("nLHEPart") ? fReader : fReaderNull, "nLHEPart"};
+  TTreeReaderArray<Float_t> LHEPart_pt = {tree_->GetBranchStatus("LHEPart_pt") ? fReader : fReaderNull, "LHEPart_pt"};
+  TTreeReaderArray<Float_t> LHEPart_eta = {tree_->GetBranchStatus("LHEPart_eta") ? fReader : fReaderNull, "LHEPart_eta"};
+  TTreeReaderArray<Float_t> LHEPart_phi = {tree_->GetBranchStatus("LHEPart_phi") ? fReader : fReaderNull, "LHEPart_phi"};
+  TTreeReaderArray<Float_t> LHEPart_mass = {tree_->GetBranchStatus("LHEPart_mass") ? fReader : fReaderNull, "LHEPart_mass"};
+  TTreeReaderArray<Float_t> LHEPart_incomingpz = {tree_->GetBranchStatus("LHEPart_incomingpz") ? fReader : fReaderNull, "LHEPart_incomingpz"};
+  TTreeReaderArray<Int_t> LHEPart_pdgId = {tree_->GetBranchStatus("LHEPart_pdgId") ? fReader : fReaderNull, "LHEPart_pdgId"};
+  TTreeReaderArray<Int_t> LHEPart_status = {tree_->GetBranchStatus("LHEPart_status") ? fReader : fReaderNull, "LHEPart_status"};
+  TTreeReaderArray<Int_t> LHEPart_spin = {tree_->GetBranchStatus("LHEPart_spin") ? fReader : fReaderNull, "LHEPart_spin"};
+
+  //Muon
+  TTreeReaderValue<UInt_t> nMuon = {tree_->GetBranchStatus("nMuon") ? fReader : fReaderNull, "nMuon"};
+  TTreeReaderArray<Float_t> Muon_dxy = {tree_->GetBranchStatus("Muon_dxy") ? fReader : fReaderNull, "Muon_dxy"};
+  TTreeReaderArray<Float_t> Muon_dxyErr = {tree_->GetBranchStatus("Muon_dxyErr") ? fReader : fReaderNull, "Muon_dxyErr"};
+  TTreeReaderArray<Float_t> Muon_dxybs = {tree_->GetBranchStatus("Muon_dxybs") ? fReader : fReaderNull, "Muon_dxybs"};
+  TTreeReaderArray<Float_t> Muon_dz = {tree_->GetBranchStatus("Muon_dz") ? fReader : fReaderNull, "Muon_dz"};
+  TTreeReaderArray<Float_t> Muon_dzErr = {tree_->GetBranchStatus("Muon_dzErr") ? fReader : fReaderNull, "Muon_dzErr"};
+  TTreeReaderArray<Float_t> Muon_eta = {tree_->GetBranchStatus("Muon_eta") ? fReader : fReaderNull, "Muon_eta"};
+  TTreeReaderArray<Float_t> Muon_ip3d = {tree_->GetBranchStatus("Muon_ip3d") ? fReader : fReaderNull, "Muon_ip3d"};
+  TTreeReaderArray<Float_t> Muon_jetPtRelv2 = {tree_->GetBranchStatus("Muon_jetPtRelv2") ? fReader : fReaderNull, "Muon_jetPtRelv2"};
+  TTreeReaderArray<Float_t> Muon_jetRelIso = {tree_->GetBranchStatus("Muon_jetRelIso") ? fReader : fReaderNull, "Muon_jetRelIso"};
+  TTreeReaderArray<Float_t> Muon_mass = {tree_->GetBranchStatus("Muon_mass") ? fReader : fReaderNull, "Muon_mass"};
+  TTreeReaderArray<Float_t> Muon_miniPFRelIso_all = {tree_->GetBranchStatus("Muon_miniPFRelIso_all") ? fReader : fReaderNull, "Muon_miniPFRelIso_all"};
+  TTreeReaderArray<Float_t> Muon_miniPFRelIso_chg = {tree_->GetBranchStatus("Muon_miniPFRelIso_chg") ? fReader : fReaderNull, "Muon_miniPFRelIso_chg"};
+  TTreeReaderArray<Float_t> Muon_pfRelIso03_all = {tree_->GetBranchStatus("Muon_pfRelIso03_all") ? fReader : fReaderNull, "Muon_pfRelIso03_all"};
+  TTreeReaderArray<Float_t> Muon_pfRelIso03_chg = {tree_->GetBranchStatus("Muon_pfRelIso03_chg") ? fReader : fReaderNull, "Muon_pfRelIso03_chg"};
+  TTreeReaderArray<Float_t> Muon_pfRelIso04_all = {tree_->GetBranchStatus("Muon_pfRelIso04_all") ? fReader : fReaderNull, "Muon_pfRelIso04_all"};
+  TTreeReaderArray<Float_t> Muon_phi = {tree_->GetBranchStatus("Muon_phi") ? fReader : fReaderNull, "Muon_phi"};
+  TTreeReaderArray<Float_t> Muon_pt = {tree_->GetBranchStatus("Muon_pt") ? fReader : fReaderNull, "Muon_pt"};
+  TTreeReaderArray<Float_t> Muon_ptErr = {tree_->GetBranchStatus("Muon_ptErr") ? fReader : fReaderNull, "Muon_ptErr"};
+  TTreeReaderArray<Float_t> Muon_segmentComp = {tree_->GetBranchStatus("Muon_segmentComp") ? fReader : fReaderNull, "Muon_segmentComp"};
+  TTreeReaderArray<Float_t> Muon_sip3d = {tree_->GetBranchStatus("Muon_sip3d") ? fReader : fReaderNull, "Muon_sip3d"};
+  TTreeReaderArray<Float_t> Muon_tkRelIso = {tree_->GetBranchStatus("Muon_tkRelIso") ? fReader : fReaderNull, "Muon_tkRelIso"};
+  TTreeReaderArray<Float_t> Muon_tunepRelPt = {tree_->GetBranchStatus("Muon_tunepRelPt") ? fReader : fReaderNull, "Muon_tunepRelPt"};
+  TTreeReaderArray<Float_t> Muon_mvaLowPt = {tree_->GetBranchStatus("Muon_mvaLowPt") ? fReader : fReaderNull, "Muon_mvaLowPt"};
+  TTreeReaderArray<Float_t> Muon_mvaTTH = {tree_->GetBranchStatus("Muon_mvaTTH") ? fReader : fReaderNull, "Muon_mvaTTH"};
+  TTreeReaderArray<Int_t> Muon_charge = {tree_->GetBranchStatus("Muon_charge") ? fReader : fReaderNull, "Muon_charge"};
+  TTreeReaderArray<Int_t> Muon_jetIdx = {tree_->GetBranchStatus("Muon_jetIdx") ? fReader : fReaderNull, "Muon_jetIdx"};
+  TTreeReaderArray<Int_t> Muon_nStations = {tree_->GetBranchStatus("Muon_nStations") ? fReader : fReaderNull, "Muon_nStations"};
+  TTreeReaderArray<Int_t> Muon_nTrackerLayers = {tree_->GetBranchStatus("Muon_nTrackerLayers") ? fReader : fReaderNull, "Muon_nTrackerLayers"};
+  TTreeReaderArray<Int_t> Muon_pdgId = {tree_->GetBranchStatus("Muon_pdgId") ? fReader : fReaderNull, "Muon_pdgId"};
+  TTreeReaderArray<Int_t> Muon_tightCharge = {tree_->GetBranchStatus("Muon_tightCharge") ? fReader : fReaderNull, "Muon_tightCharge"};
+  TTreeReaderArray<Int_t> Muon_fsrPhotonIdx = {tree_->GetBranchStatus("Muon_fsrPhotonIdx") ? fReader : fReaderNull, "Muon_fsrPhotonIdx"};
+  TTreeReaderArray<UChar_t> Muon_highPtId = {tree_->GetBranchStatus("Muon_highPtId") ? fReader : fReaderNull, "Muon_highPtId"};
+  TTreeReaderArray<Bool_t> Muon_highPurity = {tree_->GetBranchStatus("Muon_highPurity") ? fReader : fReaderNull, "Muon_highPurity"};
+  TTreeReaderArray<Bool_t> Muon_inTimeMuon = {tree_->GetBranchStatus("Muon_inTimeMuon") ? fReader : fReaderNull, "Muon_inTimeMuon"};
+  TTreeReaderArray<Bool_t> Muon_isGlobal = {tree_->GetBranchStatus("Muon_isGlobal") ? fReader : fReaderNull, "Muon_isGlobal"};
+  TTreeReaderArray<Bool_t> Muon_isPFcand = {tree_->GetBranchStatus("Muon_isPFcand") ? fReader : fReaderNull, "Muon_isPFcand"};
+  TTreeReaderArray<Bool_t> Muon_isTracker = {tree_->GetBranchStatus("Muon_isTracker") ? fReader : fReaderNull, "Muon_isTracker"};
+  TTreeReaderArray<Bool_t> Muon_looseId = {tree_->GetBranchStatus("Muon_looseId") ? fReader : fReaderNull, "Muon_looseId"};
+  TTreeReaderArray<Bool_t> Muon_mediumId = {tree_->GetBranchStatus("Muon_mediumId") ? fReader : fReaderNull, "Muon_mediumId"};
+  TTreeReaderArray<Bool_t> Muon_mediumPromptId = {tree_->GetBranchStatus("Muon_mediumPromptId") ? fReader : fReaderNull, "Muon_mediumPromptId"};
+  TTreeReaderArray<UChar_t> Muon_miniIsoId = {tree_->GetBranchStatus("Muon_miniIsoId") ? fReader : fReaderNull, "Muon_miniIsoId"};
+  TTreeReaderArray<UChar_t> Muon_multiIsoId = {tree_->GetBranchStatus("Muon_multiIsoId") ? fReader : fReaderNull, "Muon_multiIsoId"};
+  TTreeReaderArray<UChar_t> Muon_mvaId = {tree_->GetBranchStatus("Muon_mvaId") ? fReader : fReaderNull, "Muon_mvaId"};
+  TTreeReaderArray<UChar_t> Muon_pfIsoId = {tree_->GetBranchStatus("Muon_pfIsoId") ? fReader : fReaderNull, "Muon_pfIsoId"};
+  TTreeReaderArray<Bool_t> Muon_softId = {tree_->GetBranchStatus("Muon_softId") ? fReader : fReaderNull, "Muon_softId"};
+  TTreeReaderArray<Bool_t> Muon_softMvaId = {tree_->GetBranchStatus("Muon_softMvaId") ? fReader : fReaderNull, "Muon_softMvaId"};
+  TTreeReaderArray<Bool_t> Muon_tightId = {tree_->GetBranchStatus("Muon_tightId") ? fReader : fReaderNull, "Muon_tightId"};
+  TTreeReaderArray<UChar_t> Muon_tkIsoId = {tree_->GetBranchStatus("Muon_tkIsoId") ? fReader : fReaderNull, "Muon_tkIsoId"};
+  TTreeReaderArray<Bool_t> Muon_triggerIdLoose = {tree_->GetBranchStatus("Muon_triggerIdLoose") ? fReader : fReaderNull, "Muon_triggerIdLoose"};
+  TTreeReaderArray<Int_t> Muon_genPartIdx = {tree_->GetBranchStatus("Muon_genPartIdx") ? fReader : fReaderNull, "Muon_genPartIdx"};
+  TTreeReaderArray<UChar_t> Muon_genPartFlav = {tree_->GetBranchStatus("Muon_genPartFlav") ? fReader : fReaderNull, "Muon_genPartFlav"};
+  TTreeReaderArray<UChar_t> Muon_cleanmask = {tree_->GetBranchStatus("Muon_cleanmask") ? fReader : fReaderNull, "Muon_cleanmask"};
+
+  //Electron
+  TTreeReaderValue<UInt_t> nElectron = {tree_->GetBranchStatus("nElectron") ? fReader : fReaderNull, "nElectron"};
+  TTreeReaderArray<Float_t> Electron_deltaEtaSC = {tree_->GetBranchStatus("Electron_deltaEtaSC") ? fReader : fReaderNull, "Electron_deltaEtaSC"};
+  TTreeReaderArray<Float_t> Electron_dr03EcalRecHitSumEt = {tree_->GetBranchStatus("Electron_dr03EcalRecHitSumEt") ? fReader : fReaderNull, "Electron_dr03EcalRecHitSumEt"};
+  TTreeReaderArray<Float_t> Electron_dr03HcalDepth1TowerSumEt = {tree_->GetBranchStatus("Electron_dr03HcalDepth1TowerSumEt") ? fReader : fReaderNull, "Electron_dr03HcalDepth1TowerSumEt"};
+  TTreeReaderArray<Float_t> Electron_dr03TkSumPt = {tree_->GetBranchStatus("Electron_dr03TkSumPt") ? fReader : fReaderNull, "Electron_dr03TkSumPt"};
+  TTreeReaderArray<Float_t> Electron_dr03TkSumPtHEEP = {tree_->GetBranchStatus("Electron_dr03TkSumPtHEEP") ? fReader : fReaderNull, "Electron_dr03TkSumPtHEEP"};
+  TTreeReaderArray<Float_t> Electron_dxy = {tree_->GetBranchStatus("Electron_dxy") ? fReader : fReaderNull, "Electron_dxy"};
+  TTreeReaderArray<Float_t> Electron_dxyErr = {tree_->GetBranchStatus("Electron_dxyErr") ? fReader : fReaderNull, "Electron_dxyErr"};
+  TTreeReaderArray<Float_t> Electron_dz = {tree_->GetBranchStatus("Electron_dz") ? fReader : fReaderNull, "Electron_dz"};
+  TTreeReaderArray<Float_t> Electron_dzErr = {tree_->GetBranchStatus("Electron_dzErr") ? fReader : fReaderNull, "Electron_dzErr"};
+  TTreeReaderArray<Float_t> Electron_eCorr = {tree_->GetBranchStatus("Electron_eCorr") ? fReader : fReaderNull, "Electron_eCorr"};
+  TTreeReaderArray<Float_t> Electron_eInvMinusPInv = {tree_->GetBranchStatus("Electron_eInvMinusPInv") ? fReader : fReaderNull, "Electron_eInvMinusPInv"};
+  TTreeReaderArray<Float_t> Electron_energyErr = {tree_->GetBranchStatus("Electron_energyErr") ? fReader : fReaderNull, "Electron_energyErr"};
+  TTreeReaderArray<Float_t> Electron_eta = {tree_->GetBranchStatus("Electron_eta") ? fReader : fReaderNull, "Electron_eta"};
+  TTreeReaderArray<Float_t> Electron_hoe = {tree_->GetBranchStatus("Electron_hoe") ? fReader : fReaderNull, "Electron_hoe"};
+  TTreeReaderArray<Float_t> Electron_ip3d = {tree_->GetBranchStatus("Electron_ip3d") ? fReader : fReaderNull, "Electron_ip3d"};
+  TTreeReaderArray<Float_t> Electron_jetPtRelv2 = {tree_->GetBranchStatus("Electron_jetPtRelv2") ? fReader : fReaderNull, "Electron_jetPtRelv2"};
+  TTreeReaderArray<Float_t> Electron_jetRelIso = {tree_->GetBranchStatus("Electron_jetRelIso") ? fReader : fReaderNull, "Electron_jetRelIso"};
+  TTreeReaderArray<Float_t> Electron_mass = {tree_->GetBranchStatus("Electron_mass") ? fReader : fReaderNull, "Electron_mass"};
+  TTreeReaderArray<Float_t> Electron_miniPFRelIso_all = {tree_->GetBranchStatus("Electron_miniPFRelIso_all") ? fReader : fReaderNull, "Electron_miniPFRelIso_all"};
+  TTreeReaderArray<Float_t> Electron_miniPFRelIso_chg = {tree_->GetBranchStatus("Electron_miniPFRelIso_chg") ? fReader : fReaderNull, "Electron_miniPFRelIso_chg"};
+  TTreeReaderArray<Float_t> Electron_mvaFall17V1Iso = {tree_->GetBranchStatus("Electron_mvaFall17V1Iso") ? fReader : fReaderNull, "Electron_mvaFall17V1Iso"};
+  TTreeReaderArray<Float_t> Electron_mvaFall17V1noIso = {tree_->GetBranchStatus("Electron_mvaFall17V1noIso") ? fReader : fReaderNull, "Electron_mvaFall17V1noIso"};
+  TTreeReaderArray<Float_t> Electron_mvaFall17V2Iso = {tree_->GetBranchStatus("Electron_mvaFall17V2Iso") ? fReader : fReaderNull, "Electron_mvaFall17V2Iso"};
+  TTreeReaderArray<Float_t> Electron_mvaFall17V2noIso = {tree_->GetBranchStatus("Electron_mvaFall17V2noIso") ? fReader : fReaderNull, "Electron_mvaFall17V2noIso"};
+  TTreeReaderArray<Float_t> Electron_pfRelIso03_all = {tree_->GetBranchStatus("Electron_pfRelIso03_all") ? fReader : fReaderNull, "Electron_pfRelIso03_all"};
+  TTreeReaderArray<Float_t> Electron_pfRelIso03_chg = {tree_->GetBranchStatus("Electron_pfRelIso03_chg") ? fReader : fReaderNull, "Electron_pfRelIso03_chg"};
+  TTreeReaderArray<Float_t> Electron_phi = {tree_->GetBranchStatus("Electron_phi") ? fReader : fReaderNull, "Electron_phi"};
+  TTreeReaderArray<Float_t> Electron_pt = {tree_->GetBranchStatus("Electron_pt") ? fReader : fReaderNull, "Electron_pt"};
+  TTreeReaderArray<Float_t> Electron_r9 = {tree_->GetBranchStatus("Electron_r9") ? fReader : fReaderNull, "Electron_r9"};
+  TTreeReaderArray<Float_t> Electron_scEtOverPt = {tree_->GetBranchStatus("Electron_scEtOverPt") ? fReader : fReaderNull, "Electron_scEtOverPt"};
+  TTreeReaderArray<Float_t> Electron_sieie = {tree_->GetBranchStatus("Electron_sieie") ? fReader : fReaderNull, "Electron_sieie"};
+  TTreeReaderArray<Float_t> Electron_sip3d = {tree_->GetBranchStatus("Electron_sip3d") ? fReader : fReaderNull, "Electron_sip3d"};
+  TTreeReaderArray<Float_t> Electron_mvaTTH = {tree_->GetBranchStatus("Electron_mvaTTH") ? fReader : fReaderNull, "Electron_mvaTTH"};
+  TTreeReaderArray<Int_t> Electron_charge = {tree_->GetBranchStatus("Electron_charge") ? fReader : fReaderNull, "Electron_charge"};
+  TTreeReaderArray<Int_t> Electron_cutBased = {tree_->GetBranchStatus("Electron_cutBased") ? fReader : fReaderNull, "Electron_cutBased"};
+  TTreeReaderArray<Int_t> Electron_cutBased_Fall17_V1 = {tree_->GetBranchStatus("Electron_cutBased_Fall17_V1") ? fReader : fReaderNull, "Electron_cutBased_Fall17_V1"};
+  TTreeReaderArray<Int_t> Electron_jetIdx = {tree_->GetBranchStatus("Electron_jetIdx") ? fReader : fReaderNull, "Electron_jetIdx"};
+  TTreeReaderArray<Int_t> Electron_pdgId = {tree_->GetBranchStatus("Electron_pdgId") ? fReader : fReaderNull, "Electron_pdgId"};
+  TTreeReaderArray<Int_t> Electron_photonIdx = {tree_->GetBranchStatus("Electron_photonIdx") ? fReader : fReaderNull, "Electron_photonIdx"};
+  TTreeReaderArray<Int_t> Electron_tightCharge = {tree_->GetBranchStatus("Electron_tightCharge") ? fReader : fReaderNull, "Electron_tightCharge"};
+  TTreeReaderArray<Int_t> Electron_vidNestedWPBitmap = {tree_->GetBranchStatus("Electron_vidNestedWPBitmap") ? fReader : fReaderNull, "Electron_vidNestedWPBitmap"};
+  TTreeReaderArray<Int_t> Electron_vidNestedWPBitmapHEEP = {tree_->GetBranchStatus("Electron_vidNestedWPBitmapHEEP") ? fReader : fReaderNull, "Electron_vidNestedWPBitmapHEEP"};
+  TTreeReaderArray<Bool_t> Electron_convVeto = {tree_->GetBranchStatus("Electron_convVeto") ? fReader : fReaderNull, "Electron_convVeto"};
+  TTreeReaderArray<Bool_t> Electron_cutBased_HEEP = {tree_->GetBranchStatus("Electron_cutBased_HEEP") ? fReader : fReaderNull, "Electron_cutBased_HEEP"};
+  TTreeReaderArray<Bool_t> Electron_isPFcand = {tree_->GetBranchStatus("Electron_isPFcand") ? fReader : fReaderNull, "Electron_isPFcand"};
+  TTreeReaderArray<UChar_t> Electron_lostHits = {tree_->GetBranchStatus("Electron_lostHits") ? fReader : fReaderNull, "Electron_lostHits"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V1Iso_WP80 = {tree_->GetBranchStatus("Electron_mvaFall17V1Iso_WP80") ? fReader : fReaderNull, "Electron_mvaFall17V1Iso_WP80"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V1Iso_WP90 = {tree_->GetBranchStatus("Electron_mvaFall17V1Iso_WP90") ? fReader : fReaderNull, "Electron_mvaFall17V1Iso_WP90"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V1Iso_WPL = {tree_->GetBranchStatus("Electron_mvaFall17V1Iso_WPL") ? fReader : fReaderNull, "Electron_mvaFall17V1Iso_WPL"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V1noIso_WP80 = {tree_->GetBranchStatus("Electron_mvaFall17V1noIso_WP80") ? fReader : fReaderNull, "Electron_mvaFall17V1noIso_WP80"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V1noIso_WP90 = {tree_->GetBranchStatus("Electron_mvaFall17V1noIso_WP90") ? fReader : fReaderNull, "Electron_mvaFall17V1noIso_WP90"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V1noIso_WPL = {tree_->GetBranchStatus("Electron_mvaFall17V1noIso_WPL") ? fReader : fReaderNull, "Electron_mvaFall17V1noIso_WPL"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V2Iso_WP80 = {tree_->GetBranchStatus("Electron_mvaFall17V2Iso_WP80") ? fReader : fReaderNull, "Electron_mvaFall17V2Iso_WP80"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V2Iso_WP90 = {tree_->GetBranchStatus("Electron_mvaFall17V2Iso_WP90") ? fReader : fReaderNull, "Electron_mvaFall17V2Iso_WP90"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V2Iso_WPL = {tree_->GetBranchStatus("Electron_mvaFall17V2Iso_WPL") ? fReader : fReaderNull, "Electron_mvaFall17V2Iso_WPL"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V2noIso_WP80 = {tree_->GetBranchStatus("Electron_mvaFall17V2noIso_WP80") ? fReader : fReaderNull, "Electron_mvaFall17V2noIso_WP80"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V2noIso_WP90 = {tree_->GetBranchStatus("Electron_mvaFall17V2noIso_WP90") ? fReader : fReaderNull, "Electron_mvaFall17V2noIso_WP90"};
+  TTreeReaderArray<Bool_t> Electron_mvaFall17V2noIso_WPL = {tree_->GetBranchStatus("Electron_mvaFall17V2noIso_WPL") ? fReader : fReaderNull, "Electron_mvaFall17V2noIso_WPL"};
+  TTreeReaderArray<UChar_t> Electron_seedGain = {tree_->GetBranchStatus("Electron_seedGain") ? fReader : fReaderNull, "Electron_seedGain"};
+  TTreeReaderArray<Int_t> Electron_genPartIdx = {tree_->GetBranchStatus("Electron_genPartIdx") ? fReader : fReaderNull, "Electron_genPartIdx"};
+  TTreeReaderArray<UChar_t> Electron_genPartFlav = {tree_->GetBranchStatus("Electron_genPartFlav") ? fReader : fReaderNull, "Electron_genPartFlav"};
+  TTreeReaderArray<UChar_t> Electron_cleanmask = {tree_->GetBranchStatus("Electron_cleanmask") ? fReader : fReaderNull, "Electron_cleanmask"};
+
+  //PuppiMET
+  TTreeReaderValue<Float_t> PuppiMET_phi = {tree_->GetBranchStatus("PuppiMET_phi") ? fReader : fReaderNull, "PuppiMET_phi"};
+  TTreeReaderValue<Float_t> PuppiMET_phiJERUp = {tree_->GetBranchStatus("PuppiMET_phiJERUp") ? fReader : fReaderNull, "PuppiMET_phiJERUp"};
+  TTreeReaderValue<Float_t> PuppiMET_phiJESUp = {tree_->GetBranchStatus("PuppiMET_phiJESUp") ? fReader : fReaderNull, "PuppiMET_phiJESUp"};
+  TTreeReaderValue<Float_t> PuppiMET_pt = {tree_->GetBranchStatus("PuppiMET_pt") ? fReader : fReaderNull, "PuppiMET_pt"};
+  TTreeReaderValue<Float_t> PuppiMET_ptJERUp = {tree_->GetBranchStatus("PuppiMET_ptJERUp") ? fReader : fReaderNull, "PuppiMET_ptJERUp"};
+  TTreeReaderValue<Float_t> PuppiMET_ptJESUp = {tree_->GetBranchStatus("PuppiMET_ptJESUp") ? fReader : fReaderNull, "PuppiMET_ptJESUp"};
+  TTreeReaderValue<Float_t> PuppiMET_sumEt = {tree_->GetBranchStatus("PuppiMET_sumEt") ? fReader : fReaderNull, "PuppiMET_sumEt"};
+
+  //MET
+  TTreeReaderValue<Float_t> METFixEE2017_MetUnclustEnUpDeltaX = {tree_->GetBranchStatus("METFixEE2017_MetUnclustEnUpDeltaX") ? fReader : fReaderNull, "METFixEE2017_MetUnclustEnUpDeltaX"};
+  TTreeReaderValue<Float_t> METFixEE2017_MetUnclustEnUpDeltaY = {tree_->GetBranchStatus("METFixEE2017_MetUnclustEnUpDeltaY") ? fReader : fReaderNull, "METFixEE2017_MetUnclustEnUpDeltaY"};
+  TTreeReaderValue<Float_t> METFixEE2017_covXX = {tree_->GetBranchStatus("METFixEE2017_covXX") ? fReader : fReaderNull, "METFixEE2017_covXX"};
+  TTreeReaderValue<Float_t> METFixEE2017_covXY = {tree_->GetBranchStatus("METFixEE2017_covXY") ? fReader : fReaderNull, "METFixEE2017_covXY"};
+  TTreeReaderValue<Float_t> METFixEE2017_covYY = {tree_->GetBranchStatus("METFixEE2017_covYY") ? fReader : fReaderNull, "METFixEE2017_covYY"};
+  TTreeReaderValue<Float_t> METFixEE2017_phi = {tree_->GetBranchStatus("METFixEE2017_phi") ? fReader : fReaderNull, "METFixEE2017_phi"};
+  TTreeReaderValue<Float_t> METFixEE2017_pt = {tree_->GetBranchStatus("METFixEE2017_pt") ? fReader : fReaderNull, "METFixEE2017_pt"};
+  TTreeReaderValue<Float_t> METFixEE2017_significance = {tree_->GetBranchStatus("METFixEE2017_significance") ? fReader : fReaderNull, "METFixEE2017_significance"};
+  TTreeReaderValue<Float_t> METFixEE2017_sumEt = {tree_->GetBranchStatus("METFixEE2017_sumEt") ? fReader : fReaderNull, "METFixEE2017_sumEt"};
+  TTreeReaderValue<Float_t> METFixEE2017_sumPtUnclustered = {tree_->GetBranchStatus("METFixEE2017_sumPtUnclustered") ? fReader : fReaderNull, "METFixEE2017_sumPtUnclustered"};
+  TTreeReaderValue<Float_t> MET_MetUnclustEnUpDeltaX = {tree_->GetBranchStatus("MET_MetUnclustEnUpDeltaX") ? fReader : fReaderNull, "MET_MetUnclustEnUpDeltaX"};
+  TTreeReaderValue<Float_t> MET_MetUnclustEnUpDeltaY = {tree_->GetBranchStatus("MET_MetUnclustEnUpDeltaY") ? fReader : fReaderNull, "MET_MetUnclustEnUpDeltaY"};
+  TTreeReaderValue<Float_t> MET_covXX = {tree_->GetBranchStatus("MET_covXX") ? fReader : fReaderNull, "MET_covXX"};
+  TTreeReaderValue<Float_t> MET_covXY = {tree_->GetBranchStatus("MET_covXY") ? fReader : fReaderNull, "MET_covXY"};
+  TTreeReaderValue<Float_t> MET_covYY = {tree_->GetBranchStatus("MET_covYY") ? fReader : fReaderNull, "MET_covYY"};
+  TTreeReaderValue<Float_t> MET_phi = {tree_->GetBranchStatus("MET_phi") ? fReader : fReaderNull, "MET_phi"};
+  TTreeReaderValue<Float_t> MET_pt = {tree_->GetBranchStatus("MET_pt") ? fReader : fReaderNull, "MET_pt"};
+  TTreeReaderValue<Float_t> MET_significance = {tree_->GetBranchStatus("MET_significance") ? fReader : fReaderNull, "MET_significance"};
+  TTreeReaderValue<Float_t> MET_sumEt = {tree_->GetBranchStatus("MET_sumEt") ? fReader : fReaderNull, "MET_sumEt"};
+  TTreeReaderValue<Float_t> MET_sumPtUnclustered = {tree_->GetBranchStatus("MET_sumPtUnclustered") ? fReader : fReaderNull, "MET_sumPtUnclustered"};
+  TTreeReaderValue<Float_t> MET_fiducialGenPhi = {tree_->GetBranchStatus("MET_fiducialGenPhi") ? fReader : fReaderNull, "MET_fiducialGenPhi"};
+  TTreeReaderValue<Float_t> MET_fiducialGenPt = {tree_->GetBranchStatus("MET_fiducialGenPt") ? fReader : fReaderNull, "MET_fiducialGenPt"};
+  TTreeReaderValue<Float_t> MET_pt_nom = {tree_->GetBranchStatus("MET_pt_nom") ? fReader : fReaderNull, "MET_pt_nom"};
+  TTreeReaderValue<Float_t> MET_phi_nom = {tree_->GetBranchStatus("MET_phi_nom") ? fReader : fReaderNull, "MET_phi_nom"};
+  TTreeReaderValue<Float_t> MET_pt_jer = {tree_->GetBranchStatus("MET_pt_jer") ? fReader : fReaderNull, "MET_pt_jer"};
+  TTreeReaderValue<Float_t> MET_phi_jer = {tree_->GetBranchStatus("MET_phi_jer") ? fReader : fReaderNull, "MET_phi_jer"};
+  TTreeReaderValue<Float_t> MET_pt_jerUp = {tree_->GetBranchStatus("MET_pt_jerUp") ? fReader : fReaderNull, "MET_pt_jerUp"};
+  TTreeReaderValue<Float_t> MET_phi_jerUp = {tree_->GetBranchStatus("MET_phi_jerUp") ? fReader : fReaderNull, "MET_phi_jerUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesAbsoluteStatUp = {tree_->GetBranchStatus("MET_pt_jesAbsoluteStatUp") ? fReader : fReaderNull, "MET_pt_jesAbsoluteStatUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesAbsoluteStatUp = {tree_->GetBranchStatus("MET_phi_jesAbsoluteStatUp") ? fReader : fReaderNull, "MET_phi_jesAbsoluteStatUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesAbsoluteScaleUp = {tree_->GetBranchStatus("MET_pt_jesAbsoluteScaleUp") ? fReader : fReaderNull, "MET_pt_jesAbsoluteScaleUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesAbsoluteScaleUp = {tree_->GetBranchStatus("MET_phi_jesAbsoluteScaleUp") ? fReader : fReaderNull, "MET_phi_jesAbsoluteScaleUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesAbsoluteFlavMapUp = {tree_->GetBranchStatus("MET_pt_jesAbsoluteFlavMapUp") ? fReader : fReaderNull, "MET_pt_jesAbsoluteFlavMapUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesAbsoluteFlavMapUp = {tree_->GetBranchStatus("MET_phi_jesAbsoluteFlavMapUp") ? fReader : fReaderNull, "MET_phi_jesAbsoluteFlavMapUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesAbsoluteMPFBiasUp = {tree_->GetBranchStatus("MET_pt_jesAbsoluteMPFBiasUp") ? fReader : fReaderNull, "MET_pt_jesAbsoluteMPFBiasUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesAbsoluteMPFBiasUp = {tree_->GetBranchStatus("MET_phi_jesAbsoluteMPFBiasUp") ? fReader : fReaderNull, "MET_phi_jesAbsoluteMPFBiasUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesFragmentationUp = {tree_->GetBranchStatus("MET_pt_jesFragmentationUp") ? fReader : fReaderNull, "MET_pt_jesFragmentationUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesFragmentationUp = {tree_->GetBranchStatus("MET_phi_jesFragmentationUp") ? fReader : fReaderNull, "MET_phi_jesFragmentationUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesSinglePionECALUp = {tree_->GetBranchStatus("MET_pt_jesSinglePionECALUp") ? fReader : fReaderNull, "MET_pt_jesSinglePionECALUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesSinglePionECALUp = {tree_->GetBranchStatus("MET_phi_jesSinglePionECALUp") ? fReader : fReaderNull, "MET_phi_jesSinglePionECALUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesSinglePionHCALUp = {tree_->GetBranchStatus("MET_pt_jesSinglePionHCALUp") ? fReader : fReaderNull, "MET_pt_jesSinglePionHCALUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesSinglePionHCALUp = {tree_->GetBranchStatus("MET_phi_jesSinglePionHCALUp") ? fReader : fReaderNull, "MET_phi_jesSinglePionHCALUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorQCDUp = {tree_->GetBranchStatus("MET_pt_jesFlavorQCDUp") ? fReader : fReaderNull, "MET_pt_jesFlavorQCDUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorQCDUp = {tree_->GetBranchStatus("MET_phi_jesFlavorQCDUp") ? fReader : fReaderNull, "MET_phi_jesFlavorQCDUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimePtEtaUp = {tree_->GetBranchStatus("MET_pt_jesTimePtEtaUp") ? fReader : fReaderNull, "MET_pt_jesTimePtEtaUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimePtEtaUp = {tree_->GetBranchStatus("MET_phi_jesTimePtEtaUp") ? fReader : fReaderNull, "MET_phi_jesTimePtEtaUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeJEREC1Up = {tree_->GetBranchStatus("MET_pt_jesRelativeJEREC1Up") ? fReader : fReaderNull, "MET_pt_jesRelativeJEREC1Up"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeJEREC1Up = {tree_->GetBranchStatus("MET_phi_jesRelativeJEREC1Up") ? fReader : fReaderNull, "MET_phi_jesRelativeJEREC1Up"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeJEREC2Up = {tree_->GetBranchStatus("MET_pt_jesRelativeJEREC2Up") ? fReader : fReaderNull, "MET_pt_jesRelativeJEREC2Up"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeJEREC2Up = {tree_->GetBranchStatus("MET_phi_jesRelativeJEREC2Up") ? fReader : fReaderNull, "MET_phi_jesRelativeJEREC2Up"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeJERHFUp = {tree_->GetBranchStatus("MET_pt_jesRelativeJERHFUp") ? fReader : fReaderNull, "MET_pt_jesRelativeJERHFUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeJERHFUp = {tree_->GetBranchStatus("MET_phi_jesRelativeJERHFUp") ? fReader : fReaderNull, "MET_phi_jesRelativeJERHFUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativePtBBUp = {tree_->GetBranchStatus("MET_pt_jesRelativePtBBUp") ? fReader : fReaderNull, "MET_pt_jesRelativePtBBUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativePtBBUp = {tree_->GetBranchStatus("MET_phi_jesRelativePtBBUp") ? fReader : fReaderNull, "MET_phi_jesRelativePtBBUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativePtEC1Up = {tree_->GetBranchStatus("MET_pt_jesRelativePtEC1Up") ? fReader : fReaderNull, "MET_pt_jesRelativePtEC1Up"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativePtEC1Up = {tree_->GetBranchStatus("MET_phi_jesRelativePtEC1Up") ? fReader : fReaderNull, "MET_phi_jesRelativePtEC1Up"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativePtEC2Up = {tree_->GetBranchStatus("MET_pt_jesRelativePtEC2Up") ? fReader : fReaderNull, "MET_pt_jesRelativePtEC2Up"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativePtEC2Up = {tree_->GetBranchStatus("MET_phi_jesRelativePtEC2Up") ? fReader : fReaderNull, "MET_phi_jesRelativePtEC2Up"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativePtHFUp = {tree_->GetBranchStatus("MET_pt_jesRelativePtHFUp") ? fReader : fReaderNull, "MET_pt_jesRelativePtHFUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativePtHFUp = {tree_->GetBranchStatus("MET_phi_jesRelativePtHFUp") ? fReader : fReaderNull, "MET_phi_jesRelativePtHFUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeBalUp = {tree_->GetBranchStatus("MET_pt_jesRelativeBalUp") ? fReader : fReaderNull, "MET_pt_jesRelativeBalUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeBalUp = {tree_->GetBranchStatus("MET_phi_jesRelativeBalUp") ? fReader : fReaderNull, "MET_phi_jesRelativeBalUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeSampleUp = {tree_->GetBranchStatus("MET_pt_jesRelativeSampleUp") ? fReader : fReaderNull, "MET_pt_jesRelativeSampleUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeSampleUp = {tree_->GetBranchStatus("MET_phi_jesRelativeSampleUp") ? fReader : fReaderNull, "MET_phi_jesRelativeSampleUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeFSRUp = {tree_->GetBranchStatus("MET_pt_jesRelativeFSRUp") ? fReader : fReaderNull, "MET_pt_jesRelativeFSRUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeFSRUp = {tree_->GetBranchStatus("MET_phi_jesRelativeFSRUp") ? fReader : fReaderNull, "MET_phi_jesRelativeFSRUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeStatFSRUp = {tree_->GetBranchStatus("MET_pt_jesRelativeStatFSRUp") ? fReader : fReaderNull, "MET_pt_jesRelativeStatFSRUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeStatFSRUp = {tree_->GetBranchStatus("MET_phi_jesRelativeStatFSRUp") ? fReader : fReaderNull, "MET_phi_jesRelativeStatFSRUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeStatECUp = {tree_->GetBranchStatus("MET_pt_jesRelativeStatECUp") ? fReader : fReaderNull, "MET_pt_jesRelativeStatECUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeStatECUp = {tree_->GetBranchStatus("MET_phi_jesRelativeStatECUp") ? fReader : fReaderNull, "MET_phi_jesRelativeStatECUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeStatHFUp = {tree_->GetBranchStatus("MET_pt_jesRelativeStatHFUp") ? fReader : fReaderNull, "MET_pt_jesRelativeStatHFUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeStatHFUp = {tree_->GetBranchStatus("MET_phi_jesRelativeStatHFUp") ? fReader : fReaderNull, "MET_phi_jesRelativeStatHFUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpDataMCUp = {tree_->GetBranchStatus("MET_pt_jesPileUpDataMCUp") ? fReader : fReaderNull, "MET_pt_jesPileUpDataMCUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpDataMCUp = {tree_->GetBranchStatus("MET_phi_jesPileUpDataMCUp") ? fReader : fReaderNull, "MET_phi_jesPileUpDataMCUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtRefUp = {tree_->GetBranchStatus("MET_pt_jesPileUpPtRefUp") ? fReader : fReaderNull, "MET_pt_jesPileUpPtRefUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtRefUp = {tree_->GetBranchStatus("MET_phi_jesPileUpPtRefUp") ? fReader : fReaderNull, "MET_phi_jesPileUpPtRefUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtBBUp = {tree_->GetBranchStatus("MET_pt_jesPileUpPtBBUp") ? fReader : fReaderNull, "MET_pt_jesPileUpPtBBUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtBBUp = {tree_->GetBranchStatus("MET_phi_jesPileUpPtBBUp") ? fReader : fReaderNull, "MET_phi_jesPileUpPtBBUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtEC1Up = {tree_->GetBranchStatus("MET_pt_jesPileUpPtEC1Up") ? fReader : fReaderNull, "MET_pt_jesPileUpPtEC1Up"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtEC1Up = {tree_->GetBranchStatus("MET_phi_jesPileUpPtEC1Up") ? fReader : fReaderNull, "MET_phi_jesPileUpPtEC1Up"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtEC2Up = {tree_->GetBranchStatus("MET_pt_jesPileUpPtEC2Up") ? fReader : fReaderNull, "MET_pt_jesPileUpPtEC2Up"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtEC2Up = {tree_->GetBranchStatus("MET_phi_jesPileUpPtEC2Up") ? fReader : fReaderNull, "MET_phi_jesPileUpPtEC2Up"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtHFUp = {tree_->GetBranchStatus("MET_pt_jesPileUpPtHFUp") ? fReader : fReaderNull, "MET_pt_jesPileUpPtHFUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtHFUp = {tree_->GetBranchStatus("MET_phi_jesPileUpPtHFUp") ? fReader : fReaderNull, "MET_phi_jesPileUpPtHFUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpMuZeroUp = {tree_->GetBranchStatus("MET_pt_jesPileUpMuZeroUp") ? fReader : fReaderNull, "MET_pt_jesPileUpMuZeroUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpMuZeroUp = {tree_->GetBranchStatus("MET_phi_jesPileUpMuZeroUp") ? fReader : fReaderNull, "MET_phi_jesPileUpMuZeroUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpEnvelopeUp = {tree_->GetBranchStatus("MET_pt_jesPileUpEnvelopeUp") ? fReader : fReaderNull, "MET_pt_jesPileUpEnvelopeUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpEnvelopeUp = {tree_->GetBranchStatus("MET_phi_jesPileUpEnvelopeUp") ? fReader : fReaderNull, "MET_phi_jesPileUpEnvelopeUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalPileUpUp = {tree_->GetBranchStatus("MET_pt_jesSubTotalPileUpUp") ? fReader : fReaderNull, "MET_pt_jesSubTotalPileUpUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalPileUpUp = {tree_->GetBranchStatus("MET_phi_jesSubTotalPileUpUp") ? fReader : fReaderNull, "MET_phi_jesSubTotalPileUpUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalRelativeUp = {tree_->GetBranchStatus("MET_pt_jesSubTotalRelativeUp") ? fReader : fReaderNull, "MET_pt_jesSubTotalRelativeUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalRelativeUp = {tree_->GetBranchStatus("MET_phi_jesSubTotalRelativeUp") ? fReader : fReaderNull, "MET_phi_jesSubTotalRelativeUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalPtUp = {tree_->GetBranchStatus("MET_pt_jesSubTotalPtUp") ? fReader : fReaderNull, "MET_pt_jesSubTotalPtUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalPtUp = {tree_->GetBranchStatus("MET_phi_jesSubTotalPtUp") ? fReader : fReaderNull, "MET_phi_jesSubTotalPtUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalScaleUp = {tree_->GetBranchStatus("MET_pt_jesSubTotalScaleUp") ? fReader : fReaderNull, "MET_pt_jesSubTotalScaleUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalScaleUp = {tree_->GetBranchStatus("MET_phi_jesSubTotalScaleUp") ? fReader : fReaderNull, "MET_phi_jesSubTotalScaleUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalAbsoluteUp = {tree_->GetBranchStatus("MET_pt_jesSubTotalAbsoluteUp") ? fReader : fReaderNull, "MET_pt_jesSubTotalAbsoluteUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalAbsoluteUp = {tree_->GetBranchStatus("MET_phi_jesSubTotalAbsoluteUp") ? fReader : fReaderNull, "MET_phi_jesSubTotalAbsoluteUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalMCUp = {tree_->GetBranchStatus("MET_pt_jesSubTotalMCUp") ? fReader : fReaderNull, "MET_pt_jesSubTotalMCUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalMCUp = {tree_->GetBranchStatus("MET_phi_jesSubTotalMCUp") ? fReader : fReaderNull, "MET_phi_jesSubTotalMCUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesTotalUp = {tree_->GetBranchStatus("MET_pt_jesTotalUp") ? fReader : fReaderNull, "MET_pt_jesTotalUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesTotalUp = {tree_->GetBranchStatus("MET_phi_jesTotalUp") ? fReader : fReaderNull, "MET_phi_jesTotalUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesTotalNoFlavorUp = {tree_->GetBranchStatus("MET_pt_jesTotalNoFlavorUp") ? fReader : fReaderNull, "MET_pt_jesTotalNoFlavorUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesTotalNoFlavorUp = {tree_->GetBranchStatus("MET_phi_jesTotalNoFlavorUp") ? fReader : fReaderNull, "MET_phi_jesTotalNoFlavorUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesTotalNoTimeUp = {tree_->GetBranchStatus("MET_pt_jesTotalNoTimeUp") ? fReader : fReaderNull, "MET_pt_jesTotalNoTimeUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesTotalNoTimeUp = {tree_->GetBranchStatus("MET_phi_jesTotalNoTimeUp") ? fReader : fReaderNull, "MET_phi_jesTotalNoTimeUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesTotalNoFlavorNoTimeUp = {tree_->GetBranchStatus("MET_pt_jesTotalNoFlavorNoTimeUp") ? fReader : fReaderNull, "MET_pt_jesTotalNoFlavorNoTimeUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesTotalNoFlavorNoTimeUp = {tree_->GetBranchStatus("MET_phi_jesTotalNoFlavorNoTimeUp") ? fReader : fReaderNull, "MET_phi_jesTotalNoFlavorNoTimeUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorZJetUp = {tree_->GetBranchStatus("MET_pt_jesFlavorZJetUp") ? fReader : fReaderNull, "MET_pt_jesFlavorZJetUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorZJetUp = {tree_->GetBranchStatus("MET_phi_jesFlavorZJetUp") ? fReader : fReaderNull, "MET_phi_jesFlavorZJetUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPhotonJetUp = {tree_->GetBranchStatus("MET_pt_jesFlavorPhotonJetUp") ? fReader : fReaderNull, "MET_pt_jesFlavorPhotonJetUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPhotonJetUp = {tree_->GetBranchStatus("MET_phi_jesFlavorPhotonJetUp") ? fReader : fReaderNull, "MET_phi_jesFlavorPhotonJetUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPureGluonUp = {tree_->GetBranchStatus("MET_pt_jesFlavorPureGluonUp") ? fReader : fReaderNull, "MET_pt_jesFlavorPureGluonUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPureGluonUp = {tree_->GetBranchStatus("MET_phi_jesFlavorPureGluonUp") ? fReader : fReaderNull, "MET_phi_jesFlavorPureGluonUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPureQuarkUp = {tree_->GetBranchStatus("MET_pt_jesFlavorPureQuarkUp") ? fReader : fReaderNull, "MET_pt_jesFlavorPureQuarkUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPureQuarkUp = {tree_->GetBranchStatus("MET_phi_jesFlavorPureQuarkUp") ? fReader : fReaderNull, "MET_phi_jesFlavorPureQuarkUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPureCharmUp = {tree_->GetBranchStatus("MET_pt_jesFlavorPureCharmUp") ? fReader : fReaderNull, "MET_pt_jesFlavorPureCharmUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPureCharmUp = {tree_->GetBranchStatus("MET_phi_jesFlavorPureCharmUp") ? fReader : fReaderNull, "MET_phi_jesFlavorPureCharmUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPureBottomUp = {tree_->GetBranchStatus("MET_pt_jesFlavorPureBottomUp") ? fReader : fReaderNull, "MET_pt_jesFlavorPureBottomUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPureBottomUp = {tree_->GetBranchStatus("MET_phi_jesFlavorPureBottomUp") ? fReader : fReaderNull, "MET_phi_jesFlavorPureBottomUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimeRunBUp = {tree_->GetBranchStatus("MET_pt_jesTimeRunBUp") ? fReader : fReaderNull, "MET_pt_jesTimeRunBUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimeRunBUp = {tree_->GetBranchStatus("MET_phi_jesTimeRunBUp") ? fReader : fReaderNull, "MET_phi_jesTimeRunBUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimeRunCUp = {tree_->GetBranchStatus("MET_pt_jesTimeRunCUp") ? fReader : fReaderNull, "MET_pt_jesTimeRunCUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimeRunCUp = {tree_->GetBranchStatus("MET_phi_jesTimeRunCUp") ? fReader : fReaderNull, "MET_phi_jesTimeRunCUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimeRunDEUp = {tree_->GetBranchStatus("MET_pt_jesTimeRunDEUp") ? fReader : fReaderNull, "MET_pt_jesTimeRunDEUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimeRunDEUp = {tree_->GetBranchStatus("MET_phi_jesTimeRunDEUp") ? fReader : fReaderNull, "MET_phi_jesTimeRunDEUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimeRunFUp = {tree_->GetBranchStatus("MET_pt_jesTimeRunFUp") ? fReader : fReaderNull, "MET_pt_jesTimeRunFUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimeRunFUp = {tree_->GetBranchStatus("MET_phi_jesTimeRunFUp") ? fReader : fReaderNull, "MET_phi_jesTimeRunFUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupMPFInSituUp = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupMPFInSituUp") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupMPFInSituUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupMPFInSituUp = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupMPFInSituUp") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupMPFInSituUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupIntercalibrationUp = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupIntercalibrationUp") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupIntercalibrationUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupIntercalibrationUp = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupIntercalibrationUp") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupIntercalibrationUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupbJESUp = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupbJESUp") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupbJESUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupbJESUp = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupbJESUp") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupbJESUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupFlavorUp = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupFlavorUp") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupFlavorUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupFlavorUp = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupFlavorUp") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupFlavorUp"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupUncorrelatedUp = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupUncorrelatedUp") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupUncorrelatedUp"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupUncorrelatedUp = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupUncorrelatedUp") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupUncorrelatedUp"};
+  TTreeReaderValue<Float_t> MET_pt_unclustEnUp = {tree_->GetBranchStatus("MET_pt_unclustEnUp") ? fReader : fReaderNull, "MET_pt_unclustEnUp"};
+  TTreeReaderValue<Float_t> MET_phi_unclustEnUp = {tree_->GetBranchStatus("MET_phi_unclustEnUp") ? fReader : fReaderNull, "MET_phi_unclustEnUp"};
+  TTreeReaderValue<Float_t> MET_pt_jerDown = {tree_->GetBranchStatus("MET_pt_jerDown") ? fReader : fReaderNull, "MET_pt_jerDown"};
+  TTreeReaderValue<Float_t> MET_phi_jerDown = {tree_->GetBranchStatus("MET_phi_jerDown") ? fReader : fReaderNull, "MET_phi_jerDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesAbsoluteStatDown = {tree_->GetBranchStatus("MET_pt_jesAbsoluteStatDown") ? fReader : fReaderNull, "MET_pt_jesAbsoluteStatDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesAbsoluteStatDown = {tree_->GetBranchStatus("MET_phi_jesAbsoluteStatDown") ? fReader : fReaderNull, "MET_phi_jesAbsoluteStatDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesAbsoluteScaleDown = {tree_->GetBranchStatus("MET_pt_jesAbsoluteScaleDown") ? fReader : fReaderNull, "MET_pt_jesAbsoluteScaleDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesAbsoluteScaleDown = {tree_->GetBranchStatus("MET_phi_jesAbsoluteScaleDown") ? fReader : fReaderNull, "MET_phi_jesAbsoluteScaleDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesAbsoluteFlavMapDown = {tree_->GetBranchStatus("MET_pt_jesAbsoluteFlavMapDown") ? fReader : fReaderNull, "MET_pt_jesAbsoluteFlavMapDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesAbsoluteFlavMapDown = {tree_->GetBranchStatus("MET_phi_jesAbsoluteFlavMapDown") ? fReader : fReaderNull, "MET_phi_jesAbsoluteFlavMapDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesAbsoluteMPFBiasDown = {tree_->GetBranchStatus("MET_pt_jesAbsoluteMPFBiasDown") ? fReader : fReaderNull, "MET_pt_jesAbsoluteMPFBiasDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesAbsoluteMPFBiasDown = {tree_->GetBranchStatus("MET_phi_jesAbsoluteMPFBiasDown") ? fReader : fReaderNull, "MET_phi_jesAbsoluteMPFBiasDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesFragmentationDown = {tree_->GetBranchStatus("MET_pt_jesFragmentationDown") ? fReader : fReaderNull, "MET_pt_jesFragmentationDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesFragmentationDown = {tree_->GetBranchStatus("MET_phi_jesFragmentationDown") ? fReader : fReaderNull, "MET_phi_jesFragmentationDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesSinglePionECALDown = {tree_->GetBranchStatus("MET_pt_jesSinglePionECALDown") ? fReader : fReaderNull, "MET_pt_jesSinglePionECALDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesSinglePionECALDown = {tree_->GetBranchStatus("MET_phi_jesSinglePionECALDown") ? fReader : fReaderNull, "MET_phi_jesSinglePionECALDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesSinglePionHCALDown = {tree_->GetBranchStatus("MET_pt_jesSinglePionHCALDown") ? fReader : fReaderNull, "MET_pt_jesSinglePionHCALDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesSinglePionHCALDown = {tree_->GetBranchStatus("MET_phi_jesSinglePionHCALDown") ? fReader : fReaderNull, "MET_phi_jesSinglePionHCALDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorQCDDown = {tree_->GetBranchStatus("MET_pt_jesFlavorQCDDown") ? fReader : fReaderNull, "MET_pt_jesFlavorQCDDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorQCDDown = {tree_->GetBranchStatus("MET_phi_jesFlavorQCDDown") ? fReader : fReaderNull, "MET_phi_jesFlavorQCDDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimePtEtaDown = {tree_->GetBranchStatus("MET_pt_jesTimePtEtaDown") ? fReader : fReaderNull, "MET_pt_jesTimePtEtaDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimePtEtaDown = {tree_->GetBranchStatus("MET_phi_jesTimePtEtaDown") ? fReader : fReaderNull, "MET_phi_jesTimePtEtaDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeJEREC1Down = {tree_->GetBranchStatus("MET_pt_jesRelativeJEREC1Down") ? fReader : fReaderNull, "MET_pt_jesRelativeJEREC1Down"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeJEREC1Down = {tree_->GetBranchStatus("MET_phi_jesRelativeJEREC1Down") ? fReader : fReaderNull, "MET_phi_jesRelativeJEREC1Down"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeJEREC2Down = {tree_->GetBranchStatus("MET_pt_jesRelativeJEREC2Down") ? fReader : fReaderNull, "MET_pt_jesRelativeJEREC2Down"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeJEREC2Down = {tree_->GetBranchStatus("MET_phi_jesRelativeJEREC2Down") ? fReader : fReaderNull, "MET_phi_jesRelativeJEREC2Down"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeJERHFDown = {tree_->GetBranchStatus("MET_pt_jesRelativeJERHFDown") ? fReader : fReaderNull, "MET_pt_jesRelativeJERHFDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeJERHFDown = {tree_->GetBranchStatus("MET_phi_jesRelativeJERHFDown") ? fReader : fReaderNull, "MET_phi_jesRelativeJERHFDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativePtBBDown = {tree_->GetBranchStatus("MET_pt_jesRelativePtBBDown") ? fReader : fReaderNull, "MET_pt_jesRelativePtBBDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativePtBBDown = {tree_->GetBranchStatus("MET_phi_jesRelativePtBBDown") ? fReader : fReaderNull, "MET_phi_jesRelativePtBBDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativePtEC1Down = {tree_->GetBranchStatus("MET_pt_jesRelativePtEC1Down") ? fReader : fReaderNull, "MET_pt_jesRelativePtEC1Down"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativePtEC1Down = {tree_->GetBranchStatus("MET_phi_jesRelativePtEC1Down") ? fReader : fReaderNull, "MET_phi_jesRelativePtEC1Down"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativePtEC2Down = {tree_->GetBranchStatus("MET_pt_jesRelativePtEC2Down") ? fReader : fReaderNull, "MET_pt_jesRelativePtEC2Down"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativePtEC2Down = {tree_->GetBranchStatus("MET_phi_jesRelativePtEC2Down") ? fReader : fReaderNull, "MET_phi_jesRelativePtEC2Down"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativePtHFDown = {tree_->GetBranchStatus("MET_pt_jesRelativePtHFDown") ? fReader : fReaderNull, "MET_pt_jesRelativePtHFDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativePtHFDown = {tree_->GetBranchStatus("MET_phi_jesRelativePtHFDown") ? fReader : fReaderNull, "MET_phi_jesRelativePtHFDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeBalDown = {tree_->GetBranchStatus("MET_pt_jesRelativeBalDown") ? fReader : fReaderNull, "MET_pt_jesRelativeBalDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeBalDown = {tree_->GetBranchStatus("MET_phi_jesRelativeBalDown") ? fReader : fReaderNull, "MET_phi_jesRelativeBalDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeSampleDown = {tree_->GetBranchStatus("MET_pt_jesRelativeSampleDown") ? fReader : fReaderNull, "MET_pt_jesRelativeSampleDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeSampleDown = {tree_->GetBranchStatus("MET_phi_jesRelativeSampleDown") ? fReader : fReaderNull, "MET_phi_jesRelativeSampleDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeFSRDown = {tree_->GetBranchStatus("MET_pt_jesRelativeFSRDown") ? fReader : fReaderNull, "MET_pt_jesRelativeFSRDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeFSRDown = {tree_->GetBranchStatus("MET_phi_jesRelativeFSRDown") ? fReader : fReaderNull, "MET_phi_jesRelativeFSRDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeStatFSRDown = {tree_->GetBranchStatus("MET_pt_jesRelativeStatFSRDown") ? fReader : fReaderNull, "MET_pt_jesRelativeStatFSRDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeStatFSRDown = {tree_->GetBranchStatus("MET_phi_jesRelativeStatFSRDown") ? fReader : fReaderNull, "MET_phi_jesRelativeStatFSRDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeStatECDown = {tree_->GetBranchStatus("MET_pt_jesRelativeStatECDown") ? fReader : fReaderNull, "MET_pt_jesRelativeStatECDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeStatECDown = {tree_->GetBranchStatus("MET_phi_jesRelativeStatECDown") ? fReader : fReaderNull, "MET_phi_jesRelativeStatECDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesRelativeStatHFDown = {tree_->GetBranchStatus("MET_pt_jesRelativeStatHFDown") ? fReader : fReaderNull, "MET_pt_jesRelativeStatHFDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesRelativeStatHFDown = {tree_->GetBranchStatus("MET_phi_jesRelativeStatHFDown") ? fReader : fReaderNull, "MET_phi_jesRelativeStatHFDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpDataMCDown = {tree_->GetBranchStatus("MET_pt_jesPileUpDataMCDown") ? fReader : fReaderNull, "MET_pt_jesPileUpDataMCDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpDataMCDown = {tree_->GetBranchStatus("MET_phi_jesPileUpDataMCDown") ? fReader : fReaderNull, "MET_phi_jesPileUpDataMCDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtRefDown = {tree_->GetBranchStatus("MET_pt_jesPileUpPtRefDown") ? fReader : fReaderNull, "MET_pt_jesPileUpPtRefDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtRefDown = {tree_->GetBranchStatus("MET_phi_jesPileUpPtRefDown") ? fReader : fReaderNull, "MET_phi_jesPileUpPtRefDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtBBDown = {tree_->GetBranchStatus("MET_pt_jesPileUpPtBBDown") ? fReader : fReaderNull, "MET_pt_jesPileUpPtBBDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtBBDown = {tree_->GetBranchStatus("MET_phi_jesPileUpPtBBDown") ? fReader : fReaderNull, "MET_phi_jesPileUpPtBBDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtEC1Down = {tree_->GetBranchStatus("MET_pt_jesPileUpPtEC1Down") ? fReader : fReaderNull, "MET_pt_jesPileUpPtEC1Down"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtEC1Down = {tree_->GetBranchStatus("MET_phi_jesPileUpPtEC1Down") ? fReader : fReaderNull, "MET_phi_jesPileUpPtEC1Down"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtEC2Down = {tree_->GetBranchStatus("MET_pt_jesPileUpPtEC2Down") ? fReader : fReaderNull, "MET_pt_jesPileUpPtEC2Down"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtEC2Down = {tree_->GetBranchStatus("MET_phi_jesPileUpPtEC2Down") ? fReader : fReaderNull, "MET_phi_jesPileUpPtEC2Down"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpPtHFDown = {tree_->GetBranchStatus("MET_pt_jesPileUpPtHFDown") ? fReader : fReaderNull, "MET_pt_jesPileUpPtHFDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpPtHFDown = {tree_->GetBranchStatus("MET_phi_jesPileUpPtHFDown") ? fReader : fReaderNull, "MET_phi_jesPileUpPtHFDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpMuZeroDown = {tree_->GetBranchStatus("MET_pt_jesPileUpMuZeroDown") ? fReader : fReaderNull, "MET_pt_jesPileUpMuZeroDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpMuZeroDown = {tree_->GetBranchStatus("MET_phi_jesPileUpMuZeroDown") ? fReader : fReaderNull, "MET_phi_jesPileUpMuZeroDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesPileUpEnvelopeDown = {tree_->GetBranchStatus("MET_pt_jesPileUpEnvelopeDown") ? fReader : fReaderNull, "MET_pt_jesPileUpEnvelopeDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesPileUpEnvelopeDown = {tree_->GetBranchStatus("MET_phi_jesPileUpEnvelopeDown") ? fReader : fReaderNull, "MET_phi_jesPileUpEnvelopeDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalPileUpDown = {tree_->GetBranchStatus("MET_pt_jesSubTotalPileUpDown") ? fReader : fReaderNull, "MET_pt_jesSubTotalPileUpDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalPileUpDown = {tree_->GetBranchStatus("MET_phi_jesSubTotalPileUpDown") ? fReader : fReaderNull, "MET_phi_jesSubTotalPileUpDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalRelativeDown = {tree_->GetBranchStatus("MET_pt_jesSubTotalRelativeDown") ? fReader : fReaderNull, "MET_pt_jesSubTotalRelativeDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalRelativeDown = {tree_->GetBranchStatus("MET_phi_jesSubTotalRelativeDown") ? fReader : fReaderNull, "MET_phi_jesSubTotalRelativeDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalPtDown = {tree_->GetBranchStatus("MET_pt_jesSubTotalPtDown") ? fReader : fReaderNull, "MET_pt_jesSubTotalPtDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalPtDown = {tree_->GetBranchStatus("MET_phi_jesSubTotalPtDown") ? fReader : fReaderNull, "MET_phi_jesSubTotalPtDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalScaleDown = {tree_->GetBranchStatus("MET_pt_jesSubTotalScaleDown") ? fReader : fReaderNull, "MET_pt_jesSubTotalScaleDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalScaleDown = {tree_->GetBranchStatus("MET_phi_jesSubTotalScaleDown") ? fReader : fReaderNull, "MET_phi_jesSubTotalScaleDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalAbsoluteDown = {tree_->GetBranchStatus("MET_pt_jesSubTotalAbsoluteDown") ? fReader : fReaderNull, "MET_pt_jesSubTotalAbsoluteDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalAbsoluteDown = {tree_->GetBranchStatus("MET_phi_jesSubTotalAbsoluteDown") ? fReader : fReaderNull, "MET_phi_jesSubTotalAbsoluteDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesSubTotalMCDown = {tree_->GetBranchStatus("MET_pt_jesSubTotalMCDown") ? fReader : fReaderNull, "MET_pt_jesSubTotalMCDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesSubTotalMCDown = {tree_->GetBranchStatus("MET_phi_jesSubTotalMCDown") ? fReader : fReaderNull, "MET_phi_jesSubTotalMCDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesTotalDown = {tree_->GetBranchStatus("MET_pt_jesTotalDown") ? fReader : fReaderNull, "MET_pt_jesTotalDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesTotalDown = {tree_->GetBranchStatus("MET_phi_jesTotalDown") ? fReader : fReaderNull, "MET_phi_jesTotalDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesTotalNoFlavorDown = {tree_->GetBranchStatus("MET_pt_jesTotalNoFlavorDown") ? fReader : fReaderNull, "MET_pt_jesTotalNoFlavorDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesTotalNoFlavorDown = {tree_->GetBranchStatus("MET_phi_jesTotalNoFlavorDown") ? fReader : fReaderNull, "MET_phi_jesTotalNoFlavorDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesTotalNoTimeDown = {tree_->GetBranchStatus("MET_pt_jesTotalNoTimeDown") ? fReader : fReaderNull, "MET_pt_jesTotalNoTimeDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesTotalNoTimeDown = {tree_->GetBranchStatus("MET_phi_jesTotalNoTimeDown") ? fReader : fReaderNull, "MET_phi_jesTotalNoTimeDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesTotalNoFlavorNoTimeDown = {tree_->GetBranchStatus("MET_pt_jesTotalNoFlavorNoTimeDown") ? fReader : fReaderNull, "MET_pt_jesTotalNoFlavorNoTimeDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesTotalNoFlavorNoTimeDown = {tree_->GetBranchStatus("MET_phi_jesTotalNoFlavorNoTimeDown") ? fReader : fReaderNull, "MET_phi_jesTotalNoFlavorNoTimeDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorZJetDown = {tree_->GetBranchStatus("MET_pt_jesFlavorZJetDown") ? fReader : fReaderNull, "MET_pt_jesFlavorZJetDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorZJetDown = {tree_->GetBranchStatus("MET_phi_jesFlavorZJetDown") ? fReader : fReaderNull, "MET_phi_jesFlavorZJetDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPhotonJetDown = {tree_->GetBranchStatus("MET_pt_jesFlavorPhotonJetDown") ? fReader : fReaderNull, "MET_pt_jesFlavorPhotonJetDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPhotonJetDown = {tree_->GetBranchStatus("MET_phi_jesFlavorPhotonJetDown") ? fReader : fReaderNull, "MET_phi_jesFlavorPhotonJetDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPureGluonDown = {tree_->GetBranchStatus("MET_pt_jesFlavorPureGluonDown") ? fReader : fReaderNull, "MET_pt_jesFlavorPureGluonDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPureGluonDown = {tree_->GetBranchStatus("MET_phi_jesFlavorPureGluonDown") ? fReader : fReaderNull, "MET_phi_jesFlavorPureGluonDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPureQuarkDown = {tree_->GetBranchStatus("MET_pt_jesFlavorPureQuarkDown") ? fReader : fReaderNull, "MET_pt_jesFlavorPureQuarkDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPureQuarkDown = {tree_->GetBranchStatus("MET_phi_jesFlavorPureQuarkDown") ? fReader : fReaderNull, "MET_phi_jesFlavorPureQuarkDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPureCharmDown = {tree_->GetBranchStatus("MET_pt_jesFlavorPureCharmDown") ? fReader : fReaderNull, "MET_pt_jesFlavorPureCharmDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPureCharmDown = {tree_->GetBranchStatus("MET_phi_jesFlavorPureCharmDown") ? fReader : fReaderNull, "MET_phi_jesFlavorPureCharmDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesFlavorPureBottomDown = {tree_->GetBranchStatus("MET_pt_jesFlavorPureBottomDown") ? fReader : fReaderNull, "MET_pt_jesFlavorPureBottomDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesFlavorPureBottomDown = {tree_->GetBranchStatus("MET_phi_jesFlavorPureBottomDown") ? fReader : fReaderNull, "MET_phi_jesFlavorPureBottomDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimeRunBDown = {tree_->GetBranchStatus("MET_pt_jesTimeRunBDown") ? fReader : fReaderNull, "MET_pt_jesTimeRunBDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimeRunBDown = {tree_->GetBranchStatus("MET_phi_jesTimeRunBDown") ? fReader : fReaderNull, "MET_phi_jesTimeRunBDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimeRunCDown = {tree_->GetBranchStatus("MET_pt_jesTimeRunCDown") ? fReader : fReaderNull, "MET_pt_jesTimeRunCDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimeRunCDown = {tree_->GetBranchStatus("MET_phi_jesTimeRunCDown") ? fReader : fReaderNull, "MET_phi_jesTimeRunCDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimeRunDEDown = {tree_->GetBranchStatus("MET_pt_jesTimeRunDEDown") ? fReader : fReaderNull, "MET_pt_jesTimeRunDEDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimeRunDEDown = {tree_->GetBranchStatus("MET_phi_jesTimeRunDEDown") ? fReader : fReaderNull, "MET_phi_jesTimeRunDEDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesTimeRunFDown = {tree_->GetBranchStatus("MET_pt_jesTimeRunFDown") ? fReader : fReaderNull, "MET_pt_jesTimeRunFDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesTimeRunFDown = {tree_->GetBranchStatus("MET_phi_jesTimeRunFDown") ? fReader : fReaderNull, "MET_phi_jesTimeRunFDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupMPFInSituDown = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupMPFInSituDown") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupMPFInSituDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupMPFInSituDown = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupMPFInSituDown") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupMPFInSituDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupIntercalibrationDown = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupIntercalibrationDown") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupIntercalibrationDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupIntercalibrationDown = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupIntercalibrationDown") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupIntercalibrationDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupbJESDown = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupbJESDown") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupbJESDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupbJESDown = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupbJESDown") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupbJESDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupFlavorDown = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupFlavorDown") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupFlavorDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupFlavorDown = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupFlavorDown") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupFlavorDown"};
+  TTreeReaderValue<Float_t> MET_pt_jesCorrelationGroupUncorrelatedDown = {tree_->GetBranchStatus("MET_pt_jesCorrelationGroupUncorrelatedDown") ? fReader : fReaderNull, "MET_pt_jesCorrelationGroupUncorrelatedDown"};
+  TTreeReaderValue<Float_t> MET_phi_jesCorrelationGroupUncorrelatedDown = {tree_->GetBranchStatus("MET_phi_jesCorrelationGroupUncorrelatedDown") ? fReader : fReaderNull, "MET_phi_jesCorrelationGroupUncorrelatedDown"};
+  TTreeReaderValue<Float_t> MET_pt_unclustEnDown = {tree_->GetBranchStatus("MET_pt_unclustEnDown") ? fReader : fReaderNull, "MET_pt_unclustEnDown"};
+  TTreeReaderValue<Float_t> MET_phi_unclustEnDown = {tree_->GetBranchStatus("MET_phi_unclustEnDown") ? fReader : fReaderNull, "MET_phi_unclustEnDown"};
+
+  //Jets
+  TTreeReaderValue<UInt_t> nJet = {tree_->GetBranchStatus("nJet") ? fReader : fReaderNull, "nJet"};
+  TTreeReaderArray<Float_t> Jet_area = {tree_->GetBranchStatus("Jet_area") ? fReader : fReaderNull, "Jet_area"};
+  TTreeReaderArray<Float_t> Jet_btagCMVA = {tree_->GetBranchStatus("Jet_btagCMVA") ? fReader : fReaderNull, "Jet_btagCMVA"};
+  TTreeReaderArray<Float_t> Jet_btagCSVV2 = {tree_->GetBranchStatus("Jet_btagCSVV2") ? fReader : fReaderNull, "Jet_btagCSVV2"};
+  TTreeReaderArray<Float_t> Jet_btagDeepB = {tree_->GetBranchStatus("Jet_btagDeepB") ? fReader : fReaderNull, "Jet_btagDeepB"};
+  TTreeReaderArray<Float_t> Jet_btagDeepC = {tree_->GetBranchStatus("Jet_btagDeepC") ? fReader : fReaderNull, "Jet_btagDeepC"};
+  TTreeReaderArray<Float_t> Jet_btagDeepFlavB = {tree_->GetBranchStatus("Jet_btagDeepFlavB") ? fReader : fReaderNull, "Jet_btagDeepFlavB"};
+  TTreeReaderArray<Float_t> Jet_btagDeepFlavC = {tree_->GetBranchStatus("Jet_btagDeepFlavC") ? fReader : fReaderNull, "Jet_btagDeepFlavC"};
+  TTreeReaderArray<Float_t> Jet_chEmEF = {tree_->GetBranchStatus("Jet_chEmEF") ? fReader : fReaderNull, "Jet_chEmEF"};
+  TTreeReaderArray<Float_t> Jet_chFPV0EF = {tree_->GetBranchStatus("Jet_chFPV0EF") ? fReader : fReaderNull, "Jet_chFPV0EF"};
+  TTreeReaderArray<Float_t> Jet_chFPV1EF = {tree_->GetBranchStatus("Jet_chFPV1EF") ? fReader : fReaderNull, "Jet_chFPV1EF"};
+  TTreeReaderArray<Float_t> Jet_chFPV2EF = {tree_->GetBranchStatus("Jet_chFPV2EF") ? fReader : fReaderNull, "Jet_chFPV2EF"};
+  TTreeReaderArray<Float_t> Jet_chFPV3EF = {tree_->GetBranchStatus("Jet_chFPV3EF") ? fReader : fReaderNull, "Jet_chFPV3EF"};
+  TTreeReaderArray<Float_t> Jet_chHEF = {tree_->GetBranchStatus("Jet_chHEF") ? fReader : fReaderNull, "Jet_chHEF"};
+  TTreeReaderArray<Float_t> Jet_eta = {tree_->GetBranchStatus("Jet_eta") ? fReader : fReaderNull, "Jet_eta"};
+  TTreeReaderArray<Float_t> Jet_mass = {tree_->GetBranchStatus("Jet_mass") ? fReader : fReaderNull, "Jet_mass"};
+  TTreeReaderArray<Float_t> Jet_muEF = {tree_->GetBranchStatus("Jet_muEF") ? fReader : fReaderNull, "Jet_muEF"};
+  TTreeReaderArray<Float_t> Jet_muonSubtrFactor = {tree_->GetBranchStatus("Jet_muonSubtrFactor") ? fReader : fReaderNull, "Jet_muonSubtrFactor"};
+  TTreeReaderArray<Float_t> Jet_neEmEF = {tree_->GetBranchStatus("Jet_neEmEF") ? fReader : fReaderNull, "Jet_neEmEF"};
+  TTreeReaderArray<Float_t> Jet_neHEF = {tree_->GetBranchStatus("Jet_neHEF") ? fReader : fReaderNull, "Jet_neHEF"};
+  TTreeReaderArray<Float_t> Jet_phi = {tree_->GetBranchStatus("Jet_phi") ? fReader : fReaderNull, "Jet_phi"};
+  TTreeReaderArray<Float_t> Jet_pt = {tree_->GetBranchStatus("Jet_pt") ? fReader : fReaderNull, "Jet_pt"};
+  TTreeReaderArray<Float_t> Jet_puIdDisc = {tree_->GetBranchStatus("Jet_puIdDisc") ? fReader : fReaderNull, "Jet_puIdDisc"};
+  TTreeReaderArray<Float_t> Jet_qgl = {tree_->GetBranchStatus("Jet_qgl") ? fReader : fReaderNull, "Jet_qgl"};
+  TTreeReaderArray<Float_t> Jet_rawFactor = {tree_->GetBranchStatus("Jet_rawFactor") ? fReader : fReaderNull, "Jet_rawFactor"};
+  TTreeReaderArray<Float_t> Jet_bRegCorr = {tree_->GetBranchStatus("Jet_bRegCorr") ? fReader : fReaderNull, "Jet_bRegCorr"};
+  TTreeReaderArray<Float_t> Jet_bRegRes = {tree_->GetBranchStatus("Jet_bRegRes") ? fReader : fReaderNull, "Jet_bRegRes"};
+  TTreeReaderArray<Float_t> Jet_cRegCorr = {tree_->GetBranchStatus("Jet_cRegCorr") ? fReader : fReaderNull, "Jet_cRegCorr"};
+  TTreeReaderArray<Float_t> Jet_cRegRes = {tree_->GetBranchStatus("Jet_cRegRes") ? fReader : fReaderNull, "Jet_cRegRes"};
+  TTreeReaderArray<Int_t> Jet_electronIdx1 = {tree_->GetBranchStatus("Jet_electronIdx1") ? fReader : fReaderNull, "Jet_electronIdx1"};
+  TTreeReaderArray<Int_t> Jet_electronIdx2 = {tree_->GetBranchStatus("Jet_electronIdx2") ? fReader : fReaderNull, "Jet_electronIdx2"};
+  TTreeReaderArray<Int_t> Jet_jetId = {tree_->GetBranchStatus("Jet_jetId") ? fReader : fReaderNull, "Jet_jetId"};
+  TTreeReaderArray<Int_t> Jet_muonIdx1 = {tree_->GetBranchStatus("Jet_muonIdx1") ? fReader : fReaderNull, "Jet_muonIdx1"};
+  TTreeReaderArray<Int_t> Jet_muonIdx2 = {tree_->GetBranchStatus("Jet_muonIdx2") ? fReader : fReaderNull, "Jet_muonIdx2"};
+  TTreeReaderArray<Int_t> Jet_nConstituents = {tree_->GetBranchStatus("Jet_nConstituents") ? fReader : fReaderNull, "Jet_nConstituents"};
+  TTreeReaderArray<Int_t> Jet_nElectrons = {tree_->GetBranchStatus("Jet_nElectrons") ? fReader : fReaderNull, "Jet_nElectrons"};
+  TTreeReaderArray<Int_t> Jet_nMuons = {tree_->GetBranchStatus("Jet_nMuons") ? fReader : fReaderNull, "Jet_nMuons"};
+  TTreeReaderArray<Int_t> Jet_puId = {tree_->GetBranchStatus("Jet_puId") ? fReader : fReaderNull, "Jet_puId"};
+  TTreeReaderArray<Int_t> Jet_genJetIdx = {tree_->GetBranchStatus("Jet_genJetIdx") ? fReader : fReaderNull, "Jet_genJetIdx"};
+  TTreeReaderArray<Int_t> Jet_hadronFlavour = {tree_->GetBranchStatus("Jet_hadronFlavour") ? fReader : fReaderNull, "Jet_hadronFlavour"};
+  TTreeReaderArray<Int_t> Jet_partonFlavour = {tree_->GetBranchStatus("Jet_partonFlavour") ? fReader : fReaderNull, "Jet_partonFlavour"};
+  TTreeReaderArray<UChar_t> Jet_cleanmask = {tree_->GetBranchStatus("Jet_cleanmask") ? fReader : fReaderNull, "Jet_cleanmask"};
+  TTreeReaderArray<Float_t> Jet_pt_raw = {tree_->GetBranchStatus("Jet_pt_raw") ? fReader : fReaderNull, "Jet_pt_raw"};
+  TTreeReaderArray<Float_t> Jet_pt_nom = {tree_->GetBranchStatus("Jet_pt_nom") ? fReader : fReaderNull, "Jet_pt_nom"};
+  TTreeReaderArray<Float_t> Jet_mass_raw = {tree_->GetBranchStatus("Jet_mass_raw") ? fReader : fReaderNull, "Jet_mass_raw"};
+  TTreeReaderArray<Float_t> Jet_mass_nom = {tree_->GetBranchStatus("Jet_mass_nom") ? fReader : fReaderNull, "Jet_mass_nom"};
+  TTreeReaderArray<Float_t> Jet_corr_JEC = {tree_->GetBranchStatus("Jet_corr_JEC") ? fReader : fReaderNull, "Jet_corr_JEC"};
+  TTreeReaderArray<Float_t> Jet_corr_JER = {tree_->GetBranchStatus("Jet_corr_JER") ? fReader : fReaderNull, "Jet_corr_JER"};
+  TTreeReaderArray<Float_t> Jet_pt_jerUp = {tree_->GetBranchStatus("Jet_pt_jerUp") ? fReader : fReaderNull, "Jet_pt_jerUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jerUp = {tree_->GetBranchStatus("Jet_mass_jerUp") ? fReader : fReaderNull, "Jet_mass_jerUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesAbsoluteStatUp = {tree_->GetBranchStatus("Jet_pt_jesAbsoluteStatUp") ? fReader : fReaderNull, "Jet_pt_jesAbsoluteStatUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesAbsoluteStatUp = {tree_->GetBranchStatus("Jet_mass_jesAbsoluteStatUp") ? fReader : fReaderNull, "Jet_mass_jesAbsoluteStatUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesAbsoluteScaleUp = {tree_->GetBranchStatus("Jet_pt_jesAbsoluteScaleUp") ? fReader : fReaderNull, "Jet_pt_jesAbsoluteScaleUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesAbsoluteScaleUp = {tree_->GetBranchStatus("Jet_mass_jesAbsoluteScaleUp") ? fReader : fReaderNull, "Jet_mass_jesAbsoluteScaleUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesAbsoluteFlavMapUp = {tree_->GetBranchStatus("Jet_pt_jesAbsoluteFlavMapUp") ? fReader : fReaderNull, "Jet_pt_jesAbsoluteFlavMapUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesAbsoluteFlavMapUp = {tree_->GetBranchStatus("Jet_mass_jesAbsoluteFlavMapUp") ? fReader : fReaderNull, "Jet_mass_jesAbsoluteFlavMapUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesAbsoluteMPFBiasUp = {tree_->GetBranchStatus("Jet_pt_jesAbsoluteMPFBiasUp") ? fReader : fReaderNull, "Jet_pt_jesAbsoluteMPFBiasUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesAbsoluteMPFBiasUp = {tree_->GetBranchStatus("Jet_mass_jesAbsoluteMPFBiasUp") ? fReader : fReaderNull, "Jet_mass_jesAbsoluteMPFBiasUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFragmentationUp = {tree_->GetBranchStatus("Jet_pt_jesFragmentationUp") ? fReader : fReaderNull, "Jet_pt_jesFragmentationUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFragmentationUp = {tree_->GetBranchStatus("Jet_mass_jesFragmentationUp") ? fReader : fReaderNull, "Jet_mass_jesFragmentationUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSinglePionECALUp = {tree_->GetBranchStatus("Jet_pt_jesSinglePionECALUp") ? fReader : fReaderNull, "Jet_pt_jesSinglePionECALUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSinglePionECALUp = {tree_->GetBranchStatus("Jet_mass_jesSinglePionECALUp") ? fReader : fReaderNull, "Jet_mass_jesSinglePionECALUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSinglePionHCALUp = {tree_->GetBranchStatus("Jet_pt_jesSinglePionHCALUp") ? fReader : fReaderNull, "Jet_pt_jesSinglePionHCALUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSinglePionHCALUp = {tree_->GetBranchStatus("Jet_mass_jesSinglePionHCALUp") ? fReader : fReaderNull, "Jet_mass_jesSinglePionHCALUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorQCDUp = {tree_->GetBranchStatus("Jet_pt_jesFlavorQCDUp") ? fReader : fReaderNull, "Jet_pt_jesFlavorQCDUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorQCDUp = {tree_->GetBranchStatus("Jet_mass_jesFlavorQCDUp") ? fReader : fReaderNull, "Jet_mass_jesFlavorQCDUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimePtEtaUp = {tree_->GetBranchStatus("Jet_pt_jesTimePtEtaUp") ? fReader : fReaderNull, "Jet_pt_jesTimePtEtaUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimePtEtaUp = {tree_->GetBranchStatus("Jet_mass_jesTimePtEtaUp") ? fReader : fReaderNull, "Jet_mass_jesTimePtEtaUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeJEREC1Up = {tree_->GetBranchStatus("Jet_pt_jesRelativeJEREC1Up") ? fReader : fReaderNull, "Jet_pt_jesRelativeJEREC1Up"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeJEREC1Up = {tree_->GetBranchStatus("Jet_mass_jesRelativeJEREC1Up") ? fReader : fReaderNull, "Jet_mass_jesRelativeJEREC1Up"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeJEREC2Up = {tree_->GetBranchStatus("Jet_pt_jesRelativeJEREC2Up") ? fReader : fReaderNull, "Jet_pt_jesRelativeJEREC2Up"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeJEREC2Up = {tree_->GetBranchStatus("Jet_mass_jesRelativeJEREC2Up") ? fReader : fReaderNull, "Jet_mass_jesRelativeJEREC2Up"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeJERHFUp = {tree_->GetBranchStatus("Jet_pt_jesRelativeJERHFUp") ? fReader : fReaderNull, "Jet_pt_jesRelativeJERHFUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeJERHFUp = {tree_->GetBranchStatus("Jet_mass_jesRelativeJERHFUp") ? fReader : fReaderNull, "Jet_mass_jesRelativeJERHFUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativePtBBUp = {tree_->GetBranchStatus("Jet_pt_jesRelativePtBBUp") ? fReader : fReaderNull, "Jet_pt_jesRelativePtBBUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativePtBBUp = {tree_->GetBranchStatus("Jet_mass_jesRelativePtBBUp") ? fReader : fReaderNull, "Jet_mass_jesRelativePtBBUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativePtEC1Up = {tree_->GetBranchStatus("Jet_pt_jesRelativePtEC1Up") ? fReader : fReaderNull, "Jet_pt_jesRelativePtEC1Up"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativePtEC1Up = {tree_->GetBranchStatus("Jet_mass_jesRelativePtEC1Up") ? fReader : fReaderNull, "Jet_mass_jesRelativePtEC1Up"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativePtEC2Up = {tree_->GetBranchStatus("Jet_pt_jesRelativePtEC2Up") ? fReader : fReaderNull, "Jet_pt_jesRelativePtEC2Up"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativePtEC2Up = {tree_->GetBranchStatus("Jet_mass_jesRelativePtEC2Up") ? fReader : fReaderNull, "Jet_mass_jesRelativePtEC2Up"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativePtHFUp = {tree_->GetBranchStatus("Jet_pt_jesRelativePtHFUp") ? fReader : fReaderNull, "Jet_pt_jesRelativePtHFUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativePtHFUp = {tree_->GetBranchStatus("Jet_mass_jesRelativePtHFUp") ? fReader : fReaderNull, "Jet_mass_jesRelativePtHFUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeBalUp = {tree_->GetBranchStatus("Jet_pt_jesRelativeBalUp") ? fReader : fReaderNull, "Jet_pt_jesRelativeBalUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeBalUp = {tree_->GetBranchStatus("Jet_mass_jesRelativeBalUp") ? fReader : fReaderNull, "Jet_mass_jesRelativeBalUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeSampleUp = {tree_->GetBranchStatus("Jet_pt_jesRelativeSampleUp") ? fReader : fReaderNull, "Jet_pt_jesRelativeSampleUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeSampleUp = {tree_->GetBranchStatus("Jet_mass_jesRelativeSampleUp") ? fReader : fReaderNull, "Jet_mass_jesRelativeSampleUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeFSRUp = {tree_->GetBranchStatus("Jet_pt_jesRelativeFSRUp") ? fReader : fReaderNull, "Jet_pt_jesRelativeFSRUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeFSRUp = {tree_->GetBranchStatus("Jet_mass_jesRelativeFSRUp") ? fReader : fReaderNull, "Jet_mass_jesRelativeFSRUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeStatFSRUp = {tree_->GetBranchStatus("Jet_pt_jesRelativeStatFSRUp") ? fReader : fReaderNull, "Jet_pt_jesRelativeStatFSRUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeStatFSRUp = {tree_->GetBranchStatus("Jet_mass_jesRelativeStatFSRUp") ? fReader : fReaderNull, "Jet_mass_jesRelativeStatFSRUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeStatECUp = {tree_->GetBranchStatus("Jet_pt_jesRelativeStatECUp") ? fReader : fReaderNull, "Jet_pt_jesRelativeStatECUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeStatECUp = {tree_->GetBranchStatus("Jet_mass_jesRelativeStatECUp") ? fReader : fReaderNull, "Jet_mass_jesRelativeStatECUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeStatHFUp = {tree_->GetBranchStatus("Jet_pt_jesRelativeStatHFUp") ? fReader : fReaderNull, "Jet_pt_jesRelativeStatHFUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeStatHFUp = {tree_->GetBranchStatus("Jet_mass_jesRelativeStatHFUp") ? fReader : fReaderNull, "Jet_mass_jesRelativeStatHFUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpDataMCUp = {tree_->GetBranchStatus("Jet_pt_jesPileUpDataMCUp") ? fReader : fReaderNull, "Jet_pt_jesPileUpDataMCUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpDataMCUp = {tree_->GetBranchStatus("Jet_mass_jesPileUpDataMCUp") ? fReader : fReaderNull, "Jet_mass_jesPileUpDataMCUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtRefUp = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtRefUp") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtRefUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtRefUp = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtRefUp") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtRefUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtBBUp = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtBBUp") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtBBUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtBBUp = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtBBUp") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtBBUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtEC1Up = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtEC1Up") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtEC1Up"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtEC1Up = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtEC1Up") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtEC1Up"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtEC2Up = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtEC2Up") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtEC2Up"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtEC2Up = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtEC2Up") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtEC2Up"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtHFUp = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtHFUp") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtHFUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtHFUp = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtHFUp") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtHFUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpMuZeroUp = {tree_->GetBranchStatus("Jet_pt_jesPileUpMuZeroUp") ? fReader : fReaderNull, "Jet_pt_jesPileUpMuZeroUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpMuZeroUp = {tree_->GetBranchStatus("Jet_mass_jesPileUpMuZeroUp") ? fReader : fReaderNull, "Jet_mass_jesPileUpMuZeroUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpEnvelopeUp = {tree_->GetBranchStatus("Jet_pt_jesPileUpEnvelopeUp") ? fReader : fReaderNull, "Jet_pt_jesPileUpEnvelopeUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpEnvelopeUp = {tree_->GetBranchStatus("Jet_mass_jesPileUpEnvelopeUp") ? fReader : fReaderNull, "Jet_mass_jesPileUpEnvelopeUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalPileUpUp = {tree_->GetBranchStatus("Jet_pt_jesSubTotalPileUpUp") ? fReader : fReaderNull, "Jet_pt_jesSubTotalPileUpUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalPileUpUp = {tree_->GetBranchStatus("Jet_mass_jesSubTotalPileUpUp") ? fReader : fReaderNull, "Jet_mass_jesSubTotalPileUpUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalRelativeUp = {tree_->GetBranchStatus("Jet_pt_jesSubTotalRelativeUp") ? fReader : fReaderNull, "Jet_pt_jesSubTotalRelativeUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalRelativeUp = {tree_->GetBranchStatus("Jet_mass_jesSubTotalRelativeUp") ? fReader : fReaderNull, "Jet_mass_jesSubTotalRelativeUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalPtUp = {tree_->GetBranchStatus("Jet_pt_jesSubTotalPtUp") ? fReader : fReaderNull, "Jet_pt_jesSubTotalPtUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalPtUp = {tree_->GetBranchStatus("Jet_mass_jesSubTotalPtUp") ? fReader : fReaderNull, "Jet_mass_jesSubTotalPtUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalScaleUp = {tree_->GetBranchStatus("Jet_pt_jesSubTotalScaleUp") ? fReader : fReaderNull, "Jet_pt_jesSubTotalScaleUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalScaleUp = {tree_->GetBranchStatus("Jet_mass_jesSubTotalScaleUp") ? fReader : fReaderNull, "Jet_mass_jesSubTotalScaleUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalAbsoluteUp = {tree_->GetBranchStatus("Jet_pt_jesSubTotalAbsoluteUp") ? fReader : fReaderNull, "Jet_pt_jesSubTotalAbsoluteUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalAbsoluteUp = {tree_->GetBranchStatus("Jet_mass_jesSubTotalAbsoluteUp") ? fReader : fReaderNull, "Jet_mass_jesSubTotalAbsoluteUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalMCUp = {tree_->GetBranchStatus("Jet_pt_jesSubTotalMCUp") ? fReader : fReaderNull, "Jet_pt_jesSubTotalMCUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalMCUp = {tree_->GetBranchStatus("Jet_mass_jesSubTotalMCUp") ? fReader : fReaderNull, "Jet_mass_jesSubTotalMCUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTotalUp = {tree_->GetBranchStatus("Jet_pt_jesTotalUp") ? fReader : fReaderNull, "Jet_pt_jesTotalUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTotalUp = {tree_->GetBranchStatus("Jet_mass_jesTotalUp") ? fReader : fReaderNull, "Jet_mass_jesTotalUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTotalNoFlavorUp = {tree_->GetBranchStatus("Jet_pt_jesTotalNoFlavorUp") ? fReader : fReaderNull, "Jet_pt_jesTotalNoFlavorUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTotalNoFlavorUp = {tree_->GetBranchStatus("Jet_mass_jesTotalNoFlavorUp") ? fReader : fReaderNull, "Jet_mass_jesTotalNoFlavorUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTotalNoTimeUp = {tree_->GetBranchStatus("Jet_pt_jesTotalNoTimeUp") ? fReader : fReaderNull, "Jet_pt_jesTotalNoTimeUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTotalNoTimeUp = {tree_->GetBranchStatus("Jet_mass_jesTotalNoTimeUp") ? fReader : fReaderNull, "Jet_mass_jesTotalNoTimeUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTotalNoFlavorNoTimeUp = {tree_->GetBranchStatus("Jet_pt_jesTotalNoFlavorNoTimeUp") ? fReader : fReaderNull, "Jet_pt_jesTotalNoFlavorNoTimeUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTotalNoFlavorNoTimeUp = {tree_->GetBranchStatus("Jet_mass_jesTotalNoFlavorNoTimeUp") ? fReader : fReaderNull, "Jet_mass_jesTotalNoFlavorNoTimeUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorZJetUp = {tree_->GetBranchStatus("Jet_pt_jesFlavorZJetUp") ? fReader : fReaderNull, "Jet_pt_jesFlavorZJetUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorZJetUp = {tree_->GetBranchStatus("Jet_mass_jesFlavorZJetUp") ? fReader : fReaderNull, "Jet_mass_jesFlavorZJetUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPhotonJetUp = {tree_->GetBranchStatus("Jet_pt_jesFlavorPhotonJetUp") ? fReader : fReaderNull, "Jet_pt_jesFlavorPhotonJetUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPhotonJetUp = {tree_->GetBranchStatus("Jet_mass_jesFlavorPhotonJetUp") ? fReader : fReaderNull, "Jet_mass_jesFlavorPhotonJetUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPureGluonUp = {tree_->GetBranchStatus("Jet_pt_jesFlavorPureGluonUp") ? fReader : fReaderNull, "Jet_pt_jesFlavorPureGluonUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPureGluonUp = {tree_->GetBranchStatus("Jet_mass_jesFlavorPureGluonUp") ? fReader : fReaderNull, "Jet_mass_jesFlavorPureGluonUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPureQuarkUp = {tree_->GetBranchStatus("Jet_pt_jesFlavorPureQuarkUp") ? fReader : fReaderNull, "Jet_pt_jesFlavorPureQuarkUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPureQuarkUp = {tree_->GetBranchStatus("Jet_mass_jesFlavorPureQuarkUp") ? fReader : fReaderNull, "Jet_mass_jesFlavorPureQuarkUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPureCharmUp = {tree_->GetBranchStatus("Jet_pt_jesFlavorPureCharmUp") ? fReader : fReaderNull, "Jet_pt_jesFlavorPureCharmUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPureCharmUp = {tree_->GetBranchStatus("Jet_mass_jesFlavorPureCharmUp") ? fReader : fReaderNull, "Jet_mass_jesFlavorPureCharmUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPureBottomUp = {tree_->GetBranchStatus("Jet_pt_jesFlavorPureBottomUp") ? fReader : fReaderNull, "Jet_pt_jesFlavorPureBottomUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPureBottomUp = {tree_->GetBranchStatus("Jet_mass_jesFlavorPureBottomUp") ? fReader : fReaderNull, "Jet_mass_jesFlavorPureBottomUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimeRunBUp = {tree_->GetBranchStatus("Jet_pt_jesTimeRunBUp") ? fReader : fReaderNull, "Jet_pt_jesTimeRunBUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimeRunBUp = {tree_->GetBranchStatus("Jet_mass_jesTimeRunBUp") ? fReader : fReaderNull, "Jet_mass_jesTimeRunBUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimeRunCUp = {tree_->GetBranchStatus("Jet_pt_jesTimeRunCUp") ? fReader : fReaderNull, "Jet_pt_jesTimeRunCUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimeRunCUp = {tree_->GetBranchStatus("Jet_mass_jesTimeRunCUp") ? fReader : fReaderNull, "Jet_mass_jesTimeRunCUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimeRunDEUp = {tree_->GetBranchStatus("Jet_pt_jesTimeRunDEUp") ? fReader : fReaderNull, "Jet_pt_jesTimeRunDEUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimeRunDEUp = {tree_->GetBranchStatus("Jet_mass_jesTimeRunDEUp") ? fReader : fReaderNull, "Jet_mass_jesTimeRunDEUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimeRunFUp = {tree_->GetBranchStatus("Jet_pt_jesTimeRunFUp") ? fReader : fReaderNull, "Jet_pt_jesTimeRunFUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimeRunFUp = {tree_->GetBranchStatus("Jet_mass_jesTimeRunFUp") ? fReader : fReaderNull, "Jet_mass_jesTimeRunFUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupMPFInSituUp = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupMPFInSituUp") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupMPFInSituUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupMPFInSituUp = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupMPFInSituUp") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupMPFInSituUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupIntercalibrationUp = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupIntercalibrationUp") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupIntercalibrationUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupIntercalibrationUp = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupIntercalibrationUp") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupIntercalibrationUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupbJESUp = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupbJESUp") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupbJESUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupbJESUp = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupbJESUp") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupbJESUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupFlavorUp = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupFlavorUp") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupFlavorUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupFlavorUp = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupFlavorUp") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupFlavorUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupUncorrelatedUp = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupUncorrelatedUp") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupUncorrelatedUp"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupUncorrelatedUp = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupUncorrelatedUp") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupUncorrelatedUp"};
+  TTreeReaderArray<Float_t> Jet_pt_jerDown = {tree_->GetBranchStatus("Jet_pt_jerDown") ? fReader : fReaderNull, "Jet_pt_jerDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jerDown = {tree_->GetBranchStatus("Jet_mass_jerDown") ? fReader : fReaderNull, "Jet_mass_jerDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesAbsoluteStatDown = {tree_->GetBranchStatus("Jet_pt_jesAbsoluteStatDown") ? fReader : fReaderNull, "Jet_pt_jesAbsoluteStatDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesAbsoluteStatDown = {tree_->GetBranchStatus("Jet_mass_jesAbsoluteStatDown") ? fReader : fReaderNull, "Jet_mass_jesAbsoluteStatDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesAbsoluteScaleDown = {tree_->GetBranchStatus("Jet_pt_jesAbsoluteScaleDown") ? fReader : fReaderNull, "Jet_pt_jesAbsoluteScaleDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesAbsoluteScaleDown = {tree_->GetBranchStatus("Jet_mass_jesAbsoluteScaleDown") ? fReader : fReaderNull, "Jet_mass_jesAbsoluteScaleDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesAbsoluteFlavMapDown = {tree_->GetBranchStatus("Jet_pt_jesAbsoluteFlavMapDown") ? fReader : fReaderNull, "Jet_pt_jesAbsoluteFlavMapDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesAbsoluteFlavMapDown = {tree_->GetBranchStatus("Jet_mass_jesAbsoluteFlavMapDown") ? fReader : fReaderNull, "Jet_mass_jesAbsoluteFlavMapDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesAbsoluteMPFBiasDown = {tree_->GetBranchStatus("Jet_pt_jesAbsoluteMPFBiasDown") ? fReader : fReaderNull, "Jet_pt_jesAbsoluteMPFBiasDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesAbsoluteMPFBiasDown = {tree_->GetBranchStatus("Jet_mass_jesAbsoluteMPFBiasDown") ? fReader : fReaderNull, "Jet_mass_jesAbsoluteMPFBiasDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFragmentationDown = {tree_->GetBranchStatus("Jet_pt_jesFragmentationDown") ? fReader : fReaderNull, "Jet_pt_jesFragmentationDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFragmentationDown = {tree_->GetBranchStatus("Jet_mass_jesFragmentationDown") ? fReader : fReaderNull, "Jet_mass_jesFragmentationDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSinglePionECALDown = {tree_->GetBranchStatus("Jet_pt_jesSinglePionECALDown") ? fReader : fReaderNull, "Jet_pt_jesSinglePionECALDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSinglePionECALDown = {tree_->GetBranchStatus("Jet_mass_jesSinglePionECALDown") ? fReader : fReaderNull, "Jet_mass_jesSinglePionECALDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSinglePionHCALDown = {tree_->GetBranchStatus("Jet_pt_jesSinglePionHCALDown") ? fReader : fReaderNull, "Jet_pt_jesSinglePionHCALDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSinglePionHCALDown = {tree_->GetBranchStatus("Jet_mass_jesSinglePionHCALDown") ? fReader : fReaderNull, "Jet_mass_jesSinglePionHCALDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorQCDDown = {tree_->GetBranchStatus("Jet_pt_jesFlavorQCDDown") ? fReader : fReaderNull, "Jet_pt_jesFlavorQCDDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorQCDDown = {tree_->GetBranchStatus("Jet_mass_jesFlavorQCDDown") ? fReader : fReaderNull, "Jet_mass_jesFlavorQCDDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimePtEtaDown = {tree_->GetBranchStatus("Jet_pt_jesTimePtEtaDown") ? fReader : fReaderNull, "Jet_pt_jesTimePtEtaDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimePtEtaDown = {tree_->GetBranchStatus("Jet_mass_jesTimePtEtaDown") ? fReader : fReaderNull, "Jet_mass_jesTimePtEtaDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeJEREC1Down = {tree_->GetBranchStatus("Jet_pt_jesRelativeJEREC1Down") ? fReader : fReaderNull, "Jet_pt_jesRelativeJEREC1Down"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeJEREC1Down = {tree_->GetBranchStatus("Jet_mass_jesRelativeJEREC1Down") ? fReader : fReaderNull, "Jet_mass_jesRelativeJEREC1Down"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeJEREC2Down = {tree_->GetBranchStatus("Jet_pt_jesRelativeJEREC2Down") ? fReader : fReaderNull, "Jet_pt_jesRelativeJEREC2Down"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeJEREC2Down = {tree_->GetBranchStatus("Jet_mass_jesRelativeJEREC2Down") ? fReader : fReaderNull, "Jet_mass_jesRelativeJEREC2Down"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeJERHFDown = {tree_->GetBranchStatus("Jet_pt_jesRelativeJERHFDown") ? fReader : fReaderNull, "Jet_pt_jesRelativeJERHFDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeJERHFDown = {tree_->GetBranchStatus("Jet_mass_jesRelativeJERHFDown") ? fReader : fReaderNull, "Jet_mass_jesRelativeJERHFDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativePtBBDown = {tree_->GetBranchStatus("Jet_pt_jesRelativePtBBDown") ? fReader : fReaderNull, "Jet_pt_jesRelativePtBBDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativePtBBDown = {tree_->GetBranchStatus("Jet_mass_jesRelativePtBBDown") ? fReader : fReaderNull, "Jet_mass_jesRelativePtBBDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativePtEC1Down = {tree_->GetBranchStatus("Jet_pt_jesRelativePtEC1Down") ? fReader : fReaderNull, "Jet_pt_jesRelativePtEC1Down"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativePtEC1Down = {tree_->GetBranchStatus("Jet_mass_jesRelativePtEC1Down") ? fReader : fReaderNull, "Jet_mass_jesRelativePtEC1Down"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativePtEC2Down = {tree_->GetBranchStatus("Jet_pt_jesRelativePtEC2Down") ? fReader : fReaderNull, "Jet_pt_jesRelativePtEC2Down"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativePtEC2Down = {tree_->GetBranchStatus("Jet_mass_jesRelativePtEC2Down") ? fReader : fReaderNull, "Jet_mass_jesRelativePtEC2Down"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativePtHFDown = {tree_->GetBranchStatus("Jet_pt_jesRelativePtHFDown") ? fReader : fReaderNull, "Jet_pt_jesRelativePtHFDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativePtHFDown = {tree_->GetBranchStatus("Jet_mass_jesRelativePtHFDown") ? fReader : fReaderNull, "Jet_mass_jesRelativePtHFDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeBalDown = {tree_->GetBranchStatus("Jet_pt_jesRelativeBalDown") ? fReader : fReaderNull, "Jet_pt_jesRelativeBalDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeBalDown = {tree_->GetBranchStatus("Jet_mass_jesRelativeBalDown") ? fReader : fReaderNull, "Jet_mass_jesRelativeBalDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeSampleDown = {tree_->GetBranchStatus("Jet_pt_jesRelativeSampleDown") ? fReader : fReaderNull, "Jet_pt_jesRelativeSampleDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeSampleDown = {tree_->GetBranchStatus("Jet_mass_jesRelativeSampleDown") ? fReader : fReaderNull, "Jet_mass_jesRelativeSampleDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeFSRDown = {tree_->GetBranchStatus("Jet_pt_jesRelativeFSRDown") ? fReader : fReaderNull, "Jet_pt_jesRelativeFSRDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeFSRDown = {tree_->GetBranchStatus("Jet_mass_jesRelativeFSRDown") ? fReader : fReaderNull, "Jet_mass_jesRelativeFSRDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeStatFSRDown = {tree_->GetBranchStatus("Jet_pt_jesRelativeStatFSRDown") ? fReader : fReaderNull, "Jet_pt_jesRelativeStatFSRDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeStatFSRDown = {tree_->GetBranchStatus("Jet_mass_jesRelativeStatFSRDown") ? fReader : fReaderNull, "Jet_mass_jesRelativeStatFSRDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeStatECDown = {tree_->GetBranchStatus("Jet_pt_jesRelativeStatECDown") ? fReader : fReaderNull, "Jet_pt_jesRelativeStatECDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeStatECDown = {tree_->GetBranchStatus("Jet_mass_jesRelativeStatECDown") ? fReader : fReaderNull, "Jet_mass_jesRelativeStatECDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesRelativeStatHFDown = {tree_->GetBranchStatus("Jet_pt_jesRelativeStatHFDown") ? fReader : fReaderNull, "Jet_pt_jesRelativeStatHFDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesRelativeStatHFDown = {tree_->GetBranchStatus("Jet_mass_jesRelativeStatHFDown") ? fReader : fReaderNull, "Jet_mass_jesRelativeStatHFDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpDataMCDown = {tree_->GetBranchStatus("Jet_pt_jesPileUpDataMCDown") ? fReader : fReaderNull, "Jet_pt_jesPileUpDataMCDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpDataMCDown = {tree_->GetBranchStatus("Jet_mass_jesPileUpDataMCDown") ? fReader : fReaderNull, "Jet_mass_jesPileUpDataMCDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtRefDown = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtRefDown") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtRefDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtRefDown = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtRefDown") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtRefDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtBBDown = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtBBDown") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtBBDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtBBDown = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtBBDown") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtBBDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtEC1Down = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtEC1Down") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtEC1Down"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtEC1Down = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtEC1Down") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtEC1Down"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtEC2Down = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtEC2Down") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtEC2Down"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtEC2Down = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtEC2Down") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtEC2Down"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpPtHFDown = {tree_->GetBranchStatus("Jet_pt_jesPileUpPtHFDown") ? fReader : fReaderNull, "Jet_pt_jesPileUpPtHFDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpPtHFDown = {tree_->GetBranchStatus("Jet_mass_jesPileUpPtHFDown") ? fReader : fReaderNull, "Jet_mass_jesPileUpPtHFDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpMuZeroDown = {tree_->GetBranchStatus("Jet_pt_jesPileUpMuZeroDown") ? fReader : fReaderNull, "Jet_pt_jesPileUpMuZeroDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpMuZeroDown = {tree_->GetBranchStatus("Jet_mass_jesPileUpMuZeroDown") ? fReader : fReaderNull, "Jet_mass_jesPileUpMuZeroDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesPileUpEnvelopeDown = {tree_->GetBranchStatus("Jet_pt_jesPileUpEnvelopeDown") ? fReader : fReaderNull, "Jet_pt_jesPileUpEnvelopeDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesPileUpEnvelopeDown = {tree_->GetBranchStatus("Jet_mass_jesPileUpEnvelopeDown") ? fReader : fReaderNull, "Jet_mass_jesPileUpEnvelopeDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalPileUpDown = {tree_->GetBranchStatus("Jet_pt_jesSubTotalPileUpDown") ? fReader : fReaderNull, "Jet_pt_jesSubTotalPileUpDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalPileUpDown = {tree_->GetBranchStatus("Jet_mass_jesSubTotalPileUpDown") ? fReader : fReaderNull, "Jet_mass_jesSubTotalPileUpDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalRelativeDown = {tree_->GetBranchStatus("Jet_pt_jesSubTotalRelativeDown") ? fReader : fReaderNull, "Jet_pt_jesSubTotalRelativeDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalRelativeDown = {tree_->GetBranchStatus("Jet_mass_jesSubTotalRelativeDown") ? fReader : fReaderNull, "Jet_mass_jesSubTotalRelativeDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalPtDown = {tree_->GetBranchStatus("Jet_pt_jesSubTotalPtDown") ? fReader : fReaderNull, "Jet_pt_jesSubTotalPtDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalPtDown = {tree_->GetBranchStatus("Jet_mass_jesSubTotalPtDown") ? fReader : fReaderNull, "Jet_mass_jesSubTotalPtDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalScaleDown = {tree_->GetBranchStatus("Jet_pt_jesSubTotalScaleDown") ? fReader : fReaderNull, "Jet_pt_jesSubTotalScaleDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalScaleDown = {tree_->GetBranchStatus("Jet_mass_jesSubTotalScaleDown") ? fReader : fReaderNull, "Jet_mass_jesSubTotalScaleDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalAbsoluteDown = {tree_->GetBranchStatus("Jet_pt_jesSubTotalAbsoluteDown") ? fReader : fReaderNull, "Jet_pt_jesSubTotalAbsoluteDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalAbsoluteDown = {tree_->GetBranchStatus("Jet_mass_jesSubTotalAbsoluteDown") ? fReader : fReaderNull, "Jet_mass_jesSubTotalAbsoluteDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesSubTotalMCDown = {tree_->GetBranchStatus("Jet_pt_jesSubTotalMCDown") ? fReader : fReaderNull, "Jet_pt_jesSubTotalMCDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesSubTotalMCDown = {tree_->GetBranchStatus("Jet_mass_jesSubTotalMCDown") ? fReader : fReaderNull, "Jet_mass_jesSubTotalMCDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTotalDown = {tree_->GetBranchStatus("Jet_pt_jesTotalDown") ? fReader : fReaderNull, "Jet_pt_jesTotalDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTotalDown = {tree_->GetBranchStatus("Jet_mass_jesTotalDown") ? fReader : fReaderNull, "Jet_mass_jesTotalDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTotalNoFlavorDown = {tree_->GetBranchStatus("Jet_pt_jesTotalNoFlavorDown") ? fReader : fReaderNull, "Jet_pt_jesTotalNoFlavorDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTotalNoFlavorDown = {tree_->GetBranchStatus("Jet_mass_jesTotalNoFlavorDown") ? fReader : fReaderNull, "Jet_mass_jesTotalNoFlavorDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTotalNoTimeDown = {tree_->GetBranchStatus("Jet_pt_jesTotalNoTimeDown") ? fReader : fReaderNull, "Jet_pt_jesTotalNoTimeDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTotalNoTimeDown = {tree_->GetBranchStatus("Jet_mass_jesTotalNoTimeDown") ? fReader : fReaderNull, "Jet_mass_jesTotalNoTimeDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTotalNoFlavorNoTimeDown = {tree_->GetBranchStatus("Jet_pt_jesTotalNoFlavorNoTimeDown") ? fReader : fReaderNull, "Jet_pt_jesTotalNoFlavorNoTimeDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTotalNoFlavorNoTimeDown = {tree_->GetBranchStatus("Jet_mass_jesTotalNoFlavorNoTimeDown") ? fReader : fReaderNull, "Jet_mass_jesTotalNoFlavorNoTimeDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorZJetDown = {tree_->GetBranchStatus("Jet_pt_jesFlavorZJetDown") ? fReader : fReaderNull, "Jet_pt_jesFlavorZJetDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorZJetDown = {tree_->GetBranchStatus("Jet_mass_jesFlavorZJetDown") ? fReader : fReaderNull, "Jet_mass_jesFlavorZJetDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPhotonJetDown = {tree_->GetBranchStatus("Jet_pt_jesFlavorPhotonJetDown") ? fReader : fReaderNull, "Jet_pt_jesFlavorPhotonJetDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPhotonJetDown = {tree_->GetBranchStatus("Jet_mass_jesFlavorPhotonJetDown") ? fReader : fReaderNull, "Jet_mass_jesFlavorPhotonJetDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPureGluonDown = {tree_->GetBranchStatus("Jet_pt_jesFlavorPureGluonDown") ? fReader : fReaderNull, "Jet_pt_jesFlavorPureGluonDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPureGluonDown = {tree_->GetBranchStatus("Jet_mass_jesFlavorPureGluonDown") ? fReader : fReaderNull, "Jet_mass_jesFlavorPureGluonDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPureQuarkDown = {tree_->GetBranchStatus("Jet_pt_jesFlavorPureQuarkDown") ? fReader : fReaderNull, "Jet_pt_jesFlavorPureQuarkDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPureQuarkDown = {tree_->GetBranchStatus("Jet_mass_jesFlavorPureQuarkDown") ? fReader : fReaderNull, "Jet_mass_jesFlavorPureQuarkDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPureCharmDown = {tree_->GetBranchStatus("Jet_pt_jesFlavorPureCharmDown") ? fReader : fReaderNull, "Jet_pt_jesFlavorPureCharmDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPureCharmDown = {tree_->GetBranchStatus("Jet_mass_jesFlavorPureCharmDown") ? fReader : fReaderNull, "Jet_mass_jesFlavorPureCharmDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesFlavorPureBottomDown = {tree_->GetBranchStatus("Jet_pt_jesFlavorPureBottomDown") ? fReader : fReaderNull, "Jet_pt_jesFlavorPureBottomDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesFlavorPureBottomDown = {tree_->GetBranchStatus("Jet_mass_jesFlavorPureBottomDown") ? fReader : fReaderNull, "Jet_mass_jesFlavorPureBottomDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimeRunBDown = {tree_->GetBranchStatus("Jet_pt_jesTimeRunBDown") ? fReader : fReaderNull, "Jet_pt_jesTimeRunBDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimeRunBDown = {tree_->GetBranchStatus("Jet_mass_jesTimeRunBDown") ? fReader : fReaderNull, "Jet_mass_jesTimeRunBDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimeRunCDown = {tree_->GetBranchStatus("Jet_pt_jesTimeRunCDown") ? fReader : fReaderNull, "Jet_pt_jesTimeRunCDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimeRunCDown = {tree_->GetBranchStatus("Jet_mass_jesTimeRunCDown") ? fReader : fReaderNull, "Jet_mass_jesTimeRunCDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimeRunDEDown = {tree_->GetBranchStatus("Jet_pt_jesTimeRunDEDown") ? fReader : fReaderNull, "Jet_pt_jesTimeRunDEDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimeRunDEDown = {tree_->GetBranchStatus("Jet_mass_jesTimeRunDEDown") ? fReader : fReaderNull, "Jet_mass_jesTimeRunDEDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesTimeRunFDown = {tree_->GetBranchStatus("Jet_pt_jesTimeRunFDown") ? fReader : fReaderNull, "Jet_pt_jesTimeRunFDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesTimeRunFDown = {tree_->GetBranchStatus("Jet_mass_jesTimeRunFDown") ? fReader : fReaderNull, "Jet_mass_jesTimeRunFDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupMPFInSituDown = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupMPFInSituDown") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupMPFInSituDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupMPFInSituDown = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupMPFInSituDown") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupMPFInSituDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupIntercalibrationDown = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupIntercalibrationDown") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupIntercalibrationDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupIntercalibrationDown = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupIntercalibrationDown") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupIntercalibrationDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupbJESDown = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupbJESDown") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupbJESDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupbJESDown = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupbJESDown") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupbJESDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupFlavorDown = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupFlavorDown") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupFlavorDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupFlavorDown = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupFlavorDown") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupFlavorDown"};
+  TTreeReaderArray<Float_t> Jet_pt_jesCorrelationGroupUncorrelatedDown = {tree_->GetBranchStatus("Jet_pt_jesCorrelationGroupUncorrelatedDown") ? fReader : fReaderNull, "Jet_pt_jesCorrelationGroupUncorrelatedDown"};
+  TTreeReaderArray<Float_t> Jet_mass_jesCorrelationGroupUncorrelatedDown = {tree_->GetBranchStatus("Jet_mass_jesCorrelationGroupUncorrelatedDown") ? fReader : fReaderNull, "Jet_mass_jesCorrelationGroupUncorrelatedDown"};
+
+  //FatJet
+  TTreeReaderValue<UInt_t> nFatJet = {tree_->GetBranchStatus("nFatJet") ? fReader : fReaderNull, "nFatJet"};
+  TTreeReaderArray<Float_t> FatJet_area = {tree_->GetBranchStatus("FatJet_area") ? fReader : fReaderNull, "FatJet_area"};
+  TTreeReaderArray<Float_t> FatJet_btagCMVA = {tree_->GetBranchStatus("FatJet_btagCMVA") ? fReader : fReaderNull, "FatJet_btagCMVA"};
+  TTreeReaderArray<Float_t> FatJet_btagCSVV2 = {tree_->GetBranchStatus("FatJet_btagCSVV2") ? fReader : fReaderNull, "FatJet_btagCSVV2"};
+  TTreeReaderArray<Float_t> FatJet_btagDDBvL = {tree_->GetBranchStatus("FatJet_btagDDBvL") ? fReader : fReaderNull, "FatJet_btagDDBvL"};
+  TTreeReaderArray<Float_t> FatJet_btagDDBvL_noMD = {tree_->GetBranchStatus("FatJet_btagDDBvL_noMD") ? fReader : fReaderNull, "FatJet_btagDDBvL_noMD"};
+  TTreeReaderArray<Float_t> FatJet_btagDDCvB = {tree_->GetBranchStatus("FatJet_btagDDCvB") ? fReader : fReaderNull, "FatJet_btagDDCvB"};
+  TTreeReaderArray<Float_t> FatJet_btagDDCvB_noMD = {tree_->GetBranchStatus("FatJet_btagDDCvB_noMD") ? fReader : fReaderNull, "FatJet_btagDDCvB_noMD"};
+  TTreeReaderArray<Float_t> FatJet_btagDDCvL = {tree_->GetBranchStatus("FatJet_btagDDCvL") ? fReader : fReaderNull, "FatJet_btagDDCvL"};
+  TTreeReaderArray<Float_t> FatJet_btagDDCvL_noMD = {tree_->GetBranchStatus("FatJet_btagDDCvL_noMD") ? fReader : fReaderNull, "FatJet_btagDDCvL_noMD"};
+  TTreeReaderArray<Float_t> FatJet_btagDeepB = {tree_->GetBranchStatus("FatJet_btagDeepB") ? fReader : fReaderNull, "FatJet_btagDeepB"};
+  TTreeReaderArray<Float_t> FatJet_btagHbb = {tree_->GetBranchStatus("FatJet_btagHbb") ? fReader : fReaderNull, "FatJet_btagHbb"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_H4qvsQCD = {tree_->GetBranchStatus("FatJet_deepTagMD_H4qvsQCD") ? fReader : fReaderNull, "FatJet_deepTagMD_H4qvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_HbbvsQCD = {tree_->GetBranchStatus("FatJet_deepTagMD_HbbvsQCD") ? fReader : fReaderNull, "FatJet_deepTagMD_HbbvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_TvsQCD = {tree_->GetBranchStatus("FatJet_deepTagMD_TvsQCD") ? fReader : fReaderNull, "FatJet_deepTagMD_TvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_WvsQCD = {tree_->GetBranchStatus("FatJet_deepTagMD_WvsQCD") ? fReader : fReaderNull, "FatJet_deepTagMD_WvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_ZHbbvsQCD = {tree_->GetBranchStatus("FatJet_deepTagMD_ZHbbvsQCD") ? fReader : fReaderNull, "FatJet_deepTagMD_ZHbbvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_ZHccvsQCD = {tree_->GetBranchStatus("FatJet_deepTagMD_ZHccvsQCD") ? fReader : fReaderNull, "FatJet_deepTagMD_ZHccvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_ZbbvsQCD = {tree_->GetBranchStatus("FatJet_deepTagMD_ZbbvsQCD") ? fReader : fReaderNull, "FatJet_deepTagMD_ZbbvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_ZvsQCD = {tree_->GetBranchStatus("FatJet_deepTagMD_ZvsQCD") ? fReader : fReaderNull, "FatJet_deepTagMD_ZvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_bbvsLight = {tree_->GetBranchStatus("FatJet_deepTagMD_bbvsLight") ? fReader : fReaderNull, "FatJet_deepTagMD_bbvsLight"};
+  TTreeReaderArray<Float_t> FatJet_deepTagMD_ccvsLight = {tree_->GetBranchStatus("FatJet_deepTagMD_ccvsLight") ? fReader : fReaderNull, "FatJet_deepTagMD_ccvsLight"};
+  TTreeReaderArray<Float_t> FatJet_deepTag_H = {tree_->GetBranchStatus("FatJet_deepTag_H") ? fReader : fReaderNull, "FatJet_deepTag_H"};
+  TTreeReaderArray<Float_t> FatJet_deepTag_QCD = {tree_->GetBranchStatus("FatJet_deepTag_QCD") ? fReader : fReaderNull, "FatJet_deepTag_QCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTag_QCDothers = {tree_->GetBranchStatus("FatJet_deepTag_QCDothers") ? fReader : fReaderNull, "FatJet_deepTag_QCDothers"};
+  TTreeReaderArray<Float_t> FatJet_deepTag_TvsQCD = {tree_->GetBranchStatus("FatJet_deepTag_TvsQCD") ? fReader : fReaderNull, "FatJet_deepTag_TvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTag_WvsQCD = {tree_->GetBranchStatus("FatJet_deepTag_WvsQCD") ? fReader : fReaderNull, "FatJet_deepTag_WvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_deepTag_ZvsQCD = {tree_->GetBranchStatus("FatJet_deepTag_ZvsQCD") ? fReader : fReaderNull, "FatJet_deepTag_ZvsQCD"};
+  TTreeReaderArray<Float_t> FatJet_eta = {tree_->GetBranchStatus("FatJet_eta") ? fReader : fReaderNull, "FatJet_eta"};
+  TTreeReaderArray<Float_t> FatJet_mass = {tree_->GetBranchStatus("FatJet_mass") ? fReader : fReaderNull, "FatJet_mass"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop = {tree_->GetBranchStatus("FatJet_msoftdrop") ? fReader : fReaderNull, "FatJet_msoftdrop"};
+  TTreeReaderArray<Float_t> FatJet_n2b1 = {tree_->GetBranchStatus("FatJet_n2b1") ? fReader : fReaderNull, "FatJet_n2b1"};
+  TTreeReaderArray<Float_t> FatJet_n3b1 = {tree_->GetBranchStatus("FatJet_n3b1") ? fReader : fReaderNull, "FatJet_n3b1"};
+  TTreeReaderArray<Float_t> FatJet_phi = {tree_->GetBranchStatus("FatJet_phi") ? fReader : fReaderNull, "FatJet_phi"};
+  TTreeReaderArray<Float_t> FatJet_pt = {tree_->GetBranchStatus("FatJet_pt") ? fReader : fReaderNull, "FatJet_pt"};
+  TTreeReaderArray<Float_t> FatJet_rawFactor = {tree_->GetBranchStatus("FatJet_rawFactor") ? fReader : fReaderNull, "FatJet_rawFactor"};
+  TTreeReaderArray<Float_t> FatJet_tau1 = {tree_->GetBranchStatus("FatJet_tau1") ? fReader : fReaderNull, "FatJet_tau1"};
+  TTreeReaderArray<Float_t> FatJet_tau2 = {tree_->GetBranchStatus("FatJet_tau2") ? fReader : fReaderNull, "FatJet_tau2"};
+  TTreeReaderArray<Float_t> FatJet_tau3 = {tree_->GetBranchStatus("FatJet_tau3") ? fReader : fReaderNull, "FatJet_tau3"};
+  TTreeReaderArray<Float_t> FatJet_tau4 = {tree_->GetBranchStatus("FatJet_tau4") ? fReader : fReaderNull, "FatJet_tau4"};
+  TTreeReaderArray<Float_t> FatJet_lsf3 = {tree_->GetBranchStatus("FatJet_lsf3") ? fReader : fReaderNull, "FatJet_lsf3"};
+  TTreeReaderArray<Int_t> FatJet_jetId = {tree_->GetBranchStatus("FatJet_jetId") ? fReader : fReaderNull, "FatJet_jetId"};
+  TTreeReaderArray<Int_t> FatJet_subJetIdx1 = {tree_->GetBranchStatus("FatJet_subJetIdx1") ? fReader : fReaderNull, "FatJet_subJetIdx1"};
+  TTreeReaderArray<Int_t> FatJet_subJetIdx2 = {tree_->GetBranchStatus("FatJet_subJetIdx2") ? fReader : fReaderNull, "FatJet_subJetIdx2"};
+  TTreeReaderArray<Int_t> FatJet_electronIdx3SJ = {tree_->GetBranchStatus("FatJet_electronIdx3SJ") ? fReader : fReaderNull, "FatJet_electronIdx3SJ"};
+  TTreeReaderArray<Int_t> FatJet_muonIdx3SJ = {tree_->GetBranchStatus("FatJet_muonIdx3SJ") ? fReader : fReaderNull, "FatJet_muonIdx3SJ"};
+  TTreeReaderArray<Int_t> FatJet_genJetAK8Idx = {tree_->GetBranchStatus("FatJet_genJetAK8Idx") ? fReader : fReaderNull, "FatJet_genJetAK8Idx"};
+  TTreeReaderArray<Int_t> FatJet_hadronFlavour = {tree_->GetBranchStatus("FatJet_hadronFlavour") ? fReader : fReaderNull, "FatJet_hadronFlavour"};
+  TTreeReaderArray<UChar_t> FatJet_nBHadrons = {tree_->GetBranchStatus("FatJet_nBHadrons") ? fReader : fReaderNull, "FatJet_nBHadrons"};
+  TTreeReaderArray<UChar_t> FatJet_nCHadrons = {tree_->GetBranchStatus("FatJet_nCHadrons") ? fReader : fReaderNull, "FatJet_nCHadrons"};
+  TTreeReaderArray<Float_t> FatJet_pt_raw = {tree_->GetBranchStatus("FatJet_pt_raw") ? fReader : fReaderNull, "FatJet_pt_raw"};
+  TTreeReaderArray<Float_t> FatJet_pt_nom = {tree_->GetBranchStatus("FatJet_pt_nom") ? fReader : fReaderNull, "FatJet_pt_nom"};
+  TTreeReaderArray<Float_t> FatJet_mass_raw = {tree_->GetBranchStatus("FatJet_mass_raw") ? fReader : fReaderNull, "FatJet_mass_raw"};
+  TTreeReaderArray<Float_t> FatJet_mass_nom = {tree_->GetBranchStatus("FatJet_mass_nom") ? fReader : fReaderNull, "FatJet_mass_nom"};
+  TTreeReaderArray<Float_t> FatJet_corr_JEC = {tree_->GetBranchStatus("FatJet_corr_JEC") ? fReader : fReaderNull, "FatJet_corr_JEC"};
+  TTreeReaderArray<Float_t> FatJet_corr_JER = {tree_->GetBranchStatus("FatJet_corr_JER") ? fReader : fReaderNull, "FatJet_corr_JER"};
+  TTreeReaderArray<Float_t> FatJet_corr_JMS = {tree_->GetBranchStatus("FatJet_corr_JMS") ? fReader : fReaderNull, "FatJet_corr_JMS"};
+  TTreeReaderArray<Float_t> FatJet_corr_JMR = {tree_->GetBranchStatus("FatJet_corr_JMR") ? fReader : fReaderNull, "FatJet_corr_JMR"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_raw = {tree_->GetBranchStatus("FatJet_msoftdrop_raw") ? fReader : fReaderNull, "FatJet_msoftdrop_raw"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_nom = {tree_->GetBranchStatus("FatJet_msoftdrop_nom") ? fReader : fReaderNull, "FatJet_msoftdrop_nom"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_corr_JMR = {tree_->GetBranchStatus("FatJet_msoftdrop_corr_JMR") ? fReader : fReaderNull, "FatJet_msoftdrop_corr_JMR"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_corr_JMS = {tree_->GetBranchStatus("FatJet_msoftdrop_corr_JMS") ? fReader : fReaderNull, "FatJet_msoftdrop_corr_JMS"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_corr_PUPPI = {tree_->GetBranchStatus("FatJet_msoftdrop_corr_PUPPI") ? fReader : fReaderNull, "FatJet_msoftdrop_corr_PUPPI"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_tau21DDT_nom = {tree_->GetBranchStatus("FatJet_msoftdrop_tau21DDT_nom") ? fReader : fReaderNull, "FatJet_msoftdrop_tau21DDT_nom"};
+  TTreeReaderArray<Float_t> FatJet_pt_jerUp = {tree_->GetBranchStatus("FatJet_pt_jerUp") ? fReader : fReaderNull, "FatJet_pt_jerUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jerUp = {tree_->GetBranchStatus("FatJet_mass_jerUp") ? fReader : fReaderNull, "FatJet_mass_jerUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jmrUp = {tree_->GetBranchStatus("FatJet_mass_jmrUp") ? fReader : fReaderNull, "FatJet_mass_jmrUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jmsUp = {tree_->GetBranchStatus("FatJet_mass_jmsUp") ? fReader : fReaderNull, "FatJet_mass_jmsUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jerUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jerUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jerUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jmrUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jmrUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jmrUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jmsUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jmsUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jmsUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_tau21DDT_jerUp = {tree_->GetBranchStatus("FatJet_msoftdrop_tau21DDT_jerUp") ? fReader : fReaderNull, "FatJet_msoftdrop_tau21DDT_jerUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_tau21DDT_jmrUp = {tree_->GetBranchStatus("FatJet_msoftdrop_tau21DDT_jmrUp") ? fReader : fReaderNull, "FatJet_msoftdrop_tau21DDT_jmrUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_tau21DDT_jmsUp = {tree_->GetBranchStatus("FatJet_msoftdrop_tau21DDT_jmsUp") ? fReader : fReaderNull, "FatJet_msoftdrop_tau21DDT_jmsUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesAbsoluteStatUp = {tree_->GetBranchStatus("FatJet_pt_jesAbsoluteStatUp") ? fReader : fReaderNull, "FatJet_pt_jesAbsoluteStatUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesAbsoluteStatUp = {tree_->GetBranchStatus("FatJet_mass_jesAbsoluteStatUp") ? fReader : fReaderNull, "FatJet_mass_jesAbsoluteStatUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesAbsoluteStatUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesAbsoluteStatUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesAbsoluteStatUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesAbsoluteScaleUp = {tree_->GetBranchStatus("FatJet_pt_jesAbsoluteScaleUp") ? fReader : fReaderNull, "FatJet_pt_jesAbsoluteScaleUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesAbsoluteScaleUp = {tree_->GetBranchStatus("FatJet_mass_jesAbsoluteScaleUp") ? fReader : fReaderNull, "FatJet_mass_jesAbsoluteScaleUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesAbsoluteScaleUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesAbsoluteScaleUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesAbsoluteScaleUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesAbsoluteFlavMapUp = {tree_->GetBranchStatus("FatJet_pt_jesAbsoluteFlavMapUp") ? fReader : fReaderNull, "FatJet_pt_jesAbsoluteFlavMapUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesAbsoluteFlavMapUp = {tree_->GetBranchStatus("FatJet_mass_jesAbsoluteFlavMapUp") ? fReader : fReaderNull, "FatJet_mass_jesAbsoluteFlavMapUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesAbsoluteFlavMapUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesAbsoluteFlavMapUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesAbsoluteFlavMapUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesAbsoluteMPFBiasUp = {tree_->GetBranchStatus("FatJet_pt_jesAbsoluteMPFBiasUp") ? fReader : fReaderNull, "FatJet_pt_jesAbsoluteMPFBiasUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesAbsoluteMPFBiasUp = {tree_->GetBranchStatus("FatJet_mass_jesAbsoluteMPFBiasUp") ? fReader : fReaderNull, "FatJet_mass_jesAbsoluteMPFBiasUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesAbsoluteMPFBiasUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesAbsoluteMPFBiasUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesAbsoluteMPFBiasUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFragmentationUp = {tree_->GetBranchStatus("FatJet_pt_jesFragmentationUp") ? fReader : fReaderNull, "FatJet_pt_jesFragmentationUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFragmentationUp = {tree_->GetBranchStatus("FatJet_mass_jesFragmentationUp") ? fReader : fReaderNull, "FatJet_mass_jesFragmentationUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFragmentationUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFragmentationUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFragmentationUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSinglePionECALUp = {tree_->GetBranchStatus("FatJet_pt_jesSinglePionECALUp") ? fReader : fReaderNull, "FatJet_pt_jesSinglePionECALUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSinglePionECALUp = {tree_->GetBranchStatus("FatJet_mass_jesSinglePionECALUp") ? fReader : fReaderNull, "FatJet_mass_jesSinglePionECALUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSinglePionECALUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSinglePionECALUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSinglePionECALUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSinglePionHCALUp = {tree_->GetBranchStatus("FatJet_pt_jesSinglePionHCALUp") ? fReader : fReaderNull, "FatJet_pt_jesSinglePionHCALUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSinglePionHCALUp = {tree_->GetBranchStatus("FatJet_mass_jesSinglePionHCALUp") ? fReader : fReaderNull, "FatJet_mass_jesSinglePionHCALUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSinglePionHCALUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSinglePionHCALUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSinglePionHCALUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorQCDUp = {tree_->GetBranchStatus("FatJet_pt_jesFlavorQCDUp") ? fReader : fReaderNull, "FatJet_pt_jesFlavorQCDUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorQCDUp = {tree_->GetBranchStatus("FatJet_mass_jesFlavorQCDUp") ? fReader : fReaderNull, "FatJet_mass_jesFlavorQCDUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorQCDUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorQCDUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorQCDUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimePtEtaUp = {tree_->GetBranchStatus("FatJet_pt_jesTimePtEtaUp") ? fReader : fReaderNull, "FatJet_pt_jesTimePtEtaUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimePtEtaUp = {tree_->GetBranchStatus("FatJet_mass_jesTimePtEtaUp") ? fReader : fReaderNull, "FatJet_mass_jesTimePtEtaUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimePtEtaUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimePtEtaUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimePtEtaUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeJEREC1Up = {tree_->GetBranchStatus("FatJet_pt_jesRelativeJEREC1Up") ? fReader : fReaderNull, "FatJet_pt_jesRelativeJEREC1Up"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeJEREC1Up = {tree_->GetBranchStatus("FatJet_mass_jesRelativeJEREC1Up") ? fReader : fReaderNull, "FatJet_mass_jesRelativeJEREC1Up"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeJEREC1Up = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeJEREC1Up") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeJEREC1Up"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeJEREC2Up = {tree_->GetBranchStatus("FatJet_pt_jesRelativeJEREC2Up") ? fReader : fReaderNull, "FatJet_pt_jesRelativeJEREC2Up"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeJEREC2Up = {tree_->GetBranchStatus("FatJet_mass_jesRelativeJEREC2Up") ? fReader : fReaderNull, "FatJet_mass_jesRelativeJEREC2Up"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeJEREC2Up = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeJEREC2Up") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeJEREC2Up"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeJERHFUp = {tree_->GetBranchStatus("FatJet_pt_jesRelativeJERHFUp") ? fReader : fReaderNull, "FatJet_pt_jesRelativeJERHFUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeJERHFUp = {tree_->GetBranchStatus("FatJet_mass_jesRelativeJERHFUp") ? fReader : fReaderNull, "FatJet_mass_jesRelativeJERHFUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeJERHFUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeJERHFUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeJERHFUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativePtBBUp = {tree_->GetBranchStatus("FatJet_pt_jesRelativePtBBUp") ? fReader : fReaderNull, "FatJet_pt_jesRelativePtBBUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativePtBBUp = {tree_->GetBranchStatus("FatJet_mass_jesRelativePtBBUp") ? fReader : fReaderNull, "FatJet_mass_jesRelativePtBBUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativePtBBUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativePtBBUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativePtBBUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativePtEC1Up = {tree_->GetBranchStatus("FatJet_pt_jesRelativePtEC1Up") ? fReader : fReaderNull, "FatJet_pt_jesRelativePtEC1Up"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativePtEC1Up = {tree_->GetBranchStatus("FatJet_mass_jesRelativePtEC1Up") ? fReader : fReaderNull, "FatJet_mass_jesRelativePtEC1Up"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativePtEC1Up = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativePtEC1Up") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativePtEC1Up"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativePtEC2Up = {tree_->GetBranchStatus("FatJet_pt_jesRelativePtEC2Up") ? fReader : fReaderNull, "FatJet_pt_jesRelativePtEC2Up"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativePtEC2Up = {tree_->GetBranchStatus("FatJet_mass_jesRelativePtEC2Up") ? fReader : fReaderNull, "FatJet_mass_jesRelativePtEC2Up"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativePtEC2Up = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativePtEC2Up") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativePtEC2Up"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativePtHFUp = {tree_->GetBranchStatus("FatJet_pt_jesRelativePtHFUp") ? fReader : fReaderNull, "FatJet_pt_jesRelativePtHFUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativePtHFUp = {tree_->GetBranchStatus("FatJet_mass_jesRelativePtHFUp") ? fReader : fReaderNull, "FatJet_mass_jesRelativePtHFUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativePtHFUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativePtHFUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativePtHFUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeBalUp = {tree_->GetBranchStatus("FatJet_pt_jesRelativeBalUp") ? fReader : fReaderNull, "FatJet_pt_jesRelativeBalUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeBalUp = {tree_->GetBranchStatus("FatJet_mass_jesRelativeBalUp") ? fReader : fReaderNull, "FatJet_mass_jesRelativeBalUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeBalUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeBalUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeBalUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeSampleUp = {tree_->GetBranchStatus("FatJet_pt_jesRelativeSampleUp") ? fReader : fReaderNull, "FatJet_pt_jesRelativeSampleUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeSampleUp = {tree_->GetBranchStatus("FatJet_mass_jesRelativeSampleUp") ? fReader : fReaderNull, "FatJet_mass_jesRelativeSampleUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeSampleUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeSampleUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeSampleUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeFSRUp = {tree_->GetBranchStatus("FatJet_pt_jesRelativeFSRUp") ? fReader : fReaderNull, "FatJet_pt_jesRelativeFSRUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeFSRUp = {tree_->GetBranchStatus("FatJet_mass_jesRelativeFSRUp") ? fReader : fReaderNull, "FatJet_mass_jesRelativeFSRUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeFSRUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeFSRUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeFSRUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeStatFSRUp = {tree_->GetBranchStatus("FatJet_pt_jesRelativeStatFSRUp") ? fReader : fReaderNull, "FatJet_pt_jesRelativeStatFSRUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeStatFSRUp = {tree_->GetBranchStatus("FatJet_mass_jesRelativeStatFSRUp") ? fReader : fReaderNull, "FatJet_mass_jesRelativeStatFSRUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeStatFSRUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeStatFSRUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeStatFSRUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeStatECUp = {tree_->GetBranchStatus("FatJet_pt_jesRelativeStatECUp") ? fReader : fReaderNull, "FatJet_pt_jesRelativeStatECUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeStatECUp = {tree_->GetBranchStatus("FatJet_mass_jesRelativeStatECUp") ? fReader : fReaderNull, "FatJet_mass_jesRelativeStatECUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeStatECUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeStatECUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeStatECUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeStatHFUp = {tree_->GetBranchStatus("FatJet_pt_jesRelativeStatHFUp") ? fReader : fReaderNull, "FatJet_pt_jesRelativeStatHFUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeStatHFUp = {tree_->GetBranchStatus("FatJet_mass_jesRelativeStatHFUp") ? fReader : fReaderNull, "FatJet_mass_jesRelativeStatHFUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeStatHFUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeStatHFUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeStatHFUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpDataMCUp = {tree_->GetBranchStatus("FatJet_pt_jesPileUpDataMCUp") ? fReader : fReaderNull, "FatJet_pt_jesPileUpDataMCUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpDataMCUp = {tree_->GetBranchStatus("FatJet_mass_jesPileUpDataMCUp") ? fReader : fReaderNull, "FatJet_mass_jesPileUpDataMCUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpDataMCUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpDataMCUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpDataMCUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtRefUp = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtRefUp") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtRefUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtRefUp = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtRefUp") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtRefUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtRefUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtRefUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtRefUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtBBUp = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtBBUp") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtBBUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtBBUp = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtBBUp") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtBBUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtBBUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtBBUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtBBUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtEC1Up = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtEC1Up") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtEC1Up"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtEC1Up = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtEC1Up") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtEC1Up"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtEC1Up = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtEC1Up") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtEC1Up"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtEC2Up = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtEC2Up") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtEC2Up"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtEC2Up = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtEC2Up") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtEC2Up"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtEC2Up = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtEC2Up") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtEC2Up"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtHFUp = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtHFUp") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtHFUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtHFUp = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtHFUp") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtHFUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtHFUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtHFUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtHFUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpMuZeroUp = {tree_->GetBranchStatus("FatJet_pt_jesPileUpMuZeroUp") ? fReader : fReaderNull, "FatJet_pt_jesPileUpMuZeroUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpMuZeroUp = {tree_->GetBranchStatus("FatJet_mass_jesPileUpMuZeroUp") ? fReader : fReaderNull, "FatJet_mass_jesPileUpMuZeroUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpMuZeroUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpMuZeroUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpMuZeroUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpEnvelopeUp = {tree_->GetBranchStatus("FatJet_pt_jesPileUpEnvelopeUp") ? fReader : fReaderNull, "FatJet_pt_jesPileUpEnvelopeUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpEnvelopeUp = {tree_->GetBranchStatus("FatJet_mass_jesPileUpEnvelopeUp") ? fReader : fReaderNull, "FatJet_mass_jesPileUpEnvelopeUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpEnvelopeUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpEnvelopeUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpEnvelopeUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalPileUpUp = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalPileUpUp") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalPileUpUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalPileUpUp = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalPileUpUp") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalPileUpUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalPileUpUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalPileUpUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalPileUpUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalRelativeUp = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalRelativeUp") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalRelativeUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalRelativeUp = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalRelativeUp") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalRelativeUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalRelativeUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalRelativeUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalRelativeUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalPtUp = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalPtUp") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalPtUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalPtUp = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalPtUp") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalPtUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalPtUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalPtUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalPtUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalScaleUp = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalScaleUp") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalScaleUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalScaleUp = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalScaleUp") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalScaleUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalScaleUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalScaleUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalScaleUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalAbsoluteUp = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalAbsoluteUp") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalAbsoluteUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalAbsoluteUp = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalAbsoluteUp") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalAbsoluteUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalAbsoluteUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalAbsoluteUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalAbsoluteUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalMCUp = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalMCUp") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalMCUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalMCUp = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalMCUp") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalMCUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalMCUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalMCUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalMCUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTotalUp = {tree_->GetBranchStatus("FatJet_pt_jesTotalUp") ? fReader : fReaderNull, "FatJet_pt_jesTotalUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTotalUp = {tree_->GetBranchStatus("FatJet_mass_jesTotalUp") ? fReader : fReaderNull, "FatJet_mass_jesTotalUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTotalUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTotalUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTotalUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTotalNoFlavorUp = {tree_->GetBranchStatus("FatJet_pt_jesTotalNoFlavorUp") ? fReader : fReaderNull, "FatJet_pt_jesTotalNoFlavorUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTotalNoFlavorUp = {tree_->GetBranchStatus("FatJet_mass_jesTotalNoFlavorUp") ? fReader : fReaderNull, "FatJet_mass_jesTotalNoFlavorUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTotalNoFlavorUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTotalNoFlavorUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTotalNoFlavorUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTotalNoTimeUp = {tree_->GetBranchStatus("FatJet_pt_jesTotalNoTimeUp") ? fReader : fReaderNull, "FatJet_pt_jesTotalNoTimeUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTotalNoTimeUp = {tree_->GetBranchStatus("FatJet_mass_jesTotalNoTimeUp") ? fReader : fReaderNull, "FatJet_mass_jesTotalNoTimeUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTotalNoTimeUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTotalNoTimeUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTotalNoTimeUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTotalNoFlavorNoTimeUp = {tree_->GetBranchStatus("FatJet_pt_jesTotalNoFlavorNoTimeUp") ? fReader : fReaderNull, "FatJet_pt_jesTotalNoFlavorNoTimeUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTotalNoFlavorNoTimeUp = {tree_->GetBranchStatus("FatJet_mass_jesTotalNoFlavorNoTimeUp") ? fReader : fReaderNull, "FatJet_mass_jesTotalNoFlavorNoTimeUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTotalNoFlavorNoTimeUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTotalNoFlavorNoTimeUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTotalNoFlavorNoTimeUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorZJetUp = {tree_->GetBranchStatus("FatJet_pt_jesFlavorZJetUp") ? fReader : fReaderNull, "FatJet_pt_jesFlavorZJetUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorZJetUp = {tree_->GetBranchStatus("FatJet_mass_jesFlavorZJetUp") ? fReader : fReaderNull, "FatJet_mass_jesFlavorZJetUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorZJetUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorZJetUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorZJetUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPhotonJetUp = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPhotonJetUp") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPhotonJetUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPhotonJetUp = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPhotonJetUp") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPhotonJetUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPhotonJetUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPhotonJetUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPhotonJetUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPureGluonUp = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPureGluonUp") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPureGluonUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPureGluonUp = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPureGluonUp") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPureGluonUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPureGluonUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPureGluonUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPureGluonUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPureQuarkUp = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPureQuarkUp") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPureQuarkUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPureQuarkUp = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPureQuarkUp") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPureQuarkUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPureQuarkUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPureQuarkUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPureQuarkUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPureCharmUp = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPureCharmUp") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPureCharmUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPureCharmUp = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPureCharmUp") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPureCharmUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPureCharmUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPureCharmUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPureCharmUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPureBottomUp = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPureBottomUp") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPureBottomUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPureBottomUp = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPureBottomUp") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPureBottomUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPureBottomUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPureBottomUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPureBottomUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimeRunBUp = {tree_->GetBranchStatus("FatJet_pt_jesTimeRunBUp") ? fReader : fReaderNull, "FatJet_pt_jesTimeRunBUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimeRunBUp = {tree_->GetBranchStatus("FatJet_mass_jesTimeRunBUp") ? fReader : fReaderNull, "FatJet_mass_jesTimeRunBUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimeRunBUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimeRunBUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimeRunBUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimeRunCUp = {tree_->GetBranchStatus("FatJet_pt_jesTimeRunCUp") ? fReader : fReaderNull, "FatJet_pt_jesTimeRunCUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimeRunCUp = {tree_->GetBranchStatus("FatJet_mass_jesTimeRunCUp") ? fReader : fReaderNull, "FatJet_mass_jesTimeRunCUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimeRunCUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimeRunCUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimeRunCUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimeRunDEUp = {tree_->GetBranchStatus("FatJet_pt_jesTimeRunDEUp") ? fReader : fReaderNull, "FatJet_pt_jesTimeRunDEUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimeRunDEUp = {tree_->GetBranchStatus("FatJet_mass_jesTimeRunDEUp") ? fReader : fReaderNull, "FatJet_mass_jesTimeRunDEUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimeRunDEUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimeRunDEUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimeRunDEUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimeRunFUp = {tree_->GetBranchStatus("FatJet_pt_jesTimeRunFUp") ? fReader : fReaderNull, "FatJet_pt_jesTimeRunFUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimeRunFUp = {tree_->GetBranchStatus("FatJet_mass_jesTimeRunFUp") ? fReader : fReaderNull, "FatJet_mass_jesTimeRunFUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimeRunFUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimeRunFUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimeRunFUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupMPFInSituUp = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupMPFInSituUp") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupMPFInSituUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupMPFInSituUp = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupMPFInSituUp") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupMPFInSituUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupMPFInSituUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupMPFInSituUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupMPFInSituUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupIntercalibrationUp = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupIntercalibrationUp") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupIntercalibrationUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupIntercalibrationUp = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupIntercalibrationUp") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupIntercalibrationUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupIntercalibrationUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupIntercalibrationUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupIntercalibrationUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupbJESUp = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupbJESUp") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupbJESUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupbJESUp = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupbJESUp") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupbJESUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupbJESUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupbJESUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupbJESUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupFlavorUp = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupFlavorUp") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupFlavorUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupFlavorUp = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupFlavorUp") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupFlavorUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupFlavorUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupFlavorUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupFlavorUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupUncorrelatedUp = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupUncorrelatedUp") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupUncorrelatedUp"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupUncorrelatedUp = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupUncorrelatedUp") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupUncorrelatedUp"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupUncorrelatedUp = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupUncorrelatedUp") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupUncorrelatedUp"};
+  TTreeReaderArray<Float_t> FatJet_pt_jerDown = {tree_->GetBranchStatus("FatJet_pt_jerDown") ? fReader : fReaderNull, "FatJet_pt_jerDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jerDown = {tree_->GetBranchStatus("FatJet_mass_jerDown") ? fReader : fReaderNull, "FatJet_mass_jerDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jmrDown = {tree_->GetBranchStatus("FatJet_mass_jmrDown") ? fReader : fReaderNull, "FatJet_mass_jmrDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jmsDown = {tree_->GetBranchStatus("FatJet_mass_jmsDown") ? fReader : fReaderNull, "FatJet_mass_jmsDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jerDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jerDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jerDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jmrDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jmrDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jmrDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jmsDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jmsDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jmsDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_tau21DDT_jerDown = {tree_->GetBranchStatus("FatJet_msoftdrop_tau21DDT_jerDown") ? fReader : fReaderNull, "FatJet_msoftdrop_tau21DDT_jerDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_tau21DDT_jmrDown = {tree_->GetBranchStatus("FatJet_msoftdrop_tau21DDT_jmrDown") ? fReader : fReaderNull, "FatJet_msoftdrop_tau21DDT_jmrDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_tau21DDT_jmsDown = {tree_->GetBranchStatus("FatJet_msoftdrop_tau21DDT_jmsDown") ? fReader : fReaderNull, "FatJet_msoftdrop_tau21DDT_jmsDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesAbsoluteStatDown = {tree_->GetBranchStatus("FatJet_pt_jesAbsoluteStatDown") ? fReader : fReaderNull, "FatJet_pt_jesAbsoluteStatDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesAbsoluteStatDown = {tree_->GetBranchStatus("FatJet_mass_jesAbsoluteStatDown") ? fReader : fReaderNull, "FatJet_mass_jesAbsoluteStatDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesAbsoluteStatDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesAbsoluteStatDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesAbsoluteStatDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesAbsoluteScaleDown = {tree_->GetBranchStatus("FatJet_pt_jesAbsoluteScaleDown") ? fReader : fReaderNull, "FatJet_pt_jesAbsoluteScaleDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesAbsoluteScaleDown = {tree_->GetBranchStatus("FatJet_mass_jesAbsoluteScaleDown") ? fReader : fReaderNull, "FatJet_mass_jesAbsoluteScaleDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesAbsoluteScaleDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesAbsoluteScaleDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesAbsoluteScaleDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesAbsoluteFlavMapDown = {tree_->GetBranchStatus("FatJet_pt_jesAbsoluteFlavMapDown") ? fReader : fReaderNull, "FatJet_pt_jesAbsoluteFlavMapDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesAbsoluteFlavMapDown = {tree_->GetBranchStatus("FatJet_mass_jesAbsoluteFlavMapDown") ? fReader : fReaderNull, "FatJet_mass_jesAbsoluteFlavMapDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesAbsoluteFlavMapDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesAbsoluteFlavMapDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesAbsoluteFlavMapDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesAbsoluteMPFBiasDown = {tree_->GetBranchStatus("FatJet_pt_jesAbsoluteMPFBiasDown") ? fReader : fReaderNull, "FatJet_pt_jesAbsoluteMPFBiasDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesAbsoluteMPFBiasDown = {tree_->GetBranchStatus("FatJet_mass_jesAbsoluteMPFBiasDown") ? fReader : fReaderNull, "FatJet_mass_jesAbsoluteMPFBiasDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesAbsoluteMPFBiasDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesAbsoluteMPFBiasDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesAbsoluteMPFBiasDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFragmentationDown = {tree_->GetBranchStatus("FatJet_pt_jesFragmentationDown") ? fReader : fReaderNull, "FatJet_pt_jesFragmentationDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFragmentationDown = {tree_->GetBranchStatus("FatJet_mass_jesFragmentationDown") ? fReader : fReaderNull, "FatJet_mass_jesFragmentationDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFragmentationDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFragmentationDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFragmentationDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSinglePionECALDown = {tree_->GetBranchStatus("FatJet_pt_jesSinglePionECALDown") ? fReader : fReaderNull, "FatJet_pt_jesSinglePionECALDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSinglePionECALDown = {tree_->GetBranchStatus("FatJet_mass_jesSinglePionECALDown") ? fReader : fReaderNull, "FatJet_mass_jesSinglePionECALDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSinglePionECALDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSinglePionECALDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSinglePionECALDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSinglePionHCALDown = {tree_->GetBranchStatus("FatJet_pt_jesSinglePionHCALDown") ? fReader : fReaderNull, "FatJet_pt_jesSinglePionHCALDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSinglePionHCALDown = {tree_->GetBranchStatus("FatJet_mass_jesSinglePionHCALDown") ? fReader : fReaderNull, "FatJet_mass_jesSinglePionHCALDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSinglePionHCALDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSinglePionHCALDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSinglePionHCALDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorQCDDown = {tree_->GetBranchStatus("FatJet_pt_jesFlavorQCDDown") ? fReader : fReaderNull, "FatJet_pt_jesFlavorQCDDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorQCDDown = {tree_->GetBranchStatus("FatJet_mass_jesFlavorQCDDown") ? fReader : fReaderNull, "FatJet_mass_jesFlavorQCDDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorQCDDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorQCDDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorQCDDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimePtEtaDown = {tree_->GetBranchStatus("FatJet_pt_jesTimePtEtaDown") ? fReader : fReaderNull, "FatJet_pt_jesTimePtEtaDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimePtEtaDown = {tree_->GetBranchStatus("FatJet_mass_jesTimePtEtaDown") ? fReader : fReaderNull, "FatJet_mass_jesTimePtEtaDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimePtEtaDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimePtEtaDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimePtEtaDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeJEREC1Down = {tree_->GetBranchStatus("FatJet_pt_jesRelativeJEREC1Down") ? fReader : fReaderNull, "FatJet_pt_jesRelativeJEREC1Down"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeJEREC1Down = {tree_->GetBranchStatus("FatJet_mass_jesRelativeJEREC1Down") ? fReader : fReaderNull, "FatJet_mass_jesRelativeJEREC1Down"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeJEREC1Down = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeJEREC1Down") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeJEREC1Down"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeJEREC2Down = {tree_->GetBranchStatus("FatJet_pt_jesRelativeJEREC2Down") ? fReader : fReaderNull, "FatJet_pt_jesRelativeJEREC2Down"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeJEREC2Down = {tree_->GetBranchStatus("FatJet_mass_jesRelativeJEREC2Down") ? fReader : fReaderNull, "FatJet_mass_jesRelativeJEREC2Down"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeJEREC2Down = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeJEREC2Down") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeJEREC2Down"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeJERHFDown = {tree_->GetBranchStatus("FatJet_pt_jesRelativeJERHFDown") ? fReader : fReaderNull, "FatJet_pt_jesRelativeJERHFDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeJERHFDown = {tree_->GetBranchStatus("FatJet_mass_jesRelativeJERHFDown") ? fReader : fReaderNull, "FatJet_mass_jesRelativeJERHFDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeJERHFDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeJERHFDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeJERHFDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativePtBBDown = {tree_->GetBranchStatus("FatJet_pt_jesRelativePtBBDown") ? fReader : fReaderNull, "FatJet_pt_jesRelativePtBBDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativePtBBDown = {tree_->GetBranchStatus("FatJet_mass_jesRelativePtBBDown") ? fReader : fReaderNull, "FatJet_mass_jesRelativePtBBDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativePtBBDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativePtBBDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativePtBBDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativePtEC1Down = {tree_->GetBranchStatus("FatJet_pt_jesRelativePtEC1Down") ? fReader : fReaderNull, "FatJet_pt_jesRelativePtEC1Down"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativePtEC1Down = {tree_->GetBranchStatus("FatJet_mass_jesRelativePtEC1Down") ? fReader : fReaderNull, "FatJet_mass_jesRelativePtEC1Down"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativePtEC1Down = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativePtEC1Down") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativePtEC1Down"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativePtEC2Down = {tree_->GetBranchStatus("FatJet_pt_jesRelativePtEC2Down") ? fReader : fReaderNull, "FatJet_pt_jesRelativePtEC2Down"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativePtEC2Down = {tree_->GetBranchStatus("FatJet_mass_jesRelativePtEC2Down") ? fReader : fReaderNull, "FatJet_mass_jesRelativePtEC2Down"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativePtEC2Down = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativePtEC2Down") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativePtEC2Down"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativePtHFDown = {tree_->GetBranchStatus("FatJet_pt_jesRelativePtHFDown") ? fReader : fReaderNull, "FatJet_pt_jesRelativePtHFDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativePtHFDown = {tree_->GetBranchStatus("FatJet_mass_jesRelativePtHFDown") ? fReader : fReaderNull, "FatJet_mass_jesRelativePtHFDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativePtHFDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativePtHFDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativePtHFDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeBalDown = {tree_->GetBranchStatus("FatJet_pt_jesRelativeBalDown") ? fReader : fReaderNull, "FatJet_pt_jesRelativeBalDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeBalDown = {tree_->GetBranchStatus("FatJet_mass_jesRelativeBalDown") ? fReader : fReaderNull, "FatJet_mass_jesRelativeBalDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeBalDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeBalDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeBalDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeSampleDown = {tree_->GetBranchStatus("FatJet_pt_jesRelativeSampleDown") ? fReader : fReaderNull, "FatJet_pt_jesRelativeSampleDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeSampleDown = {tree_->GetBranchStatus("FatJet_mass_jesRelativeSampleDown") ? fReader : fReaderNull, "FatJet_mass_jesRelativeSampleDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeSampleDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeSampleDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeSampleDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeFSRDown = {tree_->GetBranchStatus("FatJet_pt_jesRelativeFSRDown") ? fReader : fReaderNull, "FatJet_pt_jesRelativeFSRDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeFSRDown = {tree_->GetBranchStatus("FatJet_mass_jesRelativeFSRDown") ? fReader : fReaderNull, "FatJet_mass_jesRelativeFSRDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeFSRDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeFSRDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeFSRDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeStatFSRDown = {tree_->GetBranchStatus("FatJet_pt_jesRelativeStatFSRDown") ? fReader : fReaderNull, "FatJet_pt_jesRelativeStatFSRDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeStatFSRDown = {tree_->GetBranchStatus("FatJet_mass_jesRelativeStatFSRDown") ? fReader : fReaderNull, "FatJet_mass_jesRelativeStatFSRDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeStatFSRDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeStatFSRDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeStatFSRDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeStatECDown = {tree_->GetBranchStatus("FatJet_pt_jesRelativeStatECDown") ? fReader : fReaderNull, "FatJet_pt_jesRelativeStatECDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeStatECDown = {tree_->GetBranchStatus("FatJet_mass_jesRelativeStatECDown") ? fReader : fReaderNull, "FatJet_mass_jesRelativeStatECDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeStatECDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeStatECDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeStatECDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesRelativeStatHFDown = {tree_->GetBranchStatus("FatJet_pt_jesRelativeStatHFDown") ? fReader : fReaderNull, "FatJet_pt_jesRelativeStatHFDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesRelativeStatHFDown = {tree_->GetBranchStatus("FatJet_mass_jesRelativeStatHFDown") ? fReader : fReaderNull, "FatJet_mass_jesRelativeStatHFDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesRelativeStatHFDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesRelativeStatHFDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesRelativeStatHFDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpDataMCDown = {tree_->GetBranchStatus("FatJet_pt_jesPileUpDataMCDown") ? fReader : fReaderNull, "FatJet_pt_jesPileUpDataMCDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpDataMCDown = {tree_->GetBranchStatus("FatJet_mass_jesPileUpDataMCDown") ? fReader : fReaderNull, "FatJet_mass_jesPileUpDataMCDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpDataMCDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpDataMCDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpDataMCDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtRefDown = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtRefDown") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtRefDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtRefDown = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtRefDown") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtRefDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtRefDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtRefDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtRefDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtBBDown = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtBBDown") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtBBDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtBBDown = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtBBDown") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtBBDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtBBDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtBBDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtBBDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtEC1Down = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtEC1Down") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtEC1Down"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtEC1Down = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtEC1Down") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtEC1Down"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtEC1Down = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtEC1Down") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtEC1Down"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtEC2Down = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtEC2Down") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtEC2Down"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtEC2Down = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtEC2Down") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtEC2Down"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtEC2Down = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtEC2Down") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtEC2Down"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpPtHFDown = {tree_->GetBranchStatus("FatJet_pt_jesPileUpPtHFDown") ? fReader : fReaderNull, "FatJet_pt_jesPileUpPtHFDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpPtHFDown = {tree_->GetBranchStatus("FatJet_mass_jesPileUpPtHFDown") ? fReader : fReaderNull, "FatJet_mass_jesPileUpPtHFDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpPtHFDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpPtHFDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpPtHFDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpMuZeroDown = {tree_->GetBranchStatus("FatJet_pt_jesPileUpMuZeroDown") ? fReader : fReaderNull, "FatJet_pt_jesPileUpMuZeroDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpMuZeroDown = {tree_->GetBranchStatus("FatJet_mass_jesPileUpMuZeroDown") ? fReader : fReaderNull, "FatJet_mass_jesPileUpMuZeroDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpMuZeroDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpMuZeroDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpMuZeroDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesPileUpEnvelopeDown = {tree_->GetBranchStatus("FatJet_pt_jesPileUpEnvelopeDown") ? fReader : fReaderNull, "FatJet_pt_jesPileUpEnvelopeDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesPileUpEnvelopeDown = {tree_->GetBranchStatus("FatJet_mass_jesPileUpEnvelopeDown") ? fReader : fReaderNull, "FatJet_mass_jesPileUpEnvelopeDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesPileUpEnvelopeDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesPileUpEnvelopeDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesPileUpEnvelopeDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalPileUpDown = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalPileUpDown") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalPileUpDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalPileUpDown = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalPileUpDown") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalPileUpDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalPileUpDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalPileUpDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalPileUpDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalRelativeDown = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalRelativeDown") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalRelativeDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalRelativeDown = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalRelativeDown") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalRelativeDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalRelativeDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalRelativeDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalRelativeDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalPtDown = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalPtDown") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalPtDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalPtDown = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalPtDown") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalPtDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalPtDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalPtDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalPtDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalScaleDown = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalScaleDown") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalScaleDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalScaleDown = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalScaleDown") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalScaleDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalScaleDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalScaleDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalScaleDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalAbsoluteDown = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalAbsoluteDown") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalAbsoluteDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalAbsoluteDown = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalAbsoluteDown") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalAbsoluteDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalAbsoluteDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalAbsoluteDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalAbsoluteDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesSubTotalMCDown = {tree_->GetBranchStatus("FatJet_pt_jesSubTotalMCDown") ? fReader : fReaderNull, "FatJet_pt_jesSubTotalMCDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesSubTotalMCDown = {tree_->GetBranchStatus("FatJet_mass_jesSubTotalMCDown") ? fReader : fReaderNull, "FatJet_mass_jesSubTotalMCDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesSubTotalMCDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesSubTotalMCDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesSubTotalMCDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTotalDown = {tree_->GetBranchStatus("FatJet_pt_jesTotalDown") ? fReader : fReaderNull, "FatJet_pt_jesTotalDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTotalDown = {tree_->GetBranchStatus("FatJet_mass_jesTotalDown") ? fReader : fReaderNull, "FatJet_mass_jesTotalDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTotalDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTotalDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTotalDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTotalNoFlavorDown = {tree_->GetBranchStatus("FatJet_pt_jesTotalNoFlavorDown") ? fReader : fReaderNull, "FatJet_pt_jesTotalNoFlavorDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTotalNoFlavorDown = {tree_->GetBranchStatus("FatJet_mass_jesTotalNoFlavorDown") ? fReader : fReaderNull, "FatJet_mass_jesTotalNoFlavorDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTotalNoFlavorDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTotalNoFlavorDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTotalNoFlavorDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTotalNoTimeDown = {tree_->GetBranchStatus("FatJet_pt_jesTotalNoTimeDown") ? fReader : fReaderNull, "FatJet_pt_jesTotalNoTimeDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTotalNoTimeDown = {tree_->GetBranchStatus("FatJet_mass_jesTotalNoTimeDown") ? fReader : fReaderNull, "FatJet_mass_jesTotalNoTimeDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTotalNoTimeDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTotalNoTimeDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTotalNoTimeDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTotalNoFlavorNoTimeDown = {tree_->GetBranchStatus("FatJet_pt_jesTotalNoFlavorNoTimeDown") ? fReader : fReaderNull, "FatJet_pt_jesTotalNoFlavorNoTimeDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTotalNoFlavorNoTimeDown = {tree_->GetBranchStatus("FatJet_mass_jesTotalNoFlavorNoTimeDown") ? fReader : fReaderNull, "FatJet_mass_jesTotalNoFlavorNoTimeDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTotalNoFlavorNoTimeDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTotalNoFlavorNoTimeDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTotalNoFlavorNoTimeDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorZJetDown = {tree_->GetBranchStatus("FatJet_pt_jesFlavorZJetDown") ? fReader : fReaderNull, "FatJet_pt_jesFlavorZJetDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorZJetDown = {tree_->GetBranchStatus("FatJet_mass_jesFlavorZJetDown") ? fReader : fReaderNull, "FatJet_mass_jesFlavorZJetDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorZJetDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorZJetDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorZJetDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPhotonJetDown = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPhotonJetDown") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPhotonJetDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPhotonJetDown = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPhotonJetDown") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPhotonJetDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPhotonJetDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPhotonJetDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPhotonJetDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPureGluonDown = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPureGluonDown") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPureGluonDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPureGluonDown = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPureGluonDown") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPureGluonDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPureGluonDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPureGluonDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPureGluonDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPureQuarkDown = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPureQuarkDown") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPureQuarkDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPureQuarkDown = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPureQuarkDown") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPureQuarkDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPureQuarkDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPureQuarkDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPureQuarkDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPureCharmDown = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPureCharmDown") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPureCharmDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPureCharmDown = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPureCharmDown") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPureCharmDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPureCharmDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPureCharmDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPureCharmDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesFlavorPureBottomDown = {tree_->GetBranchStatus("FatJet_pt_jesFlavorPureBottomDown") ? fReader : fReaderNull, "FatJet_pt_jesFlavorPureBottomDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesFlavorPureBottomDown = {tree_->GetBranchStatus("FatJet_mass_jesFlavorPureBottomDown") ? fReader : fReaderNull, "FatJet_mass_jesFlavorPureBottomDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesFlavorPureBottomDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesFlavorPureBottomDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesFlavorPureBottomDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimeRunBDown = {tree_->GetBranchStatus("FatJet_pt_jesTimeRunBDown") ? fReader : fReaderNull, "FatJet_pt_jesTimeRunBDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimeRunBDown = {tree_->GetBranchStatus("FatJet_mass_jesTimeRunBDown") ? fReader : fReaderNull, "FatJet_mass_jesTimeRunBDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimeRunBDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimeRunBDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimeRunBDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimeRunCDown = {tree_->GetBranchStatus("FatJet_pt_jesTimeRunCDown") ? fReader : fReaderNull, "FatJet_pt_jesTimeRunCDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimeRunCDown = {tree_->GetBranchStatus("FatJet_mass_jesTimeRunCDown") ? fReader : fReaderNull, "FatJet_mass_jesTimeRunCDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimeRunCDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimeRunCDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimeRunCDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimeRunDEDown = {tree_->GetBranchStatus("FatJet_pt_jesTimeRunDEDown") ? fReader : fReaderNull, "FatJet_pt_jesTimeRunDEDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimeRunDEDown = {tree_->GetBranchStatus("FatJet_mass_jesTimeRunDEDown") ? fReader : fReaderNull, "FatJet_mass_jesTimeRunDEDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimeRunDEDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimeRunDEDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimeRunDEDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesTimeRunFDown = {tree_->GetBranchStatus("FatJet_pt_jesTimeRunFDown") ? fReader : fReaderNull, "FatJet_pt_jesTimeRunFDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesTimeRunFDown = {tree_->GetBranchStatus("FatJet_mass_jesTimeRunFDown") ? fReader : fReaderNull, "FatJet_mass_jesTimeRunFDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesTimeRunFDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesTimeRunFDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesTimeRunFDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupMPFInSituDown = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupMPFInSituDown") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupMPFInSituDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupMPFInSituDown = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupMPFInSituDown") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupMPFInSituDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupMPFInSituDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupMPFInSituDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupMPFInSituDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupIntercalibrationDown = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupIntercalibrationDown") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupIntercalibrationDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupIntercalibrationDown = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupIntercalibrationDown") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupIntercalibrationDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupIntercalibrationDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupIntercalibrationDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupIntercalibrationDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupbJESDown = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupbJESDown") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupbJESDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupbJESDown = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupbJESDown") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupbJESDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupbJESDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupbJESDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupbJESDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupFlavorDown = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupFlavorDown") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupFlavorDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupFlavorDown = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupFlavorDown") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupFlavorDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupFlavorDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupFlavorDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupFlavorDown"};
+  TTreeReaderArray<Float_t> FatJet_pt_jesCorrelationGroupUncorrelatedDown = {tree_->GetBranchStatus("FatJet_pt_jesCorrelationGroupUncorrelatedDown") ? fReader : fReaderNull, "FatJet_pt_jesCorrelationGroupUncorrelatedDown"};
+  TTreeReaderArray<Float_t> FatJet_mass_jesCorrelationGroupUncorrelatedDown = {tree_->GetBranchStatus("FatJet_mass_jesCorrelationGroupUncorrelatedDown") ? fReader : fReaderNull, "FatJet_mass_jesCorrelationGroupUncorrelatedDown"};
+  TTreeReaderArray<Float_t> FatJet_msoftdrop_jesCorrelationGroupUncorrelatedDown = {tree_->GetBranchStatus("FatJet_msoftdrop_jesCorrelationGroupUncorrelatedDown") ? fReader : fReaderNull, "FatJet_msoftdrop_jesCorrelationGroupUncorrelatedDown"};
+
 };
 
 #endif
