@@ -1,0 +1,35 @@
+if !defined year
+  year = 2017
+endif
+
+if !defined sample_list_dir
+  sample_list_dir = 2017
+endif
+
+if !defined eos_output_path
+  eos_output_path = /eos/uscms/store/user/singhr/test/
+endif
+
+universe      = vanilla
+x509userproxy = $ENV(X509_USER_PROXY)
+executable    = runjob.sh
+
+transfer_input  = True
+transfer_output = True
+transfer_input_files = runjob.sh, $(cmssw_tar)
+
+
+log_filename  = ../log/$(year)_$Fn(sample_list_file)_$(Cluster)_$(Process)
+log           = $(log_filename).log
+output        = $(log_filename).out
+error         = $(log_filename).err
+stream_error  = True
+stream_output = True
+
+cmssw_tar = CMSSW_10_6_10.tgz
+current_dir = submit_v2
+nano_ver = 7
+
+arguments = $(cmssw_tar) $(current_dir)/$(sample_list_file) $(year) $(nano_ver) $(eos_output_path)/$(year)/
+
+queue sample_list_file matching from $(sample_list_dir)/*.txt

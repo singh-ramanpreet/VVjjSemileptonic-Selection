@@ -1,0 +1,8 @@
+#git ignore for this directory
+#ignore everything first
+*
+
+#except
+!*.jdl
+!*.sh
+!*.md
