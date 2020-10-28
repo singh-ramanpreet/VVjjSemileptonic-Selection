@@ -63,7 +63,7 @@ public :
   TTreeReaderValue<Bool_t> HLT_Ele27_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele27_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele27_WPTight_Gsf"};
   TTreeReaderValue<Bool_t> HLT_Ele28_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele28_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele28_WPTight_Gsf"};
   TTreeReaderValue<Bool_t> HLT_Ele32_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele32_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele32_WPTight_Gsf"};
-  TTreeReaderValue<Bool_t> HLT_Ele35_WPLooose_Gsf = {tree_->GetBranchStatus("HLT_Ele35_WPLooose_Gsf") ? fReader : fReaderNull, "HLT_Ele35_WPLooose_Gsf"};
+  TTreeReaderValue<Bool_t> HLT_Ele35_WPLoose_Gsf = {tree_->GetBranchStatus("HLT_Ele35_WPLoose_Gsf") ? fReader : fReaderNull, "HLT_Ele35_WPLoose_Gsf"};
   TTreeReaderValue<Bool_t> HLT_Ele35_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele35_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele35_WPTight_Gsf"};
   TTreeReaderValue<Bool_t> HLT_Ele38_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele38_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele38_WPTight_Gsf"};
   TTreeReaderValue<Bool_t> HLT_Ele40_WPTight_Gsf = {tree_->GetBranchStatus("HLT_Ele40_WPTight_Gsf") ? fReader : fReaderNull, "HLT_Ele40_WPTight_Gsf"};

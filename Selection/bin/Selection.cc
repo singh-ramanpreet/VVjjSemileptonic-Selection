@@ -208,23 +208,30 @@ int main (int ac, char** av) {
                                *nr.HLT_DoubleEle33_CaloIdL_MW);
     }
       }
-
+      
 
       else if (era==2016) {
-
+	
 	if ( *nr.HLT_IsoMu22 || *nr.HLT_IsoTkMu22 ||
 	     *nr.HLT_IsoMu24 || *nr.HLT_IsoTkMu24 ) 
 	  WVJJTree->trigger_1Mu = true;
 
-	if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ || 
-	     *nr.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ || 
-	     *nr.HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ ) 
-	  WVJJTree->trigger_2Mu = true;
-
+	if (isMC) {
+	  if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ || 
+	       *nr.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ || 
+	       *nr.HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ ) 
+	    WVJJTree->trigger_2Mu = true;
+	}
+	else {
+	  if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ || 
+	       *nr.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ )
+	    WVJJTree->trigger_2Mu = true;
+	}
+	
 	if ( *nr.HLT_Ele25_eta2p1_WPTight_Gsf ||
 	     *nr.HLT_Ele27_eta2p1_WPLoose_Gsf || 
 	     *nr.HLT_Ele27_WPTight_Gsf ||
-	     *nr.HLT_Ele35_WPLooose_Gsf ) 
+	     *nr.HLT_Ele35_WPLoose_Gsf ) 
 	  WVJJTree->trigger_1El = true;
 
 	if ( *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ )
