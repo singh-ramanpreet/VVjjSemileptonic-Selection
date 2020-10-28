@@ -45,3 +45,17 @@ condor_submit job_per_sample.jdl year=2016 sample_list_dir=2016 eos_output_path=
 ```bash
 condor_submit job_per_sample.jdl year=2018 sample_list_dir=2018 eos_output_path=/eos/uscms/store/user/rsingh/test/
 ```
+
+### Post Job, `hadd` Data and remove duplicates
+
+Example. Change arguments, find pattern accordingly.
+
+```bash
+# arguments -> List of root files to combine.
+cd postjob
+./run $(eos root://cmseos.fnal.gov find -name *Run2017*.root /eos/uscms/store/user/rsingh/test/2017/ | sed -e 's|^|root://cmseos.fnal.gov/|' | tr '\n' ' ')
+```
+
+It will `hadd` data in current directory and run `RemoveDuplicateEvents.C` macro.
+
+Then use `xrdcp` to copy these files in same `EOS` location.
