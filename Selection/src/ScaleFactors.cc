@@ -19,7 +19,7 @@ void ScaleFactors::setupSFs() {
     IsoMu = TFile::Open("data/SF2016/Muon_Run2016BCDEF_SF_ISO.root","READ");
     hIsoMu = (TH2D*)IsoMu->Get("NUM_TightRelIso_DEN_TightIDandIPCut_eta_pt");
 
-    FRMu = TFile::Open("data/SF2016/MuFR_jet30.root","READ");
+    FRMu = TFile::Open("data/SF2016/MuonFR_jet30.root","READ");
     hFRMu = (TH2D*)FREle->Get("FR_pT_eta");
 
 
@@ -42,7 +42,7 @@ void ScaleFactors::setupSFs() {
     IsoMu = TFile::Open("data/SF2017/Muon_Run2017BCDEF_SF_ISO.root","READ");
     hIsoMu = (TH2D*)IsoMu->Get("NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta");
 
-    FRMu = TFile::Open("data/SF2017/MuFR_jet30.root","READ");
+    FRMu = TFile::Open("data/SF2017/MuonFR_jet30.root","READ");
     hFRMu = (TH2D*)FREle->Get("FR_pT_eta");
 
 
@@ -67,7 +67,7 @@ void ScaleFactors::setupSFs() {
     IsoMu = TFile::Open("data/SF2018/Muon_Run2018ABCD_SF_ISO.root","READ");
     hIsoMu = (TH2D*)IsoMu->Get("NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta");
 
-    FRMu = TFile::Open("data/SF2018/MuFR_jet30.root","READ");
+    FRMu = TFile::Open("data/SF2018/MuonFR_jet30.root","READ");
     hFRMu = (TH2D*)FREle->Get("FR_pT_eta");
 
   }
