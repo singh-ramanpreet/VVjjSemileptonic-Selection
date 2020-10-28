@@ -1022,9 +1022,9 @@ int main (int ac, char** av) {
       ot->Fill();
     }
     
-    //delete t; 
-    //delete r;
-    //delete f;
+    delete t;
+    delete r;
+    delete f;
     //t=0; 
     //r=0;
     //f=0;
