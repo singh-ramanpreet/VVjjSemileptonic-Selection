@@ -93,15 +93,30 @@ int main (int ac, char** av) {
   TFile *f=0;
   TTree *t=0, *r=0;
 
+  Bool_t has_HLT_IsoMu22=false, has_HLT_IsoTkMu22=false, has_HLT_IsoMu24=false, has_HLT_IsoTkMu24=false,
+    has_HLT_IsoMu27=false, has_HLT_IsoMu30=false, has_HLT_Mu50=false,
+    has_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ=false, has_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ=false,
+    has_HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ=false, has_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8=false,
+    has_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8=false, has_HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8=false,
+    has_HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8=false, has_HLT_Ele27_WPTight_Gsf=false, has_HLT_Ele28_WPTight_Gsf=false,
+    has_HLT_Ele32_WPTight_Gsf=false, has_HLT_Ele35_WPLoose_Gsf=false, has_HLT_Ele35_WPTight_Gsf=false, has_HLT_Ele38_WPTight_Gsf=false,
+    has_HLT_Ele40_WPTight_Gsf=false, has_HLT_Ele25_eta2p1_WPTight_Gsf=false, has_HLT_Ele27_eta2p1_WPLoose_Gsf=false,
+    has_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ=false, has_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL=false,
+    has_HLT_DiEle27_WPTightCaloOnly_L1DoubleEG=false,
+    has_HLT_DoubleEle33_CaloIdL_MW=false, has_HLT_DoubleEle25_CaloIdL_MW=false, has_HLT_DoubleEle27_CaloIdL_MW=false;
+
   std::ifstream ifs;
   ifs.open(inputFile.data());
   assert(ifs.is_open());
   std::string line;
+  int lineCount=0;
   while (getline(ifs,line)) {
     std::stringstream ss(line);
     std::string filetoopen;
     ss >> filetoopen;
     
+    lineCount+=1;
+
     f = TFile::Open(TString("root://cmseos.fnal.gov/")+TString(filetoopen),"read");
     //f = TFile::Open(TString("root://xrootd-cms.infn.it/")+TString(filetoopen),"read");
     t = (TTree *)f->Get("Events");
@@ -122,122 +137,86 @@ int main (int ac, char** av) {
       genEventSumw = *NanoWeightReader.genEventSumw;
     }
     totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+genEventSumw);
+
+    //check if tree has these hlt branches
+    if (lineCount == 1){
+      has_HLT_IsoMu22 = t->GetBranchStatus("HLT_IsoMu22");
+      has_HLT_IsoTkMu22 = t->GetBranchStatus("HLT_IsoTkMu22");
+      has_HLT_IsoMu24 = t->GetBranchStatus("HLT_IsoMu24");
+      has_HLT_IsoTkMu24 = t->GetBranchStatus("HLT_IsoTkMu24");
+      has_HLT_IsoMu27 = t->GetBranchStatus("HLT_IsoMu27");
+      has_HLT_IsoMu30 = t->GetBranchStatus("HLT_IsoMu30");
+      has_HLT_Mu50 = t->GetBranchStatus("HLT_Mu50");
+
+      has_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ = t->GetBranchStatus("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");
+      has_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ = t->GetBranchStatus("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ");
+      has_HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ = t->GetBranchStatus("HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ");
+      has_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 = t->GetBranchStatus("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8");
+      has_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 = t->GetBranchStatus("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8");
+      has_HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 = t->GetBranchStatus("HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8");
+      has_HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 = t->GetBranchStatus("HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8");
+
+      has_HLT_Ele27_WPTight_Gsf = t->GetBranchStatus("HLT_Ele27_WPTight_Gsf");
+      has_HLT_Ele28_WPTight_Gsf = t->GetBranchStatus("HLT_Ele28_WPTight_Gsf");
+      has_HLT_Ele32_WPTight_Gsf = t->GetBranchStatus("HLT_Ele32_WPTight_Gsf");
+      has_HLT_Ele35_WPLoose_Gsf = t->GetBranchStatus("HLT_Ele35_WPLoose_Gsf");
+      has_HLT_Ele35_WPTight_Gsf = t->GetBranchStatus("HLT_Ele35_WPTight_Gsf");
+      has_HLT_Ele38_WPTight_Gsf = t->GetBranchStatus("HLT_Ele38_WPTight_Gsf");
+      has_HLT_Ele40_WPTight_Gsf = t->GetBranchStatus("HLT_Ele40_WPTight_Gsf");
+      has_HLT_Ele25_eta2p1_WPTight_Gsf = t->GetBranchStatus("HLT_Ele25_eta2p1_WPTight_Gsf");
+      has_HLT_Ele27_eta2p1_WPLoose_Gsf = t->GetBranchStatus("HLT_Ele27_eta2p1_WPLoose_Gsf");
+
+      has_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ = t->GetBranchStatus("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
+      has_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL = t->GetBranchStatus("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL");
+      has_HLT_DiEle27_WPTightCaloOnly_L1DoubleEG = t->GetBranchStatus("HLT_DiEle27_WPTightCaloOnly_L1DoubleEG");
+      has_HLT_DoubleEle33_CaloIdL_MW = t->GetBranchStatus("HLT_DoubleEle33_CaloIdL_MW");
+      has_HLT_DoubleEle25_CaloIdL_MW = t->GetBranchStatus("HLT_DoubleEle25_CaloIdL_MW");
+      has_HLT_DoubleEle27_CaloIdL_MW = t->GetBranchStatus("HLT_DoubleEle27_CaloIdL_MW");
+    }
       
     for (uint i=0; i < t->GetEntries(); i++) {
     //for (uint i=0; i < 1000000; i++) {
       WVJJTree->clearVars();
       nr.GetEntry(i);
 
-      if (i%100000==0) std::cout <<"event " << i << std::endl;
+      if (i%100000==0) std::cout <<"file " << lineCount << ": event " << i << std::endl;
 
       if (isMC==1) {
-	WVJJTree->genWeight=*nr.Generator_weight;
+        WVJJTree->genWeight=*nr.Generator_weight;
       }
 
-      if (era==2018) {
+      WVJJTree->trigger_1Mu = ((has_HLT_IsoMu22 ? *nr.HLT_IsoMu22 : 0) ||
+                               (has_HLT_IsoTkMu22 ? *nr.HLT_IsoTkMu22 : 0) ||
+                               (has_HLT_IsoMu24 ? *nr.HLT_IsoMu24 : 0) ||
+                               (has_HLT_IsoTkMu24 ? *nr.HLT_IsoTkMu24 : 0) ||
+                               (has_HLT_IsoMu27 ? *nr.HLT_IsoMu27 : 0) ||
+                               (has_HLT_IsoMu30 ? *nr.HLT_IsoMu30 : 0) ||
+                               (has_HLT_Mu50 ? *nr.HLT_Mu50 : 0));
 
-      	if ( *nr.HLT_IsoMu24 || *nr.HLT_IsoMu27 || 
-	     *nr.HLT_IsoMu30 || *nr.HLT_Mu50 ) 
-	  WVJJTree->trigger_1Mu = true;
+      WVJJTree->trigger_2Mu = ((has_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ ? *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ : 0) ||
+                               (has_HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ ? *nr.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ : 0) ||
+                               (has_HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ ? *nr.HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ : 0) ||
+                               (has_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 ? *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 : 0) ||
+                               (has_HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ? *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 : 0) ||
+                               (has_HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 ? *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 : 0) ||
+                               (has_HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 ? *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 : 0));
 
-	if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 || 
-	     *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
-	     *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 || 
-	     *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 ) 
-	  WVJJTree->trigger_2Mu = true;
+      WVJJTree->trigger_1El = ((has_HLT_Ele27_WPTight_Gsf ? *nr.HLT_Ele27_WPTight_Gsf : 0) ||
+                               (has_HLT_Ele28_WPTight_Gsf ? *nr.HLT_Ele28_WPTight_Gsf : 0) ||
+                               (has_HLT_Ele32_WPTight_Gsf ? *nr.HLT_Ele32_WPTight_Gsf : 0) ||
+                               (has_HLT_Ele35_WPLoose_Gsf ? *nr.HLT_Ele35_WPLoose_Gsf : 0) ||
+                               (has_HLT_Ele35_WPTight_Gsf ? *nr.HLT_Ele35_WPTight_Gsf : 0) ||
+                               (has_HLT_Ele38_WPTight_Gsf ? *nr.HLT_Ele38_WPTight_Gsf : 0) ||
+                               (has_HLT_Ele40_WPTight_Gsf ? *nr.HLT_Ele40_WPTight_Gsf : 0) ||
+                               (has_HLT_Ele25_eta2p1_WPTight_Gsf ? *nr.HLT_Ele25_eta2p1_WPTight_Gsf : 0) ||
+                               (has_HLT_Ele27_eta2p1_WPLoose_Gsf ? *nr.HLT_Ele27_eta2p1_WPLoose_Gsf : 0));
 
-	if ( *nr.HLT_Ele27_WPTight_Gsf || *nr.HLT_Ele28_WPTight_Gsf || 
-	     *nr.HLT_Ele32_WPTight_Gsf || *nr.HLT_Ele35_WPTight_Gsf || 
-	     *nr.HLT_Ele38_WPTight_Gsf || *nr.HLT_Ele40_WPTight_Gsf ) 
-	  WVJJTree->trigger_1El = true;
-	
-	if ( *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ || 
-	     *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
-	     *nr.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG || 
-	     *nr.HLT_DoubleEle33_CaloIdL_MW ||
-	     *nr.HLT_DoubleEle25_CaloIdL_MW || 
-	     *nr.HLT_DoubleEle27_CaloIdL_MW ) 
-	  WVJJTree->trigger_2El = true;
-      	
-      }
-      else if (era==2017) {
-
-      if (isMC) {
-        if ( *nr.HLT_IsoMu24 || *nr.HLT_IsoMu27 ||
-            *nr.HLT_IsoMu30 || *nr.HLT_Mu50 )
-          WVJJTree->trigger_1Mu = true;
-      }
-      else {
-        WVJJTree->trigger_1Mu = ( *nr.HLT_IsoMu24 || *nr.HLT_IsoMu27 ||
-                                 *nr.HLT_Mu50 );
-      }
-
-    if (isMC) {
-	if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8 ||
-	     *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8 ||
-	     *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass3p8 ||
-	     *nr.HLT_Mu19_TrkIsoVVL_Mu9_TrkIsoVVL_DZ_Mass8 )
-	  WVJJTree->trigger_2Mu = true;
-    }
-    else {
-      WVJJTree->trigger_2Mu = ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8);
-    }
-
-    if (isMC) {
-	if ( *nr.HLT_Ele27_WPTight_Gsf ||
-	     *nr.HLT_Ele32_WPTight_Gsf ||
-	     *nr.HLT_Ele35_WPTight_Gsf )
-	  WVJJTree->trigger_1El = true;
-    }
-    else {
-      WVJJTree->trigger_1El = ( *nr.HLT_Ele27_WPTight_Gsf ||
-                               *nr.HLT_Ele35_WPTight_Gsf );
-    }
-
-    if (isMC) {
-	if ( *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ ||
-	     *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
-	     *nr.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG ||
-	     *nr.HLT_DoubleEle33_CaloIdL_MW ||
-	     *nr.HLT_DoubleEle25_CaloIdL_MW )
-	  WVJJTree->trigger_2El = true;
-    }
-    else{
-      WVJJTree->trigger_2El = ( *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ ||
-                               *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ||
-                               *nr.HLT_DoubleEle33_CaloIdL_MW);
-    }
-      }
-      
-
-      else if (era==2016) {
-	
-	if ( *nr.HLT_IsoMu22 || *nr.HLT_IsoTkMu22 ||
-	     *nr.HLT_IsoMu24 || *nr.HLT_IsoTkMu24 ) 
-	  WVJJTree->trigger_1Mu = true;
-
-	if (isMC) {
-	  if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ || 
-	       *nr.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ || 
-	       *nr.HLT_TkMu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ ) 
-	    WVJJTree->trigger_2Mu = true;
-	}
-	else {
-	  if ( *nr.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ || 
-	       *nr.HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ )
-	    WVJJTree->trigger_2Mu = true;
-	}
-	
-	if ( *nr.HLT_Ele25_eta2p1_WPTight_Gsf ||
-	     *nr.HLT_Ele27_eta2p1_WPLoose_Gsf || 
-	     *nr.HLT_Ele27_WPTight_Gsf ||
-	     *nr.HLT_Ele35_WPLoose_Gsf ) 
-	  WVJJTree->trigger_1El = true;
-
-	if ( *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ )
-	  WVJJTree->trigger_2El = true;
-
-      }
+      WVJJTree->trigger_2El = ((has_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ ? *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ : 0) ||
+                               (has_HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL ? *nr.HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL : 0) ||
+                               (has_HLT_DiEle27_WPTightCaloOnly_L1DoubleEG ? *nr.HLT_DiEle27_WPTightCaloOnly_L1DoubleEG : 0) ||
+                               (has_HLT_DoubleEle33_CaloIdL_MW ? *nr.HLT_DoubleEle33_CaloIdL_MW : 0) ||
+                               (has_HLT_DoubleEle25_CaloIdL_MW ? *nr.HLT_DoubleEle25_CaloIdL_MW : 0) ||
+                               (has_HLT_DoubleEle27_CaloIdL_MW ? *nr.HLT_DoubleEle27_CaloIdL_MW : 0));
 
       //std::cout << "passed trigger: ";
       //if (WVJJTree->trigger_1Mu) std::cout << "1 muon ";
