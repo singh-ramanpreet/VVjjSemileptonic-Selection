@@ -1038,10 +1038,18 @@ int main (int ac, char** av) {
       }
       
       if (isMC) {
+	if (era==2016) {
+	  WVJJTree->btagWeight = *nr.btagWeight_CMVA;
+	}
+	else {
         WVJJTree->btagWeight = *nr.btagWeight_DeepCSVB;
-        WVJJTree->L1PFWeight = *nr.L1PreFiringWeight_Nom;
-        WVJJTree->L1PFWeight_Up = *nr.L1PreFiringWeight_Up;
-        WVJJTree->L1PFWeight_Dn = *nr.L1PreFiringWeight_Dn;
+	}
+
+	if (era!=2018) {
+	  WVJJTree->L1PFWeight = *nr.L1PreFiringWeight_Nom;
+	  WVJJTree->L1PFWeight_Up = *nr.L1PreFiringWeight_Up;
+	  WVJJTree->L1PFWeight_Dn = *nr.L1PreFiringWeight_Dn;
+	}
       }
       
       ot->Fill();

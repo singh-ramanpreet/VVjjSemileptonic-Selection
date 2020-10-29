@@ -86,6 +86,7 @@ public :
   //
   TTreeReaderValue<Float_t> btagWeight_CSVV2 = {tree_->GetBranchStatus("btagWeight_CSVV2") ? fReader : fReaderNull, "btagWeight_CSVV2"};
   TTreeReaderValue<Float_t> btagWeight_DeepCSVB = {tree_->GetBranchStatus("btagWeight_DeepCSVB") ? fReader : fReaderNull, "btagWeight_DeepCSVB"};
+  TTreeReaderValue<Float_t> btagWeight_CMVA = {tree_->GetBranchStatus("btagWeight_CMVA") ? fReader : fReaderNull, "btagWeight_CMVA"};
 
   //
   TTreeReaderValue<Int_t> Pileup_nPU = {tree_->GetBranchStatus("Pileup_nPU") ? fReader : fReaderNull, "Pileup_nPU"};
