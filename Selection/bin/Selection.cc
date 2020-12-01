@@ -710,20 +710,46 @@ int main (int ac, char** av) {
 	//jet ID??
 	
 	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
+	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
+	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
 	if (hasPostProcJetMet) {
 	  if (nr.Jet_eta[j]<2.4 && nr.Jet_pt_nom[j]>30) {
 	    
-	    if (nr.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;
-	    if (nr.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
-	    if (nr.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
+	    if (era==2018) {
+	      if (nr.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;
+	      if (nr.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
+	      if (nr.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
+            }
+	    if (era==2017) {
+	      if (nr.Jet_btagDeepB[j] > 0.1522) WVJJTree->nBtag_loose++;
+	      if (nr.Jet_btagDeepB[j] > 0.4941) WVJJTree->nBtag_medium++;
+	      if (nr.Jet_btagDeepB[j] > 0.8001) WVJJTree->nBtag_tight++;
+            }
+	    if (era==2016) {
+	      if (nr.Jet_btagDeepB[j] > 0.2217) WVJJTree->nBtag_loose++;
+	      if (nr.Jet_btagDeepB[j] > 0.6321) WVJJTree->nBtag_medium++;
+	      if (nr.Jet_btagDeepB[j] > 0.8953) WVJJTree->nBtag_tight++;
+            }
 	  }
 	}
 	else {
 	  if (nr.Jet_eta[j]<2.4 && nr.Jet_pt[j]>30) {
 	    
-	    if (nr.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;
-	    if (nr.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
-	    if (nr.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
+	    if (era==2018) {
+	      if (nr.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;
+	      if (nr.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
+	      if (nr.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
+            }
+	    if (era==2017) {
+	      if (nr.Jet_btagDeepB[j] > 0.1522) WVJJTree->nBtag_loose++;
+	      if (nr.Jet_btagDeepB[j] > 0.4941) WVJJTree->nBtag_medium++;
+	      if (nr.Jet_btagDeepB[j] > 0.8001) WVJJTree->nBtag_tight++;
+            }
+	    if (era==2016) {
+	      if (nr.Jet_btagDeepB[j] > 0.2217) WVJJTree->nBtag_loose++;
+	      if (nr.Jet_btagDeepB[j] > 0.6321) WVJJTree->nBtag_medium++;
+	      if (nr.Jet_btagDeepB[j] > 0.8953) WVJJTree->nBtag_tight++;
+            }
 	  }
 	}
 
