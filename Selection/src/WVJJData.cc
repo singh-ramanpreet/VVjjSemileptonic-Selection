@@ -89,7 +89,7 @@ void WVJJData::init() {
   fTree->Branch("vbf1_AK4_eta",&vbf1_AK4_eta,"vbf1_AK4_eta/F");
   fTree->Branch("vbf1_AK4_phi",&vbf1_AK4_phi,"vbf1_AK4_phi/F");
   fTree->Branch("vbf1_AK4_m",&vbf1_AK4_m,"vbf1_AK4_m/F");
-  fTree->Branch("vbf1_AK4_gqid",&vbf1_AK4_qgid,"vbf1_AK4_qgid/F");
+  fTree->Branch("vbf1_AK4_qgid",&vbf1_AK4_qgid,"vbf1_AK4_qgid/F");
   fTree->Branch("vbf1_AK4_axis2",&vbf1_AK4_axis2,"vbf1_AK4_axis2/F");
   fTree->Branch("vbf1_AK4_ptD",&vbf1_AK4_ptD,"vbf1_AK4_ptD/F");
   //VBF jet 1 variations
@@ -102,7 +102,7 @@ void WVJJData::init() {
   fTree->Branch("vbf2_AK4_eta",&vbf2_AK4_eta,"vbf2_AK4_eta/F");
   fTree->Branch("vbf2_AK4_phi",&vbf2_AK4_phi,"vbf2_AK4_phi/F");
   fTree->Branch("vbf2_AK4_m",&vbf2_AK4_m,"vbf2_AK4_m/F");
-  fTree->Branch("vbf2_AK4_gqid",&vbf2_AK4_qgid,"vbf2_AK4_qgid/F");
+  fTree->Branch("vbf2_AK4_qgid",&vbf2_AK4_qgid,"vbf2_AK4_qgid/F");
   fTree->Branch("vbf2_AK4_axis2",&vbf2_AK4_axis2,"vbf2_AK4_axis2/F");
   fTree->Branch("vbf2_AK4_ptD",&vbf2_AK4_ptD,"vbf2_AK4_ptD/F");
   //VBF jet 2 variations

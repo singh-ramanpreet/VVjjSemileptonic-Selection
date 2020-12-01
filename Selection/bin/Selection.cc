@@ -1058,7 +1058,7 @@ int main (int ac, char** av) {
       	WVJJTree->nAqgcWeight=*nr.nLHEReweightingWeight;
       
       	for (uint j=0; j<WVJJTree->nAqgcWeight; j++) {
-      	  WVJJTree->aqgcWeight[j]=nr.LHEReweightingWeight[0];
+      	  WVJJTree->aqgcWeight[j]=nr.LHEReweightingWeight[j];
       	}
       
       }

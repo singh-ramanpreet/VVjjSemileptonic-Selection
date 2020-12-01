@@ -40,8 +40,14 @@ public:
       //totWeight*=GetSFs_Lepton(lepPt, abs(lepEta), hTriggerEle);
     }
     if (pid==13) {
-      totWeight*=GetSFs_Lepton(lepPt, abs(lepEta), hIDMu);
-      totWeight*=GetSFs_Lepton(lepPt, abs(lepEta), hIsoMu);
+      if (era_==2016) {
+	totWeight*=GetSFs_Lepton(lepPt, lepEta, hIDMu);
+	totWeight*=GetSFs_Lepton(lepPt, lepEta, hIsoMu);
+      }
+      else {
+	totWeight*=GetSFs_Lepton(abs(lepEta), lepPt, hIDMu);
+	totWeight*=GetSFs_Lepton(abs(lepEta), lepPt, hIsoMu);
+      }
       //totWeight*=GetSFs_Lepton(lepPt, abs(lepEta), hTriggerMuA);
     }
 
