@@ -1,4 +1,0 @@
-Universe = vanilla
-Executable = runjob.sh
-Notification = ERROR
-x509userproxy = $ENV(X509_USER_PROXY)
