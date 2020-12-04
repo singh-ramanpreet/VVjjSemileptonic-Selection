@@ -40,9 +40,12 @@ etc/allDict.h
 *.out
 *.app
 
+# Data Files
+*.root
 
 # Others
 *.log
 *.stderr
 *.stdout
+*.ipynb_*
 *~
