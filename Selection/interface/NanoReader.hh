@@ -648,6 +648,15 @@ public :
   TTreeReaderArray<Float_t> Jet_btagSF_deepcsv_T_down = {tree_->GetBranchStatus("Jet_btagSF_deepcsv_T_down") ? fReader : fReaderNull, "Jet_btagSF_deepcsv_T_down"};
   TTreeReaderArray<Float_t> Jet_btagSF_deepcsv_T = {tree_->GetBranchStatus("Jet_btagSF_deepcsv_T") ? fReader : fReaderNull, "Jet_btagSF_deepcsv_T"};
   TTreeReaderArray<Float_t> Jet_btagSF_deepcsv_T_up = {tree_->GetBranchStatus("Jet_btagSF_deepcsv_T_up") ? fReader : fReaderNull, "Jet_btagSF_deepcsv_T_up"};
+  TTreeReaderArray<Float_t> Jet_PUIDSF_loose = {tree_->GetBranchStatus("Jet_PUIDSF_loose") ? fReader : fReaderNull, "Jet_PUIDSF_loose"};
+  TTreeReaderArray<Float_t> Jet_PUIDSF_loose_up = {tree_->GetBranchStatus("Jet_PUIDSF_loose_up") ? fReader : fReaderNull, "Jet_PUIDSF_loose_up"};
+  TTreeReaderArray<Float_t> Jet_PUIDSF_loose_down = {tree_->GetBranchStatus("Jet_PUIDSF_loose_down") ? fReader : fReaderNull, "Jet_PUIDSF_loose_down"};
+  TTreeReaderArray<Float_t> Jet_PUIDSF_medium = {tree_->GetBranchStatus("Jet_PUIDSF_medium") ? fReader : fReaderNull, "Jet_PUIDSF_medium"};
+  TTreeReaderArray<Float_t> Jet_PUIDSF_medium_up = {tree_->GetBranchStatus("Jet_PUIDSF_medium_up") ? fReader : fReaderNull, "Jet_PUIDSF_medium_up"};
+  TTreeReaderArray<Float_t> Jet_PUIDSF_medium_down = {tree_->GetBranchStatus("Jet_PUIDSF_medium_down") ? fReader : fReaderNull, "Jet_PUIDSF_medium_down"};
+  TTreeReaderArray<Float_t> Jet_PUIDSF_tight = {tree_->GetBranchStatus("Jet_PUIDSF_tight") ? fReader : fReaderNull, "Jet_PUIDSF_tight"};
+  TTreeReaderArray<Float_t> Jet_PUIDSF_tight_up = {tree_->GetBranchStatus("Jet_PUIDSF_tight_up") ? fReader : fReaderNull, "Jet_PUIDSF_tight_up"};
+  TTreeReaderArray<Float_t> Jet_PUIDSF_tight_down = {tree_->GetBranchStatus("Jet_PUIDSF_tight_down") ? fReader : fReaderNull, "Jet_PUIDSF_tight_down"};
 
   //FatJet
   TTreeReaderValue<UInt_t> nFatJet = {tree_->GetBranchStatus("nFatJet") ? fReader : fReaderNull, "nFatJet"};
