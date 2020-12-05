@@ -105,8 +105,6 @@ int main (int ac, char** av) {
     has_HLT_DiEle27_WPTightCaloOnly_L1DoubleEG=false,
     has_HLT_DoubleEle33_CaloIdL_MW=false, has_HLT_DoubleEle25_CaloIdL_MW=false, has_HLT_DoubleEle27_CaloIdL_MW=false;
 
-  Bool_t hasPostProcJetMet=false;
-
   std::ifstream ifs;
   ifs.open(inputFile.data());
   assert(ifs.is_open());
@@ -174,8 +172,6 @@ int main (int ac, char** av) {
       has_HLT_DoubleEle33_CaloIdL_MW = t->GetBranchStatus("HLT_DoubleEle33_CaloIdL_MW");
       has_HLT_DoubleEle25_CaloIdL_MW = t->GetBranchStatus("HLT_DoubleEle25_CaloIdL_MW");
       has_HLT_DoubleEle27_CaloIdL_MW = t->GetBranchStatus("HLT_DoubleEle27_CaloIdL_MW");
-
-      hasPostProcJetMet = t->GetBranchStatus("Jet_pt_nom");
     }
       
     for (uint i=0; i < t->GetEntries(); i++) {
@@ -556,15 +552,15 @@ int main (int ac, char** av) {
       // MET
       
       if (*nr.MET_pt < 0) continue;
-      WVJJTree->MET = hasPostProcJetMet ? *nr.MET_pt_nom : *nr.MET_pt;
+      WVJJTree->MET = *nr.MET_pt_nom;
       WVJJTree->MET_phi = *nr.MET_phi;
       if (era==2017) {
 	WVJJTree->MET_2017 = *nr.METFixEE2017_pt;
       }
 
       WVJJTree->PuppiMET = *nr.PuppiMET_pt;
-      WVJJTree->PuppiMET_phi = *nr.PuppiMET_phi;
-
+      WVJJTree->PuppiMET_phi = *nr.PuppiMET_phi
+;
       if (isMC) {
 	WVJJTree->MET_scaleUp = *nr.MET_pt_jesTotalUp;
 	WVJJTree->MET_scaleDn = *nr.MET_pt_jesTotalDown;
@@ -645,11 +641,8 @@ int main (int ac, char** av) {
 	}
 	
 	else {
-	  if ( hasPostProcJetMet ) {
-	    if ( nr.FatJet_pt_nom[j]<AK8_MIN_PT ) continue;
-	  }
-	  else if ( nr.FatJet_pt[j]<AK8_MIN_PT ) continue;
 
+	  if ( nr.FatJet_pt_nom[j]<AK8_MIN_PT ) continue;
 	  if ( nr.FatJet_msoftdrop[j]<AK8_MIN_SDM ) continue;
 	  if ( nr.FatJet_msoftdrop[j]>AK8_MAX_SDM ) continue;
 
@@ -675,12 +668,7 @@ int main (int ac, char** av) {
 	WVJJTree->bos_PuppiAK8_m_sd0 = nr.FatJet_msoftdrop[j];
 	WVJJTree->bos_PuppiAK8_m_sd0_corr = nr.FatJet_msoftdrop[j];
 	WVJJTree->bos_PuppiAK8_tau2tau1 = nr.FatJet_tau2[j]/nr.FatJet_tau1[j];
-	if (hasPostProcJetMet) {
-	  WVJJTree->bos_PuppiAK8_pt = nr.FatJet_pt_nom[j];
-	}
-	else { 	  
-	  WVJJTree->bos_PuppiAK8_pt = nr.FatJet_pt[j]; 
-	}
+	WVJJTree->bos_PuppiAK8_pt = nr.FatJet_pt[j];
 	WVJJTree->bos_PuppiAK8_eta = nr.FatJet_eta[j];
 	WVJJTree->bos_PuppiAK8_phi = nr.FatJet_phi[j];
 
@@ -703,55 +691,30 @@ int main (int ac, char** av) {
 	//jet energy scale variations
 	if ( isMC && ( nr.Jet_pt_nom[j] < AK4_PT_CUT && nr.Jet_pt_jesTotalUp[j] < AK4_PT_CUT && 
 		       nr.Jet_pt_jesTotalDown[j] < AK4_PT_CUT ) ) continue;
-	else if ( !isMC && hasPostProcJetMet) {
-	  if ( nr.Jet_pt_nom[j] < AK4_PT_CUT ) continue;
-	}
-	else if ( !isMC && nr.Jet_pt[j] < AK4_PT_CUT ) continue;
+	else if ( !isMC && nr.Jet_pt_nom[j] < AK4_PT_CUT ) continue;
 	//jet ID??
 	
 	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
 	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
 	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
-	if (hasPostProcJetMet) {
-	  if (nr.Jet_eta[j]<2.4 && nr.Jet_pt_nom[j]>30) {
+	if (nr.Jet_eta[j]<2.4 && nr.Jet_pt_nom[j]>30) {
 	    
-	    if (era==2018) {
-	      if (nr.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;
-	      if (nr.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
-	      if (nr.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
-            }
-	    if (era==2017) {
-	      if (nr.Jet_btagDeepB[j] > 0.1522) WVJJTree->nBtag_loose++;
-	      if (nr.Jet_btagDeepB[j] > 0.4941) WVJJTree->nBtag_medium++;
-	      if (nr.Jet_btagDeepB[j] > 0.8001) WVJJTree->nBtag_tight++;
-            }
-	    if (era==2016) {
-	      if (nr.Jet_btagDeepB[j] > 0.2217) WVJJTree->nBtag_loose++;
-	      if (nr.Jet_btagDeepB[j] > 0.6321) WVJJTree->nBtag_medium++;
-	      if (nr.Jet_btagDeepB[j] > 0.8953) WVJJTree->nBtag_tight++;
-            }
+	 if (era==2018) {
+	    if (nr.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;
+	    if (nr.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
+	    if (nr.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
+          }
+	  if (era==2017) {
+	    if (nr.Jet_btagDeepB[j] > 0.1522) WVJJTree->nBtag_loose++;
+	    if (nr.Jet_btagDeepB[j] > 0.4941) WVJJTree->nBtag_medium++;
+	    if (nr.Jet_btagDeepB[j] > 0.8001) WVJJTree->nBtag_tight++;
+          }
+	  if (era==2016) {
+	    if (nr.Jet_btagDeepB[j] > 0.2217) WVJJTree->nBtag_loose++;
+	    if (nr.Jet_btagDeepB[j] > 0.6321) WVJJTree->nBtag_medium++;
+	    if (nr.Jet_btagDeepB[j] > 0.8953) WVJJTree->nBtag_tight++;
+          }
 	  }
-	}
-	else {
-	  if (nr.Jet_eta[j]<2.4 && nr.Jet_pt[j]>30) {
-	    
-	    if (era==2018) {
-	      if (nr.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;
-	      if (nr.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
-	      if (nr.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
-            }
-	    if (era==2017) {
-	      if (nr.Jet_btagDeepB[j] > 0.1522) WVJJTree->nBtag_loose++;
-	      if (nr.Jet_btagDeepB[j] > 0.4941) WVJJTree->nBtag_medium++;
-	      if (nr.Jet_btagDeepB[j] > 0.8001) WVJJTree->nBtag_tight++;
-            }
-	    if (era==2016) {
-	      if (nr.Jet_btagDeepB[j] > 0.2217) WVJJTree->nBtag_loose++;
-	      if (nr.Jet_btagDeepB[j] > 0.6321) WVJJTree->nBtag_medium++;
-	      if (nr.Jet_btagDeepB[j] > 0.8953) WVJJTree->nBtag_tight++;
-            }
-	  }
-	}
 
 	bool isClean=true;
 	// object cleaning
@@ -784,14 +747,8 @@ int main (int ac, char** av) {
 	
 	if ( isClean == false ) continue;
 
-	if (hasPostProcJetMet) {
-	  if (nr.Jet_pt_nom[j]>30) WVJJTree->nJet30++;
-	  if (nr.Jet_pt_nom[j]>50) WVJJTree->nJet50++;
-	}
-	else {
-	  if (nr.Jet_pt[j]>30) WVJJTree->nJet30++;
-	  if (nr.Jet_pt[j]>50) WVJJTree->nJet50++;
-	}
+	if (nr.Jet_pt_nom[j]>30) WVJJTree->nJet30++;
+	if (nr.Jet_pt_nom[j]>50) WVJJTree->nJet50++;
 
 	goodJetIndex.push_back(j);
 	
@@ -810,16 +767,12 @@ int main (int ac, char** av) {
 	    if ( fabs( nr.Jet_eta[goodJetIndex.at(k)] ) > AK4_ETA_CUT ) continue;
 
 	    TLorentzVector tmp1(0,0,0,0); 
-	    tmp1.SetPtEtaPhiM( ( hasPostProcJetMet ? nr.Jet_pt_nom[goodJetIndex.at(j)] : nr.Jet_pt[goodJetIndex.at(j)] ), 
-			       nr.Jet_eta[goodJetIndex.at(j)],
-			       nr.Jet_phi[goodJetIndex.at(j)], 
-			       nr.Jet_mass[goodJetIndex.at(j)] );
+	    tmp1.SetPtEtaPhiM( nr.Jet_pt_nom[goodJetIndex.at(j)], nr.Jet_eta[goodJetIndex.at(j)],
+			       nr.Jet_phi[goodJetIndex.at(j)], nr.Jet_mass[goodJetIndex.at(j)] );
 
 	    TLorentzVector tmp2(0,0,0,0); 
-	    tmp2.SetPtEtaPhiM( ( hasPostProcJetMet ? nr.Jet_pt_nom[goodJetIndex.at(k)] : nr.Jet_pt[goodJetIndex.at(k)] ), 
-			       nr.Jet_eta[goodJetIndex.at(k)],
-			       nr.Jet_phi[goodJetIndex.at(k)], 
-			       nr.Jet_mass[goodJetIndex.at(k)] );
+	    tmp2.SetPtEtaPhiM( nr.Jet_pt_nom[goodJetIndex.at(k)], nr.Jet_eta[goodJetIndex.at(k)],
+			       nr.Jet_phi[goodJetIndex.at(k)], nr.Jet_mass[goodJetIndex.at(k)] );
 			       
 	    TLorentzVector tmpV=tmp1+tmp2;
 	    
@@ -827,13 +780,13 @@ int main (int ac, char** av) {
 	    
 	    if (fabs(tmpV.M()-W_MASS)>dmW) continue;
 	    
-	    WVJJTree->bos_j1_AK4_pt =  hasPostProcJetMet ? nr.Jet_pt_nom[goodJetIndex.at(j)] : nr.Jet_pt[goodJetIndex.at(j)];
+	    WVJJTree->bos_j1_AK4_pt =  nr.Jet_pt_nom[goodJetIndex.at(j)];
 	    WVJJTree->bos_j1_AK4_eta = nr.Jet_eta[goodJetIndex.at(j)];
 	    WVJJTree->bos_j1_AK4_phi = nr.Jet_phi[goodJetIndex.at(j)];
 	    WVJJTree->bos_j1_AK4_m =   nr.Jet_mass[goodJetIndex.at(j)];
 	    WVJJTree->bos_j1_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(j)];
 	    
-	    WVJJTree->bos_j2_AK4_pt =  hasPostProcJetMet ? nr.Jet_pt_nom[goodJetIndex.at(k)] : nr.Jet_pt[goodJetIndex.at(k)];
+	    WVJJTree->bos_j2_AK4_pt =  nr.Jet_pt_nom[goodJetIndex.at(k)];
 	    WVJJTree->bos_j2_AK4_eta = nr.Jet_eta[goodJetIndex.at(k)];
 	    WVJJTree->bos_j2_AK4_phi = nr.Jet_phi[goodJetIndex.at(k)];
 	    WVJJTree->bos_j2_AK4_m =   nr.Jet_mass[goodJetIndex.at(k)];
@@ -900,16 +853,12 @@ int main (int ac, char** av) {
 	  if (k==sel1 || k==sel2) continue;
 
 	  TLorentzVector tmp1(0,0,0,0);
-	  tmp1.SetPtEtaPhiM( ( hasPostProcJetMet ? nr.Jet_pt_nom[goodJetIndex.at(j)] : nr.Jet_pt[goodJetIndex.at(j)] ),
-			     nr.Jet_eta[goodJetIndex.at(j)],
-			     nr.Jet_phi[goodJetIndex.at(j)], 
-			     nr.Jet_mass[goodJetIndex.at(j)] );
+	  tmp1.SetPtEtaPhiM( nr.Jet_pt_nom[goodJetIndex.at(j)], nr.Jet_eta[goodJetIndex.at(j)],
+			     nr.Jet_phi[goodJetIndex.at(j)], nr.Jet_mass[goodJetIndex.at(j)] );
 
 	  TLorentzVector tmp2(0,0,0,0);
-	  tmp2.SetPtEtaPhiM( ( hasPostProcJetMet ? nr.Jet_pt_nom[goodJetIndex.at(k)] : nr.Jet_pt[goodJetIndex.at(k)] ),
-			     nr.Jet_eta[goodJetIndex.at(k)],
-			     nr.Jet_phi[goodJetIndex.at(k)], 
-			     nr.Jet_mass[goodJetIndex.at(k)] );
+	  tmp2.SetPtEtaPhiM( nr.Jet_pt_nom[goodJetIndex.at(k)], nr.Jet_eta[goodJetIndex.at(k)],
+			     nr.Jet_phi[goodJetIndex.at(k)], nr.Jet_mass[goodJetIndex.at(k)] );
 
 	  TLorentzVector tempVBF=tmp1+tmp2;
 
@@ -924,13 +873,13 @@ int main (int ac, char** av) {
     
       if (vbf1==-1 && vbf2==-1) continue;
       
-      WVJJTree->vbf1_AK4_pt = hasPostProcJetMet ? nr.Jet_pt_nom[goodJetIndex.at(vbf1)] : nr.Jet_pt[goodJetIndex.at(vbf1)];
+      WVJJTree->vbf1_AK4_pt = nr.Jet_pt_nom[goodJetIndex.at(vbf1)];
       WVJJTree->vbf1_AK4_eta = nr.Jet_eta[goodJetIndex.at(vbf1)];
       WVJJTree->vbf1_AK4_phi = nr.Jet_phi[goodJetIndex.at(vbf1)];
       WVJJTree->vbf1_AK4_m = nr.Jet_mass[goodJetIndex.at(vbf1)];
       WVJJTree->vbf1_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(vbf1)];
 
-      WVJJTree->vbf2_AK4_pt = hasPostProcJetMet ? nr.Jet_pt_nom[goodJetIndex.at(vbf2)] : nr.Jet_pt[goodJetIndex.at(vbf2)];
+      WVJJTree->vbf2_AK4_pt = nr.Jet_pt_nom[goodJetIndex.at(vbf2)];
       WVJJTree->vbf2_AK4_eta = nr.Jet_eta[goodJetIndex.at(vbf2)];
       WVJJTree->vbf2_AK4_phi = nr.Jet_phi[goodJetIndex.at(vbf2)];
       WVJJTree->vbf2_AK4_m = nr.Jet_mass[goodJetIndex.at(vbf2)];
