@@ -121,6 +121,19 @@ public :
   TTreeReaderArray<Int_t> LHEPart_status = {tree_->GetBranchStatus("LHEPart_status") ? fReader : fReaderNull, "LHEPart_status"};
   TTreeReaderArray<Int_t> LHEPart_spin = {tree_->GetBranchStatus("LHEPart_spin") ? fReader : fReaderNull, "LHEPart_spin"};
 
+  //TrigObj
+  TTreeReaderValue<UInt_t> nTrigObj = {tree_->GetBranchStatus("nTrigObj") ? fReader : fReaderNull, "nTrigObj"};
+  TTreeReaderArray<Float_t> TrigObj_pt = {tree_->GetBranchStatus("TrigObj_pt") ? fReader : fReaderNull, "TrigObj_pt"};
+  TTreeReaderArray<Float_t> TrigObj_eta = {tree_->GetBranchStatus("TrigObj_eta") ? fReader : fReaderNull, "TrigObj_eta"};
+  TTreeReaderArray<Float_t> TrigObj_phi = {tree_->GetBranchStatus("TrigObj_phi") ? fReader : fReaderNull, "TrigObj_phi"};
+  TTreeReaderArray<Float_t> TrigObj_l1pt = {tree_->GetBranchStatus("TrigObj_l1pt") ? fReader : fReaderNull, "TrigObj_l1pt"};
+  TTreeReaderArray<Float_t> TrigObj_l1pt_2 = {tree_->GetBranchStatus("TrigObj_l1pt_2") ? fReader : fReaderNull, "TrigObj_l1pt_2"};
+  TTreeReaderArray<Float_t> TrigObj_l2pt = {tree_->GetBranchStatus("TrigObj_l2pt") ? fReader : fReaderNull, "TrigObj_l2pt"};
+  TTreeReaderArray<Int_t> TrigObj_id = {tree_->GetBranchStatus("TrigObj_id") ? fReader : fReaderNull, "TrigObj_id"};
+  TTreeReaderArray<Int_t> TrigObj_l1iso = {tree_->GetBranchStatus("TrigObj_l1iso") ? fReader : fReaderNull, "TrigObj_l1iso"};
+  TTreeReaderArray<Int_t> TrigObj_l1charge = {tree_->GetBranchStatus("TrigObj_l1charge") ? fReader : fReaderNull, "TrigObj_l1charge"};
+  TTreeReaderArray<Int_t> TrigObj_filterBits = {tree_->GetBranchStatus("TrigObj_filterBits") ? fReader : fReaderNull, "TrigObj_filterBits"};
+
   //Muon
   TTreeReaderValue<UInt_t> nMuon = {tree_->GetBranchStatus("nMuon") ? fReader : fReaderNull, "nMuon"};
   TTreeReaderArray<Float_t> Muon_dxy = {tree_->GetBranchStatus("Muon_dxy") ? fReader : fReaderNull, "Muon_dxy"};
