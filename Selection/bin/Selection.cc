@@ -29,7 +29,6 @@
 #include <TClonesArray.h>
 
 #include "WVJJAna/Selection/interface/NanoReader.hh"
-#include "WVJJAna/Selection/interface/NanoAOD_Weights.hh"
 #include "WVJJAna/Selection/interface/ScaleFactors.hh"
 #include "WVJJAna/Selection/interface/Utils.hh"
 #include "WVJJAna/Selection/interface/METzCalculator.h"
@@ -550,24 +549,23 @@ int main (int ac, char** av) {
       
       
       // MET
-      
+
       if (*nr.MET_pt < 0) continue;
-      WVJJTree->MET = *nr.MET_pt_nom;
-      WVJJTree->MET_phi = *nr.MET_phi;
+      WVJJTree->MET = isMC ? *nr.MET_T1Smear_pt : *nr.MET_T1_pt;
+      WVJJTree->MET_phi = isMC ? *nr.MET_T1Smear_phi : *nr.MET_T1_phi;
       if (era==2017) {
-	WVJJTree->MET_2017 = *nr.METFixEE2017_pt;
+        WVJJTree->MET_2017 = *nr.METFixEE2017_pt;
       }
 
       WVJJTree->PuppiMET = *nr.PuppiMET_pt;
-      WVJJTree->PuppiMET_phi = *nr.PuppiMET_phi
-;
-      if (isMC) {
-	WVJJTree->MET_scaleUp = *nr.MET_pt_jesTotalUp;
-	WVJJTree->MET_scaleDn = *nr.MET_pt_jesTotalDown;
-      }
-      
+      WVJJTree->PuppiMET_phi = *nr.PuppiMET_phi;
 
-      
+      if (isMC) {
+        //WVJJTree->MET_scaleUp = *nr.MET_pt_jesTotalUp;
+        //WVJJTree->MET_scaleDn = *nr.MET_pt_jesTotalDown;
+      } 
+
+
       if (WVJJTree->lep2_pt<0) {
 	
 	TLorentzVector lep1(0,0,0,0);
@@ -697,7 +695,7 @@ int main (int ac, char** av) {
 	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
 	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
 	//https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
-	if (nr.Jet_eta[j]<2.4 && nr.Jet_pt_nom[j]>30) {
+	if (fabs(nr.Jet_eta[j])<2.4 && nr.Jet_pt_nom[j]>30) {
 	    
 	 if (era==2018) {
 	    if (nr.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;

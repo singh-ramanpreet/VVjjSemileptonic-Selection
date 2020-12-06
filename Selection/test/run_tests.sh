@@ -12,7 +12,7 @@ for txtfile in $(ls *.txt)
 do
   testfile=$(head -n 1 ${txtfile})
   isMC=$(python -c "import ROOT;f=ROOT.TFile.Open('root://cmseos.fnal.gov/$testfile'); t=f.Get('Runs');print(int(t.GetBranchStatus('genEventSumw')))")
-  year=$(grep -Eo "201[6-8]" ${txtfile})
+  year=$(grep -Eo "201[6-8]" <<< "${txtfile}")
   txtpath=$(readlink -f ${txtfile})
   output=${txtpath%.txt}.root
 
