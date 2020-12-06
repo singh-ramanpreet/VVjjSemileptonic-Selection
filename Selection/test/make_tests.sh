@@ -11,10 +11,8 @@ b=$(eos root://cmseos.fnal.gov/ find -name "*.root" /eos/uscms/store/user/lnujj/
 readarray -t mc_2 < <(grep -vE "Run201[6-8][A-Z]" <<<"$b");
 declare -p mc_2 &> /dev/null
 
-mc+=(${mc_2[@]})
-
 echo ${mc[0]} > test_2016_mc.txt
-echo ${mc[1]} >> test_2016_mc.txt
+echo ${mc_2[0]} >> test_2016_mc.txt
 echo ${data[0]} > test_2016_data.txt
 
 
@@ -29,10 +27,8 @@ b=$(eos root://cmseos.fnal.gov/ find -name "*.root" /eos/uscms/store/user/lnujj/
 readarray -t mc_2 < <(grep -vE "Run201[6-8][A-Z]" <<<"$b");
 declare -p mc_2 &> /dev/null
 
-mc+=(${mc_2[@]})
-
 echo ${mc[0]} > test_2017_mc.txt
-echo ${mc[1]} >> test_2017_mc.txt
+echo ${mc_2[0]} >> test_2017_mc.txt
 echo ${data[0]} > test_2017_data.txt
 
 
@@ -47,8 +43,6 @@ b=$(eos root://cmseos.fnal.gov/ find -name "*.root" /eos/uscms/store/user/lnujj/
 readarray -t mc_2 < <(grep -vE "Run201[6-8][A-Z]" <<<"$b");
 declare -p mc_2 &> /dev/null
 
-mc+=(${mc_2[@]})
-
 echo ${mc[0]} > test_2018_mc.txt
-echo ${mc[1]} >> test_2018_mc.txt
+echo ${mc_2[0]} >> test_2018_mc.txt
 echo ${data[0]} > test_2018_data.txt

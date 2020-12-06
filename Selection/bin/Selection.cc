@@ -35,11 +35,11 @@
 
 int main (int ac, char** av) {
 
-   std::string inputFile = av[1];
-   std::string outputFile = av[2];
-   int isMC = atoi(av[3]);
-   int era = atoi(av[4]);
-   int nanoVersion = atoi(av[5]);
+  std::string inputFile = av[1];
+  std::string outputFile = av[2];
+  int isMC = atoi(av[3]);
+  int era = atoi(av[4]);
+  int nanoVersion = atoi(av[5]);
 
   const float MUON_MASS = 0.1056583745;
   const float ELE_MASS  = 0.000511;
