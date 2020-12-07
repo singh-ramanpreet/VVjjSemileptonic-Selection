@@ -56,6 +56,7 @@ void WVJJData::init() {
   fTree->Branch("lep1_dxy",&lep1_dxy,"lep1_dxy/F");
   fTree->Branch("lep1_dz",&lep1_dz,"lep1_dz/F");
   fTree->Branch("lep1_idEffWeight",&lep1_idEffWeight,"lep1_idEffWeight/F");
+  fTree->Branch("lep1_trigEffWeight",&lep1_trigEffWeight,"lep1_trigEffWeight/F");
   //lepton 1 scale variations
   fTree->Branch("lep1_pt_scaleUp",&lep1_pt_scaleUp,"lep1_pt_scaleUp/F");
   fTree->Branch("lep1_pt_scaleDown",&lep1_pt_scaleDown,"lep1_pt_scaleDown/F");
@@ -68,7 +69,8 @@ void WVJJData::init() {
   fTree->Branch("lep2_iso",&lep2_iso,"lep2_iso/F");
   fTree->Branch("lep2_dxy",&lep2_dxy,"lep2_dxy/F");
   fTree->Branch("lep2_dz",&lep2_dz,"lep2_dz/F");
-  fTree->Branch("lep2_idEffWeight",&lep2_idEffWeight,"lep2_idEffWeight/F");  
+  fTree->Branch("lep2_idEffWeight",&lep2_idEffWeight,"lep2_idEffWeight/F");
+  fTree->Branch("lep2_trigEffWeight",&lep2_trigEffWeight,"lep2_trigEffWeight/F");
   //lepton 2 scale variations
   fTree->Branch("lep2_pt_scaleUp",&lep2_pt_scaleUp,"lep2_pt_scaleUp/F");
   fTree->Branch("lep2_pt_scaleDown",&lep2_pt_scaleDown,"lep2_pt_scaleDown/F");
@@ -768,6 +770,7 @@ void WVJJData::clearVars() {
   lep1_sip3d = -999.0;
   lep1_iso = -999.0;
   lep1_idEffWeight = 1.0;
+  lep1_trigEffWeight = 1.0;
 
   //lepton 1 scale variations
   lep1_pt_scaleUp = -999.0;
@@ -784,6 +787,7 @@ void WVJJData::clearVars() {
   lep2_sip3d = -999.0;
   lep2_iso = -999.0;
   lep2_idEffWeight = 1.0;
+  lep2_trigEffWeight = 1.0;
 
   //lepton 2 scale variations
   lep2_pt_scaleUp = -999.0;

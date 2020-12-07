@@ -91,6 +91,7 @@ public:
   float lep1_dz;
   float lep1_sip3d;
   float lep1_idEffWeight;
+  float lep1_trigEffWeight;
 
   //lepton 1 scale variations
   float lep1_pt_scaleUp;
@@ -107,6 +108,7 @@ public:
   float lep2_dz;
   float lep2_sip3d;
   float lep2_idEffWeight;
+  float lep2_trigEffWeight;
 
   //lepton 2 scale variations
   float lep2_pt_scaleUp;

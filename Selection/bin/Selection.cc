@@ -557,9 +557,14 @@ int main (int ac, char** av) {
       }
       
       //lepton ID/iso/trigger efficiencies
-      WVJJTree->lep1_idEffWeight = scaleFactor.GetLeptonWeights(WVJJTree->lep1_pt, WVJJTree->lep1_eta, WVJJTree->lep1_m == ELE_MASS ? 11 : 13);
+      WVJJTree->lep1_idEffWeight = scaleFactor.GetLeptonWeights(WVJJTree->lep1_pt, WVJJTree->lep1_eta,
+                                                                WVJJTree->lep1_m == ELE_MASS ? 11 : 13);
+      WVJJTree->lep1_trigEffWeight = 1.0;
+
       if (WVJJTree->lep2_pt>0) {
-        WVJJTree->lep2_idEffWeight = scaleFactor.GetLeptonWeights(WVJJTree->lep2_pt, WVJJTree->lep2_eta, WVJJTree->lep1_m == ELE_MASS ? 11 : 13);
+        WVJJTree->lep2_idEffWeight = scaleFactor.GetLeptonWeights(WVJJTree->lep2_pt, WVJJTree->lep2_eta,
+                                                                  WVJJTree->lep1_m == ELE_MASS ? 11 : 13);
+        WVJJTree->lep1_trigEffWeight = 1.0;
       }
 
       // MET
