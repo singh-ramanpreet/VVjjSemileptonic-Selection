@@ -29,7 +29,15 @@ void WVJJData::init() {
   fTree->Branch("nBtag_loose",&nBtag_loose,"nBtag_loose/I");
   fTree->Branch("nBtag_medium",&nBtag_medium,"nBtag_medium/I");
   fTree->Branch("nBtag_tight",&nBtag_tight,"nBtag_tight/I");
-  fTree->Branch("btagWeight",&btagWeight,"btagWeight/F");
+  fTree->Branch("btagWeight_loose",&btagWeight_loose,"btagWeight_loose/F");
+  fTree->Branch("btagWeight_loose_Up",&btagWeight_loose_Up,"btagWeight_loose_Up/F");
+  fTree->Branch("btagWeight_loose_Down",&btagWeight_loose_Down,"btagWeight_loose_Down/F");
+  fTree->Branch("btagWeight_medium",&btagWeight_medium,"btagWeight_medium/F");
+  fTree->Branch("btagWeight_medium_Up",&btagWeight_medium_Up,"btagWeight_medium_Up/F");
+  fTree->Branch("btagWeight_medium_Down",&btagWeight_medium_Down,"btagWeight_medium_Down/F");
+  fTree->Branch("btagWeight_tight",&btagWeight_tight,"btagWeight_tight/F");
+  fTree->Branch("btagWeight_tight_Up",&btagWeight_tight_Up,"btagWeight_tight_Up/F");
+  fTree->Branch("btagWeight_tight_Down",&btagWeight_tight_Down,"btagWeight_tight_Down/F");
   //trigger
   fTree->Branch("trigger_1Mu",&trigger_1Mu,"trigger_1Mu/O");
   fTree->Branch("trigger_2Mu",&trigger_2Mu,"trigger_2Mu/O");
@@ -727,7 +735,15 @@ void WVJJData::clearVars() {
   nBtag_medium = 0;
   nBtag_tight = 0;
 
-  btagWeight = 1.0;
+  btagWeight_loose = 1.0;
+  btagWeight_loose_Up = 1.0;
+  btagWeight_loose_Down = 1.0;
+  btagWeight_medium = 1.0;
+  btagWeight_medium_Up = 1.0;
+  btagWeight_medium_Down = 1.0;
+  btagWeight_tight = 1.0;
+  btagWeight_tight_Up = 1.0;
+  btagWeight_tight_Down = 1.0;
 
   trigger_1Mu = false;
   trigger_2Mu = false;

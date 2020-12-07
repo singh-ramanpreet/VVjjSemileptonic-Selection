@@ -56,7 +56,15 @@ public:
   uint nBtag_medium;
   uint nBtag_tight;
 
-  float btagWeight;
+  float btagWeight_loose;
+  float btagWeight_loose_Up;
+  float btagWeight_loose_Down;
+  float btagWeight_medium;
+  float btagWeight_medium_Up;
+  float btagWeight_medium_Down;
+  float btagWeight_tight;
+  float btagWeight_tight_Up;
+  float btagWeight_tight_Down;
 
   //triggers
   bool trigger_1Mu;

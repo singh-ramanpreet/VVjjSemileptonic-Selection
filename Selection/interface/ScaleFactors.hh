@@ -65,7 +65,28 @@ public:
 
     return totWeight;
 
-  }
+  };
+
+  float GetBtagEff(int jetFlavor, float jetPt, float jetEta, std::string wp) {
+    float totWeight=1.0;
+    if (wp == "loose") {
+      if (jetFlavor == 5) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_loose_b);
+      if (jetFlavor == 4) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_loose_c);
+      if (jetFlavor == 0) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_loose_l);
+    }
+    if (wp == "medium") {
+      if (jetFlavor == 5) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_medium_b);
+      if (jetFlavor == 4) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_medium_c);
+      if (jetFlavor == 0) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_medium_l);
+    }
+    if (wp == "tight") {
+      if (jetFlavor == 5) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_tight_b);
+      if (jetFlavor == 4) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_tight_c);
+      if (jetFlavor == 0) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_tight_l);
+    }
+    return totWeight;
+  };
+
 
 private:
 
@@ -100,6 +121,19 @@ private:
   TFile* FRMu;
   TH2D* hFRMu;
 
+  // btag weight
+  TFile* bTagEff;
+  TH2D* hbTagEff_loose_b;
+  TH2D* hbTagEff_loose_c;
+  TH2D* hbTagEff_loose_l;
+
+  TH2D* hbTagEff_medium_b;
+  TH2D* hbTagEff_medium_c;
+  TH2D* hbTagEff_medium_l;
+
+  TH2D* hbTagEff_tight_b;
+  TH2D* hbTagEff_tight_c;
+  TH2D* hbTagEff_tight_l;
 };
 
 #endif

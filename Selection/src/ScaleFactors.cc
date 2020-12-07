@@ -22,7 +22,8 @@ void ScaleFactors::setupSFs() {
     FRMu = TFile::Open("data/SF2016/MuonFR_jet30.root","READ");
     hFRMu = (TH2D*)FREle->Get("FR_pT_eta");
 
-
+    //btag eff maps file
+    bTagEff = TFile::Open("data/bTagEff/btag_eff_2016.root");
   }
 
   if (era_==2017) {
@@ -45,7 +46,8 @@ void ScaleFactors::setupSFs() {
     FRMu = TFile::Open("data/SF2017/MuonFR_jet30.root","READ");
     hFRMu = (TH2D*)FREle->Get("FR_pT_eta");
 
-
+    //btag eff maps file
+    bTagEff = TFile::Open("data/bTagEff/btag_eff_2017.root");
   }
 
 
@@ -70,7 +72,20 @@ void ScaleFactors::setupSFs() {
     FRMu = TFile::Open("data/SF2018/MuonFR_jet30.root","READ");
     hFRMu = (TH2D*)FREle->Get("FR_pT_eta");
 
+    //btag eff maps file
+    bTagEff = TFile::Open("data/bTagEff/btag_eff_2018.root");
   }
 
+  hbTagEff_loose_b = (TH2D*)bTagEff->Get("h2_btag_deepcsv_wpL_EFF_B");
+  hbTagEff_loose_c = (TH2D*)bTagEff->Get("h2_btag_deepcsv_wpL_EFF_C");
+  hbTagEff_loose_l = (TH2D*)bTagEff->Get("h2_btag_deepcsv_wpL_EFF_L");
+
+  hbTagEff_medium_b = (TH2D*)bTagEff->Get("h2_btag_deepcsv_wpM_EFF_B");
+  hbTagEff_medium_c = (TH2D*)bTagEff->Get("h2_btag_deepcsv_wpM_EFF_C");
+  hbTagEff_medium_l = (TH2D*)bTagEff->Get("h2_btag_deepcsv_wpM_EFF_L");
+
+  hbTagEff_tight_b = (TH2D*)bTagEff->Get("h2_btag_deepcsv_wpT_EFF_B");
+  hbTagEff_tight_c = (TH2D*)bTagEff->Get("h2_btag_deepcsv_wpT_EFF_C");
+  hbTagEff_tight_l = (TH2D*)bTagEff->Get("h2_btag_deepcsv_wpT_EFF_L");
 
 }

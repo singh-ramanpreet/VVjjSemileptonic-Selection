@@ -72,6 +72,29 @@ int main (int ac, char** av) {
   const float AK4_AK8_DR_CUT = 0.8;
   const float AK4_DR_CUT = 0.3;
 
+  // btag deepCSV a.k.a. DeepB working points
+  //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
+  //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
+  //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
+  float btag_loose_wp = 0.0;
+  float btag_tight_wp = 0.0;
+  float btag_medium_wp = 0.0;
+  if (era==2018) {
+    btag_loose_wp = 0.1241;
+    btag_medium_wp = 0.4184;
+    btag_tight_wp = 0.7527;
+  }
+  if (era==2017) {
+    btag_loose_wp = 0.1522;
+    btag_medium_wp = 0.4941;
+    btag_tight_wp = 0.8001;
+  }
+  if (era==2016) {
+    btag_loose_wp = 0.2217;
+    btag_medium_wp = 0.6321;
+    btag_tight_wp = 0.8953;
+  }
+
   ScaleFactors scaleFactor(era);
 
   std::vector<TLorentzVector> tightMuon;
@@ -942,26 +965,67 @@ int main (int ac, char** av) {
         else if ( !isMC && nr.Jet_pt_nom[j] < AK4_PT_CUT ) continue;
         //jet ID??
 
-        //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
-        //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
-        //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
+
+        //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagSFMethods#1a_Event_reweighting_using_scale
+        float btag_eff_loose = 1.0;
+        float btag_eff_medium = 1.0;
+        float btag_eff_tight = 1.0;
+
         if (fabs(nr.Jet_eta[j])<2.4 && nr.Jet_pt_nom[j]>30) {
-          if (era==2018) {
-            if (nr.Jet_btagDeepB[j] > 0.1241) WVJJTree->nBtag_loose++;
-            if (nr.Jet_btagDeepB[j] > 0.4184) WVJJTree->nBtag_medium++;
-            if (nr.Jet_btagDeepB[j] > 0.7527) WVJJTree->nBtag_tight++;
+
+          if (isMC) {
+            btag_eff_loose = scaleFactor.GetBtagEff(nr.Jet_hadronFlavour[j], nr.Jet_pt_nom[j], nr.Jet_eta[j], "loose");
+            btag_eff_medium = scaleFactor.GetBtagEff(nr.Jet_hadronFlavour[j], nr.Jet_pt_nom[j], nr.Jet_eta[j], "medium");
+            btag_eff_tight = scaleFactor.GetBtagEff(nr.Jet_hadronFlavour[j], nr.Jet_pt_nom[j], nr.Jet_eta[j], "tight");
           }
-          if (era==2017) {
-            if (nr.Jet_btagDeepB[j] > 0.1522) WVJJTree->nBtag_loose++;
-            if (nr.Jet_btagDeepB[j] > 0.4941) WVJJTree->nBtag_medium++;
-            if (nr.Jet_btagDeepB[j] > 0.8001) WVJJTree->nBtag_tight++;
+
+          if (nr.Jet_btagDeepB[j] > btag_loose_wp) {
+            WVJJTree->nBtag_loose++;
+            if (isMC) {
+              WVJJTree->btagWeight_loose *= nr.Jet_btagSF_deepcsv_L[j];
+              WVJJTree->btagWeight_loose_Up *= nr.Jet_btagSF_deepcsv_L_up[j];
+              WVJJTree->btagWeight_loose_Down *= nr.Jet_btagSF_deepcsv_L_down[j];
+            }
           }
-          if (era==2016) {
-            if (nr.Jet_btagDeepB[j] > 0.2217) WVJJTree->nBtag_loose++;
-            if (nr.Jet_btagDeepB[j] > 0.6321) WVJJTree->nBtag_medium++;
-            if (nr.Jet_btagDeepB[j] > 0.8953) WVJJTree->nBtag_tight++;
+          else {
+            if (isMC) {
+              WVJJTree->btagWeight_loose *= (1 - nr.Jet_btagSF_deepcsv_L[j] * btag_eff_loose) / (1 - btag_eff_loose);
+              WVJJTree->btagWeight_loose_Up *= (1 - nr.Jet_btagSF_deepcsv_L_up[j] * btag_eff_loose) / (1 - btag_eff_loose);
+              WVJJTree->btagWeight_loose_Down *= (1 - nr.Jet_btagSF_deepcsv_L_down[j] * btag_eff_loose) / (1 - btag_eff_loose);
+            }
+          }
+          if (nr.Jet_btagDeepB[j] > btag_medium_wp) {
+            WVJJTree->nBtag_medium++;
+            if (isMC) {
+              WVJJTree->btagWeight_medium *= nr.Jet_btagSF_deepcsv_M[j];
+              WVJJTree->btagWeight_medium_Up *= nr.Jet_btagSF_deepcsv_M_up[j];
+              WVJJTree->btagWeight_medium_Down *= nr.Jet_btagSF_deepcsv_M_down[j];
+            }
+          }
+          else {
+            if (isMC) {
+              WVJJTree->btagWeight_medium *= (1 - nr.Jet_btagSF_deepcsv_M[j] * btag_eff_medium) / (1 - btag_eff_medium);
+              WVJJTree->btagWeight_medium_Up *= (1 - nr.Jet_btagSF_deepcsv_M_up[j] * btag_eff_medium) / (1 - btag_eff_medium);
+              WVJJTree->btagWeight_medium_Down *= (1 - nr.Jet_btagSF_deepcsv_M_down[j] * btag_eff_medium) / (1 - btag_eff_medium);
+            }
+          }
+          if (nr.Jet_btagDeepB[j] > btag_tight_wp) {
+            WVJJTree->nBtag_tight++;
+            if (isMC) {
+              WVJJTree->btagWeight_tight *= nr.Jet_btagSF_deepcsv_T[j];
+              WVJJTree->btagWeight_tight_Up *= nr.Jet_btagSF_deepcsv_T_up[j];
+              WVJJTree->btagWeight_tight_Down *= nr.Jet_btagSF_deepcsv_T_down[j];
+            }
+          }
+          else {
+            if (isMC) {
+              WVJJTree->btagWeight_tight *= (1 - nr.Jet_btagSF_deepcsv_T[j] * btag_eff_tight) / (1 - btag_eff_tight);
+              WVJJTree->btagWeight_tight_Up *= (1 - nr.Jet_btagSF_deepcsv_T_up[j] * btag_eff_tight) / (1 - btag_eff_tight);
+              WVJJTree->btagWeight_tight_Down *= (1 - nr.Jet_btagSF_deepcsv_T_down[j] * btag_eff_tight) / (1 - btag_eff_tight);
+            }
           }
         }
+
 
         bool isClean=true;
 
@@ -2366,12 +2430,12 @@ int main (int ac, char** av) {
       }
 
       if (isMC) {
-        if (era==2016) {
-          WVJJTree->btagWeight = *nr.btagWeight_CMVA;
-        }
-        else {
-          WVJJTree->btagWeight = *nr.btagWeight_DeepCSVB;
-        }
+        //if (era==2016) {
+        //  WVJJTree->btagWeight = *nr.btagWeight_CMVA;
+        //}
+        //else {
+        //  WVJJTree->btagWeight = *nr.btagWeight_DeepCSVB;
+        //}
 
         if (era!=2018) {
           WVJJTree->L1PFWeight = *nr.L1PreFiringWeight_Nom;
