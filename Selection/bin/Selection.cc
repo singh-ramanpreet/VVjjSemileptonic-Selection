@@ -1033,12 +1033,24 @@ int main (int ac, char** av) {
             WVJJTree->bos_j1_AK4_phi = nr.Jet_phi[goodJetIndex.at(j)];
             WVJJTree->bos_j1_AK4_m =   nr.Jet_mass[goodJetIndex.at(j)];
             WVJJTree->bos_j1_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(j)];
+            WVJJTree->bos_j1_AK4_puid_tight = nr.Jet_puId[goodJetIndex.at(j)] == 7 ? true : false;
+            if (isMC) {
+              WVJJTree->bos_j1_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[goodJetIndex.at(j)];
+              WVJJTree->bos_j1_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[goodJetIndex.at(j)];
+              WVJJTree->bos_j1_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[goodJetIndex.at(j)];
+            }
 
             WVJJTree->bos_j2_AK4_pt =  nr.Jet_pt_nom[goodJetIndex.at(k)];
             WVJJTree->bos_j2_AK4_eta = nr.Jet_eta[goodJetIndex.at(k)];
             WVJJTree->bos_j2_AK4_phi = nr.Jet_phi[goodJetIndex.at(k)];
             WVJJTree->bos_j2_AK4_m =   nr.Jet_mass[goodJetIndex.at(k)];
             WVJJTree->bos_j2_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(k)];
+            WVJJTree->bos_j2_AK4_puid_tight = nr.Jet_puId[goodJetIndex.at(k)] == 7 ? true : false;
+            if (isMC) {
+              WVJJTree->bos_j2_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[goodJetIndex.at(k)];
+              WVJJTree->bos_j2_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[goodJetIndex.at(k)];
+              WVJJTree->bos_j2_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[goodJetIndex.at(k)];
+            }
 
             WVJJTree->bos_AK4AK4_pt =  tmpV.Pt();
             WVJJTree->bos_AK4AK4_eta = tmpV.Eta();
@@ -1488,13 +1500,23 @@ int main (int ac, char** av) {
       WVJJTree->vbf1_AK4_phi = nr.Jet_phi[goodJetIndex.at(vbf1)];
       WVJJTree->vbf1_AK4_m = nr.Jet_mass[goodJetIndex.at(vbf1)];
       WVJJTree->vbf1_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(vbf1)];
-
+      WVJJTree->vbf1_AK4_puid_tight = nr.Jet_puId[goodJetIndex.at(vbf1)] == 7 ? true : false;
+      if (isMC) {
+        WVJJTree->vbf1_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[goodJetIndex.at(vbf1)];
+        WVJJTree->vbf1_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[goodJetIndex.at(vbf1)];
+        WVJJTree->vbf1_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[goodJetIndex.at(vbf1)];
+      }
       WVJJTree->vbf2_AK4_pt = nr.Jet_pt_nom[goodJetIndex.at(vbf2)];
       WVJJTree->vbf2_AK4_eta = nr.Jet_eta[goodJetIndex.at(vbf2)];
       WVJJTree->vbf2_AK4_phi = nr.Jet_phi[goodJetIndex.at(vbf2)];
       WVJJTree->vbf2_AK4_m = nr.Jet_mass[goodJetIndex.at(vbf2)];
       WVJJTree->vbf2_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(vbf2)];
-
+      WVJJTree->vbf2_AK4_puid_tight = nr.Jet_puId[goodJetIndex.at(vbf2)] == 7 ? true : false;
+      if (isMC) {
+        WVJJTree->vbf2_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[goodJetIndex.at(vbf2)];
+        WVJJTree->vbf2_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[goodJetIndex.at(vbf2)];
+        WVJJTree->vbf2_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[goodJetIndex.at(vbf2)];
+      }
       TLorentzVector tempVBF1(0,0,0,0);
       TLorentzVector tempVBF2(0,0,0,0);
 

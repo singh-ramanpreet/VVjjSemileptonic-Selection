@@ -212,6 +212,11 @@ void WVJJData::init() {
   fTree->Branch("vbf1_AK4_qgid",&vbf1_AK4_qgid,"vbf1_AK4_qgid/F");
   fTree->Branch("vbf1_AK4_axis2",&vbf1_AK4_axis2,"vbf1_AK4_axis2/F");
   fTree->Branch("vbf1_AK4_ptD",&vbf1_AK4_ptD,"vbf1_AK4_ptD/F");
+  fTree->Branch("vbf1_AK4_puid_tight",&vbf1_AK4_puid_tight,"vbf1_AK4_puid_tight/O");
+  fTree->Branch("vbf1_AK4_puidSF_tight",&vbf1_AK4_puidSF_tight,"vbf1_AK4_puidSF_tight/F");
+  fTree->Branch("vbf1_AK4_puidSF_tight_Up",&vbf1_AK4_puidSF_tight_Up,"vbf1_AK4_puidSF_tight_Up/F");
+  fTree->Branch("vbf1_AK4_puidSF_tight_Down",&vbf1_AK4_puidSF_tight_Down,"vbf1_AK4_puidSF_tight_Down/F");
+
   //VBF jet 1 variations
   fTree->Branch("vbf1_AK4_pt_jesFlavorQCDUp",&vbf1_AK4_pt_jesFlavorQCDUp,"vbf1_AK4_pt_jesFlavorQCDUp/F");
   fTree->Branch("vbf1_AK4_pt_jesFlavorQCDDown",&vbf1_AK4_pt_jesFlavorQCDDown,"vbf1_AK4_pt_jesFlavorQCDDown/F");
@@ -269,6 +274,10 @@ void WVJJData::init() {
   fTree->Branch("vbf2_AK4_qgid",&vbf2_AK4_qgid,"vbf2_AK4_qgid/F");
   fTree->Branch("vbf2_AK4_axis2",&vbf2_AK4_axis2,"vbf2_AK4_axis2/F");
   fTree->Branch("vbf2_AK4_ptD",&vbf2_AK4_ptD,"vbf2_AK4_ptD/F");
+  fTree->Branch("vbf2_AK4_puid_tight",&vbf2_AK4_puid_tight,"vbf2_AK4_puid_tight/O");
+  fTree->Branch("vbf2_AK4_puidSF_tight",&vbf2_AK4_puidSF_tight,"vbf2_AK4_puidSF_tight/F");
+  fTree->Branch("vbf2_AK4_puidSF_tight_Up",&vbf2_AK4_puidSF_tight_Up,"vbf2_AK4_puidSF_tight_Up/F");
+  fTree->Branch("vbf2_AK4_puidSF_tight_Down",&vbf2_AK4_puidSF_tight_Down,"vbf2_AK4_puidSF_tight_Down/F");
   //VBF jet 2 variations
   fTree->Branch("vbf2_AK4_pt_jesFlavorQCDUp",&vbf2_AK4_pt_jesFlavorQCDUp,"vbf2_AK4_pt_jesFlavorQCDUp/F");
   fTree->Branch("vbf2_AK4_pt_jesFlavorQCDDown",&vbf2_AK4_pt_jesFlavorQCDDown,"vbf2_AK4_pt_jesFlavorQCDDown/F");
@@ -422,6 +431,10 @@ void WVJJData::init() {
   fTree->Branch("bos_j1_AK4_eta",&bos_j1_AK4_eta,"bos_j1_AK4_eta/F");
   fTree->Branch("bos_j1_AK4_phi",&bos_j1_AK4_phi,"bos_j1_AK4_phi/F");
   fTree->Branch("bos_j1_AK4_m",&bos_j1_AK4_m,"bos_j1_AK4_m/F");
+  fTree->Branch("bos_j1_AK4_puid_tight",&bos_j1_AK4_puid_tight,"bos_j1_AK4_puid_tight/O");
+  fTree->Branch("bos_j1_AK4_puidSF_tight",&bos_j1_AK4_puidSF_tight,"bos_j1_AK4_puidSF_tight/F");
+  fTree->Branch("bos_j1_AK4_puidSF_tight_Up",&bos_j1_AK4_puidSF_tight_Up,"bos_j1_AK4_puidSF_tight_Up/F");
+  fTree->Branch("bos_j1_AK4_puidSF_tight_Down",&bos_j1_AK4_puidSF_tight_Down,"bos_j1_AK4_puidSF_tight_Down/F");
   //Boson AK4 jet 1 variations
   fTree->Branch("bos_j1_AK4_pt_jesFlavorQCDUp",&bos_j1_AK4_pt_jesFlavorQCDUp,"bos_j1_AK4_pt_jesFlavorQCDUp/F");
   fTree->Branch("bos_j1_AK4_pt_jesFlavorQCDDown",&bos_j1_AK4_pt_jesFlavorQCDDown,"bos_j1_AK4_pt_jesFlavorQCDDown/F");
@@ -476,6 +489,10 @@ void WVJJData::init() {
   fTree->Branch("bos_j2_AK4_eta",&bos_j2_AK4_eta,"bos_j2_AK4_eta/F");
   fTree->Branch("bos_j2_AK4_phi",&bos_j2_AK4_phi,"bos_j2_AK4_phi/F");
   fTree->Branch("bos_j2_AK4_m",&bos_j2_AK4_m,"bos_j2_AK4_m/F");
+  fTree->Branch("bos_j2_AK4_puid_tight",&bos_j2_AK4_puid_tight,"bos_j2_AK4_puid_tight/O");
+  fTree->Branch("bos_j2_AK4_puidSF_tight",&bos_j2_AK4_puidSF_tight,"bos_j2_AK4_puidSF_tight/F");
+  fTree->Branch("bos_j2_AK4_puidSF_tight_Up",&bos_j2_AK4_puidSF_tight_Up,"bos_j2_AK4_puidSF_tight_Up/F");
+  fTree->Branch("bos_j2_AK4_puidSF_tight_Down",&bos_j2_AK4_puidSF_tight_Down,"bos_j2_AK4_puidSF_tight_Down/F");
   //Boson AK4 jet 2 variations
   fTree->Branch("bos_j2_AK4_pt_jesFlavorQCDUp",&bos_j2_AK4_pt_jesFlavorQCDUp,"bos_j2_AK4_pt_jesFlavorQCDUp/F");
   fTree->Branch("bos_j2_AK4_pt_jesFlavorQCDDown",&bos_j2_AK4_pt_jesFlavorQCDDown,"bos_j2_AK4_pt_jesFlavorQCDDown/F");
@@ -924,6 +941,10 @@ void WVJJData::clearVars() {
   vbf1_AK4_qgid = -999.0;
   vbf1_AK4_axis2 = -999.0;
   vbf1_AK4_ptD = -999.0;
+  vbf1_AK4_puid_tight = true;
+  vbf1_AK4_puidSF_tight = 1.0;
+  vbf1_AK4_puidSF_tight_Up = 1.0;
+  vbf1_AK4_puidSF_tight_Down = 1.0;
 
   //VBF jet 1 variations
   vbf1_AK4_pt_jesFlavorQCDUp = -999.0;
@@ -983,6 +1004,10 @@ void WVJJData::clearVars() {
   vbf2_AK4_qgid = -999.0;
   vbf2_AK4_axis2 = -999.0;
   vbf2_AK4_ptD = -999.0;
+  vbf2_AK4_puid_tight = true;
+  vbf2_AK4_puidSF_tight = 1.0;
+  vbf2_AK4_puidSF_tight_Up = 1.0;
+  vbf2_AK4_puidSF_tight_Down = 1.0;
 
   //VBF jet 2 variations
   vbf2_AK4_pt_jesFlavorQCDUp = -999.0;
@@ -1154,6 +1179,10 @@ void WVJJData::clearVars() {
   bos_j1_AK4_phi = -999.0;
   bos_j1_AK4_m = -999.0;
   bos_j1_AK4_qgid = -999.0;
+  bos_j1_AK4_puid_tight = true;
+  bos_j1_AK4_puidSF_tight = 1.0;
+  bos_j1_AK4_puidSF_tight_Up = 1.0;
+  bos_j1_AK4_puidSF_tight_Down = 1.0;
 
   //Boson AK4 jet 1 variations
   bos_j1_AK4_pt_jesFlavorQCDUp = -999.0;
@@ -1211,6 +1240,10 @@ void WVJJData::clearVars() {
   bos_j2_AK4_phi = -999.0;
   bos_j2_AK4_m = -999.0;
   bos_j2_AK4_qgid = -999.0;
+  bos_j2_AK4_puid_tight = true;
+  bos_j2_AK4_puidSF_tight = 1.0;
+  bos_j2_AK4_puidSF_tight_Up = 1.0;
+  bos_j2_AK4_puidSF_tight_Down = 1.0;
 
   //Boson AK4 jet 2 variations
   bos_j2_AK4_pt_jesFlavorQCDUp = -999.0;

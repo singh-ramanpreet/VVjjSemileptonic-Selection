@@ -273,6 +273,10 @@ public:
   float vbf1_AK4_qgid;
   float vbf1_AK4_axis2;
   float vbf1_AK4_ptD;
+  float vbf1_AK4_puid_tight;
+  float vbf1_AK4_puidSF_tight;
+  float vbf1_AK4_puidSF_tight_Up;
+  float vbf1_AK4_puidSF_tight_Down;
 
   //VBF jet 1 variations
   float vbf1_AK4_pt_jesFlavorQCDUp;
@@ -333,6 +337,10 @@ public:
   float vbf2_AK4_qgid;
   float vbf2_AK4_axis2;
   float vbf2_AK4_ptD;
+  float vbf2_AK4_puid_tight;
+  float vbf2_AK4_puidSF_tight;
+  float vbf2_AK4_puidSF_tight_Up;
+  float vbf2_AK4_puidSF_tight_Down;
 
   //VBF jet 2 variations
   float vbf2_AK4_pt_jesFlavorQCDUp;
@@ -508,6 +516,10 @@ public:
   float bos_j1_AK4_m;
   float bos_j1_AK4_qgid;
   //float bos_j1_AK4_e;
+  float bos_j1_AK4_puid_tight;
+  float bos_j1_AK4_puidSF_tight;
+  float bos_j1_AK4_puidSF_tight_Up;
+  float bos_j1_AK4_puidSF_tight_Down;
 
   //Boson AK4 jet 1 variations
   float bos_j1_AK4_pt_jesFlavorQCDUp;
@@ -566,6 +578,10 @@ public:
   float bos_j2_AK4_m;
   float bos_j2_AK4_qgid;
   //float bos_j2_AK4_e;
+  float bos_j2_AK4_puid_tight;
+  float bos_j2_AK4_puidSF_tight;
+  float bos_j2_AK4_puidSF_tight_Up;
+  float bos_j2_AK4_puidSF_tight_Down;
 
   //Boson AK4 jet 2 variations
   float bos_j2_AK4_pt_jesFlavorQCDUp;
