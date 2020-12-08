@@ -33,10 +33,10 @@ public:
   float genWeight;
   float puWeight;
   float puWeight_Up;
-  float puWeight_Dn;
+  float puWeight_Down;
   float L1PFWeight;
   float L1PFWeight_Up;
-  float L1PFWeight_Dn;
+  float L1PFWeight_Down;
   float LHEWeight[1164] = {};
   uint nScaleWeight;
   uint nPdfWeight;

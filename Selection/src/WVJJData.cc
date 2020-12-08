@@ -13,8 +13,10 @@ void WVJJData::init() {
   fTree->Branch("genWeight",&genWeight,"genWeight/F");
   fTree->Branch("puWeight",&puWeight,"puWeight/F");
   fTree->Branch("puWeight_Up",&puWeight_Up,"puWeight_Up/F");
-  fTree->Branch("puWeight_Dn",&puWeight_Dn,"puWeight_Dn/F");
+  fTree->Branch("puWeight_Down",&puWeight_Down,"puWeight_Down/F");
   fTree->Branch("L1PFWeight",&L1PFWeight,"L1PFWeight/F");
+  fTree->Branch("L1PFWeight_Up",&L1PFWeight_Up,"L1PFWeight_Up/F");
+  fTree->Branch("L1PFWeight_Down",&L1PFWeight_Down,"L1PFWeight_Down/F");
   fTree->Branch("LHEWeight",&LHEWeight[0],"LHEWeight[1164]/F");
   fTree->Branch("nScaleWeight",&nScaleWeight,"nScaleWeight/I");
   fTree->Branch("nPdfWeight",&nPdfWeight,"nPdfWeight/I");
@@ -715,11 +717,11 @@ void WVJJData::clearVars() {
   genWeight = 1.0;
   puWeight = 1.0;
   puWeight_Up = 1.0;
-  puWeight_Dn = 1.0;
+  puWeight_Down = 1.0;
 
   L1PFWeight = 1.0;
   L1PFWeight_Up = 1.0;
-  L1PFWeight_Dn = 1.0;
+  L1PFWeight_Down = 1.0;
 
   std::fill_n(LHEWeight,1164,0);
   

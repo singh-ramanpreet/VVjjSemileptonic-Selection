@@ -260,6 +260,8 @@ int main (int ac, char** av) {
       if (isMC) WVJJTree->nPU_mean = *nr.Pileup_nPU;
 
       WVJJTree->puWeight = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, 0);
+      WVJJTree->puWeight_Up = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, 1);
+      WVJJTree->puWeight_Down = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, -1);
 
       // LEPTON SELECTION
 
@@ -2445,7 +2447,7 @@ int main (int ac, char** av) {
         if (era!=2018) {
           WVJJTree->L1PFWeight = *nr.L1PreFiringWeight_Nom;
           WVJJTree->L1PFWeight_Up = *nr.L1PreFiringWeight_Up;
-          WVJJTree->L1PFWeight_Dn = *nr.L1PreFiringWeight_Dn;
+          WVJJTree->L1PFWeight_Down = *nr.L1PreFiringWeight_Dn;
         }
       }
 
