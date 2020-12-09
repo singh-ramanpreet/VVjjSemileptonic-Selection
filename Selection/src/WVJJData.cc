@@ -344,6 +344,7 @@ void WVJJData::init() {
   fTree->Branch("vbf_eta",&vbf_eta,"vbf_eta/F");
   fTree->Branch("vbf_phi",&vbf_phi,"vbf_phi/F");
   fTree->Branch("vbf_m",  &vbf_m,  "vbf_m/F");
+  fTree->Branch("vbf_deta",  &vbf_deta,  "vbf_deta/F");
   //VBF dijet variations
   fTree->Branch("vbf_pt_jesFlavorQCDUp", &vbf_pt_jesFlavorQCDUp, "vbf_pt_jesFlavorQCDUp/F");
   fTree->Branch("vbf_pt_jesFlavorQCDDown", &vbf_pt_jesFlavorQCDDown, "vbf_pt_jesFlavorQCDDown/F");
@@ -1086,6 +1087,7 @@ void WVJJData::clearVars() {
   vbf_eta = -999.0;
   vbf_phi = -999.0;
   vbf_m = -999.0;
+  vbf_deta = -999.0;
 
   //VBF dijet variations
   vbf_pt_jesFlavorQCDUp = -999.0;
