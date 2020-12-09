@@ -569,8 +569,10 @@ int main (int ac, char** av) {
         WVJJTree->lep1_trigEffWeight = 1.0;
       }
 
-      // MET
+      // drop events with no leading lepton
+      if (WVJJTree->lep1_pt < 0) continue;
 
+      // MET
       if (*nr.MET_pt < 0) continue;
       WVJJTree->MET = isMC ? *nr.MET_T1Smear_pt : *nr.MET_T1_pt;
       WVJJTree->MET_phi = isMC ? *nr.MET_T1Smear_phi : *nr.MET_T1_phi;
