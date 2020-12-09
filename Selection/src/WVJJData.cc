@@ -401,8 +401,6 @@ void WVJJData::init() {
   fTree->Branch("bos_PuppiAK8_phi",&bos_PuppiAK8_phi,"bos_PuppiAK8_phi/F");
   fTree->Branch("bos_PuppiAK8_tau2tau1",&bos_PuppiAK8_tau2tau1,"bos_PuppiAK8_tau2tau1/F");
   //Boson AK8 jet variations
-  //fTree->Branch("bos_PuppiAK8_m_sd0_corr_scaleUp",&bos_PuppiAK8_m_sd0_corr_scaleUp,"bos_PuppiAK8_m_sd0_corr_scaleUp/F");
-  //fTree->Branch("bos_PuppiAK8_m_sd0_corr_scaleDown",&bos_PuppiAK8_m_sd0_corr_scaleDown,"bos_PuppiAK8_m_sd0_corr_scaleDown/F");
   fTree->Branch("bos_PuppiAK8_pt_jesFlavorQCDUp",&bos_PuppiAK8_pt_jesFlavorQCDUp,"bos_PuppiAK8_pt_jesFlavorQCDUp/F");
   fTree->Branch("bos_PuppiAK8_pt_jesFlavorQCDDown",&bos_PuppiAK8_pt_jesFlavorQCDDown,"bos_PuppiAK8_pt_jesFlavorQCDDown/F");
   fTree->Branch("bos_PuppiAK8_pt_jesRelativeBalUp",&bos_PuppiAK8_pt_jesRelativeBalUp,"bos_PuppiAK8_pt_jesRelativeBalUp/F");
@@ -425,6 +423,8 @@ void WVJJData::init() {
   fTree->Branch("bos_PuppiAK8_pt_jesHF_YearDown",&bos_PuppiAK8_pt_jesHF_YearDown,"bos_PuppiAK8_pt_jesHF_YearDown/F");
   fTree->Branch("bos_PuppiAK8_pt_jesRelativeSample_YearUp",&bos_PuppiAK8_pt_jesRelativeSample_YearUp,"bos_PuppiAK8_pt_jesRelativeSample_YearUp/F");
   fTree->Branch("bos_PuppiAK8_pt_jesRelativeSample_YearDown",&bos_PuppiAK8_pt_jesRelativeSample_YearDown,"bos_PuppiAK8_pt_jesRelativeSample_YearDown/F");
+  fTree->Branch("bos_PuppiAK8_pt_jesTotalUp",&bos_PuppiAK8_pt_jesTotalUp,"bos_PuppiAK8_pt_jesTotalUp/F");
+  fTree->Branch("bos_PuppiAK8_pt_jesTotalDown",&bos_PuppiAK8_pt_jesTotalDown,"bos_PuppiAK8_pt_jesTotalDown/F");
   //Boson AK8 correlation variations
   //fTree->Branch("bos_PuppiAK8_e2_sdb1", &bos_PuppiAK8_e2_sdb1, "bos_PuppiAK8_e2_sdb1/F");
   //fTree->Branch("bos_PuppiAK8_e3_sdb1", &bos_PuppiAK8_e3_sdb1, "bos_PuppiAK8_e3_sdb1/F");

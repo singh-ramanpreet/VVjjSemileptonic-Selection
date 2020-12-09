@@ -469,12 +469,9 @@ public:
   float bos_PuppiAK8_pt;
   float bos_PuppiAK8_eta;
   float bos_PuppiAK8_phi;
-  //float bos_PuppiAK8_e_ungroomed;
   float bos_PuppiAK8_tau2tau1;
 
   //Boson AK8 jet variations
-  //float bos_PuppiAK8_m_sd0_corr_scaleUp;
-  //float bos_PuppiAK8_m_sd0_corr_scaleDown;
   float bos_PuppiAK8_pt_jesFlavorQCDUp;
   float bos_PuppiAK8_pt_jesFlavorQCDDown;
   float bos_PuppiAK8_pt_jesRelativeBalUp;
@@ -499,21 +496,19 @@ public:
   float bos_PuppiAK8_pt_jesRelativeSample_YearDown;
   float bos_PuppiAK8_pt_jesTotalUp;
   float bos_PuppiAK8_pt_jesTotalDown;
-  float bos_PuppiAK8_e_ungroomed_scaleUp;
-  float bos_PuppiAK8_e_ungroomed_scaleDown;
 
-  float bos_PuppiAK8_e2_sdb1; 
-  float bos_PuppiAK8_e3_sdb1; 
-  float bos_PuppiAK8_e3_v1_sdb1; 
-  float bos_PuppiAK8_e3_v2_sdb1; 
-  float bos_PuppiAK8_e4_v1_sdb1; 
-  float bos_PuppiAK8_e4_v2_sdb1;
-  float bos_PuppiAK8_e2_sdb2; 
-  float bos_PuppiAK8_e3_sdb2; 
-  float bos_PuppiAK8_e3_v1_sdb2; 
-  float bos_PuppiAK8_e3_v2_sdb2; 
-  float bos_PuppiAK8_e4_v1_sdb2; 
-  float bos_PuppiAK8_e4_v2_sdb2; 
+  //float bos_PuppiAK8_e2_sdb1;
+  //float bos_PuppiAK8_e3_sdb1;
+  //float bos_PuppiAK8_e3_v1_sdb1;
+  //float bos_PuppiAK8_e3_v2_sdb1;
+  //float bos_PuppiAK8_e4_v1_sdb1;
+  //float bos_PuppiAK8_e4_v2_sdb1;
+  //float bos_PuppiAK8_e2_sdb2;
+  //float bos_PuppiAK8_e3_sdb2;
+  //float bos_PuppiAK8_e3_v1_sdb2;
+  //float bos_PuppiAK8_e3_v2_sdb2;
+  //float bos_PuppiAK8_e4_v1_sdb2;
+  //float bos_PuppiAK8_e4_v2_sdb2;
 
   //------------------------------------//
   //       HADRONIC RESOLVED OBJECTS    //
