@@ -18,6 +18,16 @@
 ./make_sample_list.sh /eos/uscms/store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2018_v7_custom_Dec2020/ 2018
 ```
 
+Split sample and remove `txt`
+```bash
+./split_samples.sh 2016/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8.txt 2016/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8_ 4 true
+./split_samples.sh 2017/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.txt 2017/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_ 4 true
+./split_samples.sh 2018/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8.txt 2018/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_ 4 true
+./split_samples.sh 2016/TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8.txt 2016/TTToHadronic_TuneCP5_PSweights_13TeV-powheg-pythia8_ 4 true
+./split_samples.sh 2017/TTToHadronic_TuneCP5_13TeV-powheg-pythia8.txt 2017/TTToHadronic_TuneCP5_13TeV-powheg-pythia8_ 4 true
+./split_samples.sh 2018/TTToHadronic_TuneCP5_13TeV-powheg-pythia8.txt 2018/TTToHadronic_TuneCP5_13TeV-powheg-pythia8_ 4 true
+```
+
 ### Make CMSSW sandbox
 
 ```bash
