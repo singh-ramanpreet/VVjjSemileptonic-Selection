@@ -283,7 +283,7 @@ public:
   float vbf1_AK4_qgid;
   float vbf1_AK4_axis2;
   float vbf1_AK4_ptD;
-  float vbf1_AK4_puid_tight;
+  bool vbf1_AK4_puid_tight;
   float vbf1_AK4_puidSF_tight;
   float vbf1_AK4_puidSF_tight_Up;
   float vbf1_AK4_puidSF_tight_Down;
@@ -347,7 +347,7 @@ public:
   float vbf2_AK4_qgid;
   float vbf2_AK4_axis2;
   float vbf2_AK4_ptD;
-  float vbf2_AK4_puid_tight;
+  bool vbf2_AK4_puid_tight;
   float vbf2_AK4_puidSF_tight;
   float vbf2_AK4_puidSF_tight_Up;
   float vbf2_AK4_puidSF_tight_Down;
@@ -521,7 +521,7 @@ public:
   float bos_j1_AK4_m;
   float bos_j1_AK4_qgid;
   //float bos_j1_AK4_e;
-  float bos_j1_AK4_puid_tight;
+  bool bos_j1_AK4_puid_tight;
   float bos_j1_AK4_puidSF_tight;
   float bos_j1_AK4_puidSF_tight_Up;
   float bos_j1_AK4_puidSF_tight_Down;
@@ -583,7 +583,7 @@ public:
   float bos_j2_AK4_m;
   float bos_j2_AK4_qgid;
   //float bos_j2_AK4_e;
-  float bos_j2_AK4_puid_tight;
+  bool bos_j2_AK4_puid_tight;
   float bos_j2_AK4_puidSF_tight;
   float bos_j2_AK4_puidSF_tight_Up;
   float bos_j2_AK4_puidSF_tight_Down;
