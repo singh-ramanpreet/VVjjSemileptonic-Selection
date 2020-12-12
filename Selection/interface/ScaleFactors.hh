@@ -36,19 +36,17 @@ public:
   float GetLeptonWeights(float lepPt, float lepEta, int pid) {
     float totWeight=1.0;
     if (pid==11) {
-      totWeight*=GetSFs_Lepton(lepPt, abs(lepEta), hIDIsoEle);
-      //totWeight*=GetSFs_Lepton(lepPt, abs(lepEta), hTriggerEle);
+      totWeight*=GetBinTH2_value(lepEta, lepPt, hIDIsoEle);
     }
     if (pid==13) {
       if (era_==2016) {
-	totWeight*=GetSFs_Lepton(lepPt, lepEta, hIDMu);
-	totWeight*=GetSFs_Lepton(lepPt, lepEta, hIsoMu);
+        totWeight*=GetBinTH2_value(lepEta, lepPt, hIDMu);
+        totWeight*=GetBinTH2_value(lepEta, lepPt,  hIsoMu);
       }
       else {
-	totWeight*=GetSFs_Lepton(abs(lepEta), lepPt, hIDMu);
-	totWeight*=GetSFs_Lepton(abs(lepEta), lepPt, hIsoMu);
+        totWeight*=GetBinTH2_value(lepPt, abs(lepEta), hIDMu);
+        totWeight*=GetBinTH2_value(lepPt, abs(lepEta), hIsoMu);
       }
-      //totWeight*=GetSFs_Lepton(lepPt, abs(lepEta), hTriggerMuA);
     }
 
     return totWeight;
@@ -57,12 +55,11 @@ public:
   float GetLeptonFakeWeights(float lepPt, float lepEta, int pid) {
     float totWeight=1.0;
     if (pid==11) {
-      totWeight*=GetSFs_Lepton(lepPt, abs(lepEta), hFREle);
+      totWeight*=GetBinTH2_value(lepPt, abs(lepEta), hFREle);
     }
     if (pid==13) {
-      totWeight*=GetSFs_Lepton(lepPt, abs(lepEta), hFRMu);
+      totWeight*=GetBinTH2_value(lepPt, abs(lepEta), hFRMu);
     }
-
     return totWeight;
 
   };
@@ -70,19 +67,19 @@ public:
   float GetBtagEff(int jetFlavor, float jetPt, float jetEta, std::string wp) {
     float totWeight=1.0;
     if (wp == "loose") {
-      if (jetFlavor == 5) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_loose_b);
-      if (jetFlavor == 4) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_loose_c);
-      if (jetFlavor == 0) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_loose_l);
+      if (jetFlavor == 5) totWeight = GetBinTH2_value(jetPt, abs(jetEta), hbTagEff_loose_b);
+      if (jetFlavor == 4) totWeight = GetBinTH2_value(jetPt, abs(jetEta), hbTagEff_loose_c);
+      if (jetFlavor == 0) totWeight = GetBinTH2_value(jetPt, abs(jetEta), hbTagEff_loose_l);
     }
     if (wp == "medium") {
-      if (jetFlavor == 5) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_medium_b);
-      if (jetFlavor == 4) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_medium_c);
-      if (jetFlavor == 0) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_medium_l);
+      if (jetFlavor == 5) totWeight = GetBinTH2_value(jetPt, abs(jetEta), hbTagEff_medium_b);
+      if (jetFlavor == 4) totWeight = GetBinTH2_value(jetPt, abs(jetEta), hbTagEff_medium_c);
+      if (jetFlavor == 0) totWeight = GetBinTH2_value(jetPt, abs(jetEta), hbTagEff_medium_l);
     }
     if (wp == "tight") {
-      if (jetFlavor == 5) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_tight_b);
-      if (jetFlavor == 4) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_tight_c);
-      if (jetFlavor == 0) totWeight = GetSFs_Lepton(abs(jetEta), jetPt, hbTagEff_tight_l);
+      if (jetFlavor == 5) totWeight = GetBinTH2_value(jetPt, abs(jetEta), hbTagEff_tight_b);
+      if (jetFlavor == 4) totWeight = GetBinTH2_value(jetPt, abs(jetEta), hbTagEff_tight_c);
+      if (jetFlavor == 0) totWeight = GetBinTH2_value(jetPt, abs(jetEta), hbTagEff_tight_l);
     }
     return totWeight;
   };

@@ -998,9 +998,16 @@ int main (int ac, char** av) {
           }
           else {
             if (isMC) {
-              WVJJTree->btagWeight_loose *= (1 - nr.Jet_btagSF_deepcsv_L[j] * btag_eff_loose) / (1 - btag_eff_loose);
-              WVJJTree->btagWeight_loose_Up *= (1 - nr.Jet_btagSF_deepcsv_L_up[j] * btag_eff_loose) / (1 - btag_eff_loose);
-              WVJJTree->btagWeight_loose_Down *= (1 - nr.Jet_btagSF_deepcsv_L_down[j] * btag_eff_loose) / (1 - btag_eff_loose);
+              if (btag_eff_loose == 1.0) {
+                WVJJTree->btagWeight_loose *= nr.Jet_btagSF_deepcsv_L[j];
+                WVJJTree->btagWeight_loose_Up *= nr.Jet_btagSF_deepcsv_L_up[j];
+                WVJJTree->btagWeight_loose_Down *= nr.Jet_btagSF_deepcsv_L_down[j];
+              }
+              else {
+                WVJJTree->btagWeight_loose *= (1.0 - nr.Jet_btagSF_deepcsv_L[j] * btag_eff_loose) / (1.0 - btag_eff_loose);
+                WVJJTree->btagWeight_loose_Up *= (1.0 - nr.Jet_btagSF_deepcsv_L_up[j] * btag_eff_loose) / (1.0 - btag_eff_loose);
+                WVJJTree->btagWeight_loose_Down *= (1.0 - nr.Jet_btagSF_deepcsv_L_down[j] * btag_eff_loose) / (1.0 - btag_eff_loose);
+              }
             }
           }
           if (nr.Jet_btagDeepB[j] > btag_medium_wp) {
@@ -1013,9 +1020,16 @@ int main (int ac, char** av) {
           }
           else {
             if (isMC) {
-              WVJJTree->btagWeight_medium *= (1 - nr.Jet_btagSF_deepcsv_M[j] * btag_eff_medium) / (1 - btag_eff_medium);
-              WVJJTree->btagWeight_medium_Up *= (1 - nr.Jet_btagSF_deepcsv_M_up[j] * btag_eff_medium) / (1 - btag_eff_medium);
-              WVJJTree->btagWeight_medium_Down *= (1 - nr.Jet_btagSF_deepcsv_M_down[j] * btag_eff_medium) / (1 - btag_eff_medium);
+              if (btag_eff_medium == 1.0) {
+                WVJJTree->btagWeight_medium *= nr.Jet_btagSF_deepcsv_M[j];
+                WVJJTree->btagWeight_medium_Up *= nr.Jet_btagSF_deepcsv_M_up[j];
+                WVJJTree->btagWeight_medium_Down *= nr.Jet_btagSF_deepcsv_M_down[j];
+              }
+              else {
+                WVJJTree->btagWeight_medium *= (1.0 - nr.Jet_btagSF_deepcsv_M[j] * btag_eff_medium) / (1.0 - btag_eff_medium);
+                WVJJTree->btagWeight_medium_Up *= (1.0 - nr.Jet_btagSF_deepcsv_M_up[j] * btag_eff_medium) / (1.0 - btag_eff_medium);
+                WVJJTree->btagWeight_medium_Down *= (1.0 - nr.Jet_btagSF_deepcsv_M_down[j] * btag_eff_medium) / (1.0 - btag_eff_medium);
+              }
             }
           }
           if (nr.Jet_btagDeepB[j] > btag_tight_wp) {
@@ -1028,9 +1042,16 @@ int main (int ac, char** av) {
           }
           else {
             if (isMC) {
-              WVJJTree->btagWeight_tight *= (1 - nr.Jet_btagSF_deepcsv_T[j] * btag_eff_tight) / (1 - btag_eff_tight);
-              WVJJTree->btagWeight_tight_Up *= (1 - nr.Jet_btagSF_deepcsv_T_up[j] * btag_eff_tight) / (1 - btag_eff_tight);
-              WVJJTree->btagWeight_tight_Down *= (1 - nr.Jet_btagSF_deepcsv_T_down[j] * btag_eff_tight) / (1 - btag_eff_tight);
+              if (btag_eff_tight == 1.0) {
+                WVJJTree->btagWeight_tight *= nr.Jet_btagSF_deepcsv_T[j];
+                WVJJTree->btagWeight_tight_Up *= nr.Jet_btagSF_deepcsv_T_up[j];
+                WVJJTree->btagWeight_tight_Down *= nr.Jet_btagSF_deepcsv_T_down[j];
+              }
+              else {
+                WVJJTree->btagWeight_tight *= (1.0 - nr.Jet_btagSF_deepcsv_T[j] * btag_eff_tight) / (1.0 - btag_eff_tight);
+                WVJJTree->btagWeight_tight_Up *= (1.0 - nr.Jet_btagSF_deepcsv_T_up[j] * btag_eff_tight) / (1.0 - btag_eff_tight);
+                WVJJTree->btagWeight_tight_Down *= (1.0 - nr.Jet_btagSF_deepcsv_T_down[j] * btag_eff_tight) / (1.0 - btag_eff_tight);
+              }
             }
           }
         }
