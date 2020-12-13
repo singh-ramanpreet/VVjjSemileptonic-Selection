@@ -28,7 +28,6 @@ do
     ./split_samples.sh $sample ${sample/.txt/_} 20 true
   done
 done
-shopt -u extglob
 ```
 
 ### Make CMSSW sandbox
@@ -66,9 +65,17 @@ Example. Change arguments, find pattern accordingly.
 ```bash
 # arguments -> List of root files to combine.
 cd postjob
-./run $(eos root://cmseos.fnal.gov find -name *Run2017*.root /eos/uscms/store/user/rsingh/test/2017/ | sed -e 's|^|root://cmseos.fnal.gov/|' | tr '\n' ' ')
+for i in B C D E F G H; do ./run.sh ${i} $(eos root://cmseos.fnal.gov find -name *Run2016${i}*.root /eos/uscms/store/user/rsingh/test/2016 | sed -e 's|^|root://cmseos.fnal.gov/|' | tr '\n' ' '); done
+# for i in `ls Data*.root`; do eoscp ${i} /eos/uscms/store/user/singhr/test/2016/${i};done
+# rm Data*
+for i in B C D E F; do ./run.sh ${i} $(eos root://cmseos.fnal.gov find -name *Run2017${i}*.root /eos/uscms/store/user/rsingh/test/2017 | sed -e 's|^|root://cmseos.fnal.gov/|' | tr '\n' ' '); done
+# for i in `ls Data*.root`; do eoscp ${i} /eos/uscms/store/user/singhr/test/2017/${i};done
+# rm Data*
+for i in A B C D; do ./run.sh ${i} $(eos root://cmseos.fnal.gov find -name *Run2018${i}*.root /eos/uscms/store/user/rsingh/test/2018 | sed -e 's|^|root://cmseos.fnal.gov/|' | tr '\n' ' '); done
+# for i in `ls Data*.root`; do eoscp ${i} /eos/uscms/store/user/singhr/test/2018/${i};done
+# rm Data*
 ```
 
 It will `hadd` data in current directory and run `RemoveDuplicateEvents.C` macro.
 
-Then use `xrdcp` to copy these files in same `EOS` location.
+Use `xrdcp` or `eoscp` (see above code) to copy these files in same `EOS` location.
