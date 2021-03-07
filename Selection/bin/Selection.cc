@@ -28,10 +28,10 @@
 #include "TH2.h"
 #include <TClonesArray.h>
 
-#include "WVJJAna/Selection/interface/NanoReader.hh"
-#include "WVJJAna/Selection/interface/ScaleFactors.hh"
-#include "WVJJAna/Selection/interface/Utils.hh"
-#include "WVJJAna/Selection/interface/METzCalculator.h"
+#include "../interface/NanoReader.hh"
+#include "../interface/ScaleFactors.hh"
+#include "../interface/Utils.hh"
+#include "../interface/METzCalculator.h"
 
 int main (int ac, char** av) {
 

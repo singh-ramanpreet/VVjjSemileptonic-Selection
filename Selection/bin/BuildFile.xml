@@ -1,4 +1,4 @@
-<use name="WVJJAna/Selection"/>
+<use name="VVjjSemileptonic/Selection"/>
 <use name="root"/>
 <flags CXXFLAGS="-g -Wall"/>
 <bin file="Selection.cc" name="Selection"> </bin>

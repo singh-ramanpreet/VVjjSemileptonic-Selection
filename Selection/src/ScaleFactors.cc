@@ -1,4 +1,4 @@
-#include "WVJJAna/Selection/interface/ScaleFactors.hh"
+#include "../interface/ScaleFactors.hh"
 
 void ScaleFactors::setupSFs() {
 

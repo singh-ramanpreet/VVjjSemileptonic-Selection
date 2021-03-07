@@ -6,7 +6,7 @@
 #include "TH1.h"
 #include "TH2.h"
 
-#include "WVJJAna/Selection/interface/Utils.hh"
+#include "../interface/Utils.hh"
 
 class ScaleFactors {
 

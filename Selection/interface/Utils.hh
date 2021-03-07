@@ -2,7 +2,7 @@
 #define UTILS_HH
 
 #include "TMath.h"
-#include "WVJJAna/Selection/interface/WVJJData.hh"
+#include "../interface/WVJJData.hh"
 
 //float deltaR(float eta1, float phi1, float eta2, float phi2) {
 //

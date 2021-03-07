@@ -1,4 +1,4 @@
-#include "WVJJAna/Selection/interface/WVJJData.hh"
+#include "../interface/WVJJData.hh"
 
 void WVJJData::init() {
 

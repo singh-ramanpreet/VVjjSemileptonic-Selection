@@ -10,5 +10,5 @@ tar --exclude-vcs -zcf ${cmssw}.tgz -C $CMSSW_BASE/.. \
     ${cmssw}/python \
     ${cmssw}/config \
     ${cmssw}/.SCRAM \
-    ${cmssw}/src/WVJJAna/Selection/data \
-    $(find ${CMSSW_BASE}/src/WVJJAna/Selection -type f -name *.txt | sed -E 's|.*(CMSSW_)|\1|p')
+    ${cmssw}/src/VVjjSemileptonic/Selection/data \
+    $(find ${CMSSW_BASE}/src/VVjjSemileptonic/Selection -type f -name *.txt | sed -E 's|.*(CMSSW_)|\1|p')

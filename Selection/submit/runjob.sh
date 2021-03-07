@@ -22,7 +22,7 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 
 tar -xf ${cmssw_tar}
 rm ${cmssw_tar}
-cd ${cmssw_tar%.tgz}/src/WVJJAna/Selection/
+cd ${cmssw_tar%.tgz}/src/VVjjSemileptonic/Selection/
 
 echo "====> List files : " 
 ls -alh

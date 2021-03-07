@@ -5,7 +5,7 @@ recompile=${1:-true}
 
 if $recompile
 then
-  (cd $CMSSW_BASE/src/WVJJAna/Selection; scram b)
+  (cd $CMSSW_BASE/src/VVjjSemileptonic/Selection; scram b)
 fi
 
 for txtfile in $(ls *.txt)
@@ -18,5 +18,5 @@ do
 
   echo "Testing ${txtfile}, this is MC=$isMC, year=$year, with following command"
   echo Selection $txtpath $output $isMC $year 7
-  (cd $CMSSW_BASE/src/WVJJAna/Selection; Selection $txtpath $output $isMC $year 7;)
+  (cd $CMSSW_BASE/src/VVjjSemileptonic/Selection; Selection $txtpath $output $isMC $year 7;)
 done
