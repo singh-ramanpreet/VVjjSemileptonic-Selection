@@ -1642,8 +1642,8 @@ int main (int ac, char** av) {
       if (passLepSel) totalCutFlow->Fill("VBS Pair",1);
       if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodFatJet > 0) zvCutFlow->Fill("VBS Pair",1);
       if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodDijet > 0) zjjCutFlow->Fill("VBS Pair",1);
-      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodFatJet > 0) zvCutFlow->Fill("VBS Pair",1);
-      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodDijet > 0) zjjCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodFatJet > 0) wvCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodDijet > 0) wjjCutFlow->Fill("VBS Pair",1);
 
       WVJJTree->vbf1_AK4_pt = nr.Jet_pt_nom[goodJetIndex.at(vbf1)];
       WVJJTree->vbf1_AK4_eta = nr.Jet_eta[goodJetIndex.at(vbf1)];
