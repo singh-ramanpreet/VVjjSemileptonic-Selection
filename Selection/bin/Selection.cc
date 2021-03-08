@@ -111,6 +111,23 @@ int main (int ac, char** av) {
   TTree *ot = new TTree("Events","Events");
   WVJJData* WVJJTree = new WVJJData(ot);  
   TH1F *totalEvents = new TH1F("TotalEvents","TotalEvents",2,-1,1);
+  TH1F *totalCutFlow = new TH1F("TotalCutFlow","TotalCutFlow",7,0,7);
+  totalCutFlow->GetXaxis()->SetBinLabel(1,"MC Gen");
+  totalCutFlow->GetXaxis()->SetBinLabel(2,"Skim NanoAOD");
+  totalCutFlow->GetXaxis()->SetBinLabel(3,"Trigger");
+  totalCutFlow->GetXaxis()->SetBinLabel(4,"Lepton Selection");
+  totalCutFlow->GetXaxis()->SetBinLabel(5,"MET > 0");
+  totalCutFlow->GetXaxis()->SetBinLabel(6,"Hadronic V");
+  totalCutFlow->GetXaxis()->SetBinLabel(7,"VBS Pair");
+
+  TH1F *zvCutFlow = (TH1F*)totalCutFlow->Clone("zvCutFlow");
+  zvCutFlow->SetTitle("zvCutFlow");
+  TH1F *zjjCutFlow = (TH1F*)totalCutFlow->Clone("zjjCutFlow");
+  zjjCutFlow->SetTitle("zjjCutFlow");
+  TH1F *wvCutFlow = (TH1F*)totalCutFlow->Clone("wvCutFlow");
+  wvCutFlow->SetTitle("wvCutFlow");
+  TH1F *wjjCutFlow = (TH1F*)totalCutFlow->Clone("wjjCutFlow");
+  wjjCutFlow->SetTitle("wjjCutFlow");
 
   TFile *f=0;
   TTree *t=0, *r=0;
@@ -152,13 +169,21 @@ int main (int ac, char** av) {
     NanoReader NanoWeightReader = NanoReader(r);
     NanoWeightReader.GetEntry(0);
     float genEventSumw=0.0;
+    float genEventCount=0.0;
     if (isMC && nanoVersion == 6) {
       genEventSumw = *NanoWeightReader.genEventSumw_;
+      genEventCount = *NanoWeightReader.genEventCount_;
     }
     else if (isMC && nanoVersion == 7) {
       genEventSumw = *NanoWeightReader.genEventSumw;
+      genEventCount = *NanoWeightReader.genEventCount;
     }
     totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+genEventSumw);
+    totalCutFlow->Fill("MC Gen",genEventCount);
+    zvCutFlow->Fill("MC Gen",genEventCount);
+    zjjCutFlow->Fill("MC Gen",genEventCount);
+    wvCutFlow->Fill("MC Gen",genEventCount);
+    wjjCutFlow->Fill("MC Gen",genEventCount);
 
     //check if tree has these hlt branches
     if (lineCount == 1){
@@ -200,6 +225,11 @@ int main (int ac, char** av) {
     //for (uint i=0; i < 1000000; i++) {
       WVJJTree->clearVars();
       nr.GetEntry(i);
+      totalCutFlow->Fill("Skim NanoAOD",1);
+      zvCutFlow->Fill("Skim NanoAOD",1);
+      zjjCutFlow->Fill("Skim NanoAOD",1);
+      wvCutFlow->Fill("Skim NanoAOD",1);
+      wjjCutFlow->Fill("Skim NanoAOD",1);
 
       if (i%100000==0) std::cout <<"file " << lineCount << ": event " << i << std::endl;
 
@@ -248,6 +278,11 @@ int main (int ac, char** av) {
       //std::cout << std::endl;
 
       if ( ! ( WVJJTree->trigger_1Mu || WVJJTree->trigger_2Mu || WVJJTree->trigger_1El || WVJJTree->trigger_2El ) ) continue;
+      totalCutFlow->Fill("Trigger",1);
+      zvCutFlow->Fill("Trigger",1);
+      zjjCutFlow->Fill("Trigger",1);
+      wvCutFlow->Fill("Trigger",1);
+      wjjCutFlow->Fill("Trigger",1);
 
       tightMuon.clear();
       tightEle.clear();
@@ -464,6 +499,12 @@ int main (int ac, char** av) {
         }
       }
 
+      if (passLepSel) totalCutFlow->Fill("Lepton Selection",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0) zvCutFlow->Fill("Lepton Selection",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0) zjjCutFlow->Fill("Lepton Selection",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0) wvCutFlow->Fill("Lepton Selection",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0) wjjCutFlow->Fill("Lepton Selection",1);
+
       if (!passLepSel && !WVJJTree->isAntiIso) continue;
 
       //muon scale variations
@@ -573,6 +614,11 @@ int main (int ac, char** av) {
       if (WVJJTree->lep1_pt < 0) continue;
 
       // MET
+      if (passLepSel && *nr.MET_pt > 0) totalCutFlow->Fill("MET > 0",1);
+      if (passLepSel && *nr.MET_pt > 0 && WVJJTree->lep2_pt > 0) zvCutFlow->Fill("MET > 0",1);
+      if (passLepSel && *nr.MET_pt > 0 && WVJJTree->lep2_pt > 0) zjjCutFlow->Fill("MET > 0",1);
+      if (passLepSel && *nr.MET_pt > 0 && WVJJTree->lep2_pt < 0) wvCutFlow->Fill("MET > 0",1);
+      if (passLepSel && *nr.MET_pt > 0 && WVJJTree->lep2_pt < 0) wjjCutFlow->Fill("MET > 0",1);
       if (*nr.MET_pt < 0) continue;
       WVJJTree->MET = isMC ? *nr.MET_T1Smear_pt : *nr.MET_T1_pt;
       WVJJTree->MET_phi = isMC ? *nr.MET_T1Smear_phi : *nr.MET_T1_phi;
@@ -1559,6 +1605,11 @@ int main (int ac, char** av) {
 
       //check we have a hadronic boson candidate
       if ( nGoodFatJet == 0 && nGoodDijet == 0 ) continue;
+      if (passLepSel) totalCutFlow->Fill("Hadronic V",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodFatJet > 0) zvCutFlow->Fill("Hadronic V",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodDijet > 0) zjjCutFlow->Fill("Hadronic V",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodFatJet > 0) wvCutFlow->Fill("Hadronic V",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodDijet > 0) wjjCutFlow->Fill("Hadronic V",1);
 
       float tmpMassMax = 0.0;
       int vbf1=-1, vbf2=-1;
@@ -1588,6 +1639,11 @@ int main (int ac, char** av) {
       }
 
       if (vbf1==-1 && vbf2==-1) continue;
+      if (passLepSel) totalCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodFatJet > 0) zvCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodDijet > 0) zjjCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodFatJet > 0) zvCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodDijet > 0) zjjCutFlow->Fill("VBS Pair",1);
 
       WVJJTree->vbf1_AK4_pt = nr.Jet_pt_nom[goodJetIndex.at(vbf1)];
       WVJJTree->vbf1_AK4_eta = nr.Jet_eta[goodJetIndex.at(vbf1)];
