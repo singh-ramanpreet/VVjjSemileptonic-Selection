@@ -68,9 +68,9 @@ int main (int ac, char** av) {
   const float VBF_MJJ_CUT= 500;
 
   //cleaning cuts
-  const float AK8_LEP_DR_CUT = 1.0;
+  const float AK8_LEP_DR_CUT = 0.8;
   const float AK4_AK8_DR_CUT = 0.8;
-  const float AK4_DR_CUT = 0.3;
+  const float AK4_DR_CUT = 0.4;
 
   // btag deepCSV a.k.a. DeepB working points
   //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
