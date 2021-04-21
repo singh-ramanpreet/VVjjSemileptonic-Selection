@@ -27,7 +27,7 @@ public:
   
   uint run;
   uint ls;
-  uint evt;
+  uint long evt;
   float nPV;
   float nPU_mean;
   float genWeight;

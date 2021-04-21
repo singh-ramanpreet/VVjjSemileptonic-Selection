@@ -5,9 +5,9 @@ void WVJJData::init() {
   clearVars();
 
   //metadata and weights
-  fTree->Branch("run",&run,"run/I");
-  fTree->Branch("ls",&ls,"ls/I");
-  fTree->Branch("evt",&evt,"evt/I");
+  fTree->Branch("run",&run,"run/i");
+  fTree->Branch("ls",&ls,"ls/i");
+  fTree->Branch("evt",&evt,"evt/l");
   fTree->Branch("nPV",&nPV,"nPV/F");
   fTree->Branch("nPU_mean",&nPU_mean,"nPU_mean/F");
   fTree->Branch("genWeight",&genWeight,"genWeight/F");
