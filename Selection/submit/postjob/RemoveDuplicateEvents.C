@@ -56,12 +56,12 @@ int RemoveDuplicateEvents( string inputfile, string outputfile) {
     TTree *outputTree = inputTree->CloneTree(0);  
     cout << "Events in the ntuple: " << inputTree->GetEntries() << endl;
 
-    int run;
-    int event;
+    UInt_t run;
+    ULong64_t event;
     inputTree->SetBranchAddress("run", &run);
     inputTree->SetBranchAddress("evt", &event);
 	    
-    map<pair<int,int>, bool > processedRunEvents;
+    map<pair<UInt_t,ULong64_t>, bool > processedRunEvents;
     for (int n=0;n<inputTree->GetEntries();n++) { 
       if (n%1000000==0) cout << "Processed Event " << n << "\n";
       inputTree->GetEntry(n);
