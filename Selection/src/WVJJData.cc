@@ -24,6 +24,8 @@ void WVJJData::init() {
   fTree->Branch("scaleWeight",&scaleWeight[0],"scaleWeight[200]/F");
   fTree->Branch("pdfWeight",&pdfWeight[0],"pdfWeight[200]/F");
   fTree->Branch("aqgcWeight",&aqgcWeight[0],"aqgcWeight[1000]/F");
+  // tZq veto
+  fTree->Branch("is_tZq",&is_tZq,"is_tZq/O");
   //jet counters
   fTree->Branch("nJet30",&nJet30,"nJet30/I");
   fTree->Branch("nJet50",&nJet50,"nJet50/I");
@@ -732,6 +734,8 @@ void WVJJData::clearVars() {
   std::fill_n(scaleWeight,200,0);
   std::fill_n(pdfWeight,200,0);
   std::fill_n(aqgcWeight,1000,0);
+
+  is_tZq = false;
 
   nJet30 = 0;
   nJet50 = 0;

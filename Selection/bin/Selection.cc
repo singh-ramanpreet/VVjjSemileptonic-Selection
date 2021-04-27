@@ -2504,6 +2504,14 @@ int main (int ac, char** av) {
           //LHE pdf variation weights (w_var / w_nominal) for LHA IDs 91400 - 91432
           WVJJTree->pdfWeight[j]=nr.LHEPdfWeight[j];
         }
+
+        // tZq events in ZV signal sample
+        if ( (nr.GenPart_genPartIdxMother[2] == 0 && abs(nr.GenPart_pdgId[2]) == 6)
+            || (nr.GenPart_genPartIdxMother[3] == 0 && abs(nr.GenPart_pdgId[3]) == 6)
+           ) {
+          WVJJTree->is_tZq = true;
+        }
+        //std::cout<<abs(nr.GenPart_pdgId[2])<< " " << WVJJTree->is_tZq << std::endl;
       }
 
       if (isMC==1 && *nr.nLHEReweightingWeight!=0) {

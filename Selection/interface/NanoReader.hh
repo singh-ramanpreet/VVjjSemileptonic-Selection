@@ -42,6 +42,17 @@ public :
   //
   TTreeReaderValue<Float_t> Generator_weight = {tree_->GetBranchStatus("Generator_weight") ? fReader : fReaderNull, "Generator_weight"};
 
+  // GenPart
+  TTreeReaderValue<UInt_t> nGenPart = {tree_->GetBranchStatus("nGenPart") ? fReader : fReaderNull, "nGenPart"};
+  TTreeReaderArray<Float_t> GenPart_eta = {tree_->GetBranchStatus("GenPart_eta") ? fReader : fReaderNull, "GenPart_eta"};
+  TTreeReaderArray<Float_t> GenPart_mass = {tree_->GetBranchStatus("GenPart_mass") ? fReader : fReaderNull, "GenPart_mass"};
+  TTreeReaderArray<Float_t> GenPart_phi = {tree_->GetBranchStatus("GenPart_phi") ? fReader : fReaderNull, "GenPart_phi"};
+  TTreeReaderArray<Float_t> GenPart_pt = {tree_->GetBranchStatus("GenPart_pt") ? fReader : fReaderNull, "GenPart_pt"};
+  TTreeReaderArray<Int_t> GenPart_genPartIdxMother = {tree_->GetBranchStatus("GenPart_genPartIdxMother") ? fReader : fReaderNull, "GenPart_genPartIdxMother"};
+  TTreeReaderArray<Int_t> GenPart_pdgId = {tree_->GetBranchStatus("GenPart_pdgId") ? fReader : fReaderNull, "GenPart_pdgId"};
+  TTreeReaderArray<Int_t> GenPart_status = {tree_->GetBranchStatus("GenPart_status") ? fReader : fReaderNull, "GenPart_status"};
+  TTreeReaderArray<Int_t> GenPart_statusFlags = {tree_->GetBranchStatus("GenPart_statusFlags") ? fReader : fReaderNull, "GenPart_statusFlags"};
+
   //HLT
   TTreeReaderValue<Bool_t> HLT_IsoMu22 = {tree_->GetBranchStatus("HLT_IsoMu22") ? fReader : fReaderNull, "HLT_IsoMu22"};
   TTreeReaderValue<Bool_t> HLT_IsoTkMu22 = {tree_->GetBranchStatus("HLT_IsoTkMu22") ? fReader : fReaderNull, "HLT_IsoTkMu22"};

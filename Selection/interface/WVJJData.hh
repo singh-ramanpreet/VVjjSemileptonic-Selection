@@ -45,6 +45,9 @@ public:
   float pdfWeight[200] = {};
   float aqgcWeight[1000] = {};
 
+  // tZq veto ZV
+  bool is_tZq;
+
   //njet counters
   uint nJet30;
   uint nJet50;
