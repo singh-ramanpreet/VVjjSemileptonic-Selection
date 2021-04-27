@@ -17,13 +17,13 @@ void WVJJData::init() {
   fTree->Branch("L1PFWeight",&L1PFWeight,"L1PFWeight/F");
   fTree->Branch("L1PFWeight_Up",&L1PFWeight_Up,"L1PFWeight_Up/F");
   fTree->Branch("L1PFWeight_Down",&L1PFWeight_Down,"L1PFWeight_Down/F");
-  fTree->Branch("LHEWeight",&LHEWeight[0],"LHEWeight[1164]/F");
+  // LHE Weights
   fTree->Branch("nScaleWeight",&nScaleWeight,"nScaleWeight/I");
   fTree->Branch("nPdfWeight",&nPdfWeight,"nPdfWeight/I");
   fTree->Branch("nAqgcWeight",&nAqgcWeight,"nAqgcWeight/I");
-  fTree->Branch("scaleWeight",&scaleWeight[0],"scaleWeight[200]/F");
-  fTree->Branch("pdfWeight",&pdfWeight[0],"pdfWeight[200]/F");
-  fTree->Branch("aqgcWeight",&aqgcWeight[0],"aqgcWeight[1000]/F");
+  fTree->Branch("scaleWeight",&scaleWeight[0],"scaleWeight[nScaleWeight]/F");
+  fTree->Branch("pdfWeight",&pdfWeight[0],"pdfWeight[nPdfWeight]/F");
+  fTree->Branch("aqgcWeight",&aqgcWeight[0],"aqgcWeight[nAqgcWeight]/F");
   // tZq veto
   fTree->Branch("is_tZq",&is_tZq,"is_tZq/O");
   //jet counters
@@ -725,8 +725,6 @@ void WVJJData::clearVars() {
   L1PFWeight = 1.0;
   L1PFWeight_Up = 1.0;
   L1PFWeight_Down = 1.0;
-
-  std::fill_n(LHEWeight,1164,0);
   
   nScaleWeight = 0;
   nPdfWeight = 0;

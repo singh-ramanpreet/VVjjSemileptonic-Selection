@@ -37,7 +37,6 @@ public:
   float L1PFWeight;
   float L1PFWeight_Up;
   float L1PFWeight_Down;
-  float LHEWeight[1164] = {};
   uint nScaleWeight;
   uint nPdfWeight;
   uint nAqgcWeight;
