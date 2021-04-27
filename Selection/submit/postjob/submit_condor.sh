@@ -4,9 +4,10 @@ base_ntuples_location=${1}
 
 for year in 2016 2017 2018
 do
-  for era in A B C D E F G H
+  ntuples=${base_ntuples_location}/${year}
+  eras=$(eos find -name "*Run201*.root" ${ntuples} | sed -E 's/.*Run201[0-9]([A-Z])\.root/\1/' | sort -u | tr '\n' ' ')
+  for era in ${eras}
     do
-    ntuples=${base_ntuples_location}/${year}
     files=$(eos root://cmseos.fnal.gov find -name *Run${year}${era}*.root ${ntuples} | sed -e 's|^|root://cmseos.fnal.gov/|' | tr '\n' ' ')
     condor_submit \
       universe=vanilla \
