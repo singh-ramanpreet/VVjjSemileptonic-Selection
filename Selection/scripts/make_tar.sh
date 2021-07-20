@@ -10,5 +10,6 @@ tar --exclude-vcs -zcf ${cmssw}.tgz -C $CMSSW_BASE/.. \
     ${cmssw}/python \
     ${cmssw}/config \
     ${cmssw}/.SCRAM \
-    ${cmssw}/src/VVjjSemileptonic/Selection/data \
-    $(find ${CMSSW_BASE}/src/VVjjSemileptonic/Selection -type f -name *.txt | sed -E 's|.*(CMSSW_)|\1|p')
+    ${cmssw}/src \
+    --exclude=${cmssw}.tgz \
+    --exclude="*condor_logs*"

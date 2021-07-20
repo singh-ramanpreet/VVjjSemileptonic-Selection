@@ -18,4 +18,4 @@ if $removeOriginal
 then
   rm -v $sample
 fi
-
+exit

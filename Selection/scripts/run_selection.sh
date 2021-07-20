@@ -14,19 +14,11 @@ output=$(basename ${input_txt%.txt}).root
 #default
 isMC=1
 
-echo "Starting job on " `date`
-echo "Running on: `uname -a`"
-echo "System software: `cat /etc/redhat-release`"
-
 source /cvmfs/cms.cern.ch/cmsset_default.sh
-
 tar -xf ${cmssw_tar}
 rm ${cmssw_tar}
 cd ${cmssw_tar%.tgz}/src/VVjjSemileptonic/Selection/
-
-echo "====> List files : " 
-ls -alh
-
+cp ${_CONDOR_SCRATCH_DIR}/${input_txt} .
 scramv1 b ProjectRename
 eval `scram runtime -sh`
 
@@ -35,7 +27,10 @@ testfile=root://cmseos.fnal.gov/$(head -n 1 ${input_txt})
 testbranch="genEventSumw"
 [[ ${nano_ver} == 6 ]] && testbranch="genEventSumw_"
 [[ ${nano_ver} == 7 ]] && testbranch="genEventSumw"
-isMC=$(python -c "import ROOT; f=ROOT.TFile.Open('$testfile'); t=f.Get('Runs');print(int(t.GetBranchStatus('$testbranch')))")
+isMC=$(python -c "import ROOT;
+f = ROOT.TFile.Open('$testfile');
+t = f.Get('Runs');
+print(int(t.GetBranchStatus('$testbranch')))")
 
 echo "====> isMC is $isMC"
 
@@ -49,7 +44,7 @@ echo "====> copying output root file to eos ..."
 xrdfs root://cmseos.fnal.gov/ mkdir -p ${eos_output_dir}
 xrdcp -f ${output} root://cmseos.fnal.gov/${eos_output_dir}/
 
-rm ${output}
-
 cd ${_CONDOR_SCRATCH_DIR}
 rm -rf *
+
+exit
