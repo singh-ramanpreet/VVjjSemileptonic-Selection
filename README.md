@@ -1,4 +1,8 @@
-# VBS selection for semi-leptonic final states on nanoAOD
+# VBS selection for semi-leptonic final states
+
+## Input:
+
+Uses `nanoAOD` skims produced by https://github.com/singh-ramanpreet/VVjjSemileptonic-NanoSkim
 
 ## Setup:
 
