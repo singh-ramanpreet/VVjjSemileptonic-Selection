@@ -64,7 +64,7 @@ submit_selection.sh ../inputs/2017 2017 /eos/uscms/store/user/rsingh/test/
 submit_selection.sh ../inputs/2018 2018 /eos/uscms/store/user/rsingh/test/
 ```
 
-### 3. Combine `Data` and remove duplicates
+### 3. Combine `Data` and remove duplicate events
 
 It combines `Data` per `era` (A, B, C, ... ).
 
