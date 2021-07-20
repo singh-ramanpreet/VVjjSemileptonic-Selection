@@ -2,7 +2,7 @@
 
 ## Setup:
 
-```
+```bash
   cmsrel CMSSW_10_6_10
   cd CMSSW_10_6_10/src
   git clone https://github.com/singh-ramanpreet/VVjjSemileptonic-Selection.git VVjjSemileptonic/Selection
@@ -13,7 +13,7 @@
 
 ## Run interactively: 
 
-```
+```bash
   Selection <list of input files> <output file> <1=MC, 0=data> <era(2016 or 2017)> <nanoaod version(7 only)>
 ```
 
@@ -23,23 +23,29 @@
 
 It will make samples list and split.
 
+Working directory:
+```bash
+cd $CMSSW_BASE/src/VVjjSemileptonic/Selection
+```
+
 Code:
 
 ```bash
-./make_sample_list.sh <eos dir> <out list dir> <year> <split, n files per list> 
+make_sample_list.sh <eos dir> <out list dir> <year> <split, n files per list> 
 ```
 
 Quick use (current skims):
 
 ```bash
-./make_sample_list.sh /eos/uscms/store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2016_v7_2021-07-15/ inputs 2016 10
-./make_sample_list.sh /eos/uscms/store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_2021-07-15/ inputs 2017 10
-./make_sample_list.sh /eos/uscms/store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2018_v7_2021-07-15/ inputs 2018 10
+make_sample_list.sh /eos/uscms/store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2016_v7_2021-07-15/ inputs 2016 10
+make_sample_list.sh /eos/uscms/store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2017_v7_2021-07-15/ inputs 2017 10
+make_sample_list.sh /eos/uscms/store/user/lnujj/VVjj_aQGC/nanoAOD_skim/Run2018_v7_2021-07-15/ inputs 2018 10
 ```
 
 ### 2. Submit condor jobs
 
 Working directory:
+
 ```bash
 cd $CMSSW_BASE/src/VVjjSemileptonic/Selection/submit
 ```
