@@ -246,6 +246,7 @@ public :
   TTreeReaderArray<Int_t> Electron_vidNestedWPBitmapHEEP = {tree_->GetBranchStatus("Electron_vidNestedWPBitmapHEEP") ? fReader : fReaderNull, "Electron_vidNestedWPBitmapHEEP"};
   TTreeReaderArray<Bool_t> Electron_convVeto = {tree_->GetBranchStatus("Electron_convVeto") ? fReader : fReaderNull, "Electron_convVeto"};
   TTreeReaderArray<Bool_t> Electron_cutBased_HEEP = {tree_->GetBranchStatus("Electron_cutBased_HEEP") ? fReader : fReaderNull, "Electron_cutBased_HEEP"};
+  TTreeReaderArray<Int_t> Electron_cutBased_HLTPreSel = {tree_->GetBranchStatus("Electron_cutBased_HLTPreSel") ? fReader : fReaderNull, "Electron_cutBased_HLTPreSel"};
   TTreeReaderArray<Bool_t> Electron_isPFcand = {tree_->GetBranchStatus("Electron_isPFcand") ? fReader : fReaderNull, "Electron_isPFcand"};
   TTreeReaderArray<UChar_t> Electron_lostHits = {tree_->GetBranchStatus("Electron_lostHits") ? fReader : fReaderNull, "Electron_lostHits"};
   TTreeReaderArray<Bool_t> Electron_mvaFall17V1Iso_WP80 = {tree_->GetBranchStatus("Electron_mvaFall17V1Iso_WP80") ? fReader : fReaderNull, "Electron_mvaFall17V1Iso_WP80"};
@@ -260,6 +261,7 @@ public :
   TTreeReaderArray<Bool_t> Electron_mvaFall17V2noIso_WP80 = {tree_->GetBranchStatus("Electron_mvaFall17V2noIso_WP80") ? fReader : fReaderNull, "Electron_mvaFall17V2noIso_WP80"};
   TTreeReaderArray<Bool_t> Electron_mvaFall17V2noIso_WP90 = {tree_->GetBranchStatus("Electron_mvaFall17V2noIso_WP90") ? fReader : fReaderNull, "Electron_mvaFall17V2noIso_WP90"};
   TTreeReaderArray<Bool_t> Electron_mvaFall17V2noIso_WPL = {tree_->GetBranchStatus("Electron_mvaFall17V2noIso_WPL") ? fReader : fReaderNull, "Electron_mvaFall17V2noIso_WPL"};
+  TTreeReaderArray<Bool_t> Electron_mvaSpring16GP_WP90 = {tree_->GetBranchStatus("Electron_mvaSpring16GP_WP90") ? fReader : fReaderNull, "Electron_mvaSpring16GP_WP90"};
   TTreeReaderArray<UChar_t> Electron_seedGain = {tree_->GetBranchStatus("Electron_seedGain") ? fReader : fReaderNull, "Electron_seedGain"};
   TTreeReaderArray<Int_t> Electron_genPartIdx = {tree_->GetBranchStatus("Electron_genPartIdx") ? fReader : fReaderNull, "Electron_genPartIdx"};
   TTreeReaderArray<UChar_t> Electron_genPartFlav = {tree_->GetBranchStatus("Electron_genPartFlav") ? fReader : fReaderNull, "Electron_genPartFlav"};

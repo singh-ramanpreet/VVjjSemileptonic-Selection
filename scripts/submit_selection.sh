@@ -27,7 +27,7 @@ do
     error="\$(log_filename).err" \
     transfer_input_files="${dataset_txt},${cmssw_tar}" \
     transfer_output_files="\"\"" \
-    -append "arguments = ${cmssw_tar} ${dataset_txt} ${year} ${nano_ver} ${output_eos_dir}/${year}/" \
+    -append "arguments = ${cmssw_tar} $(basename ${dataset_txt}) ${year} ${nano_ver} ${output_eos_dir}/${year}/" \
     -append "queue" \
     /dev/null
 done

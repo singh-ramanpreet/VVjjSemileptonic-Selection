@@ -43,8 +43,9 @@ int main (int ac, char** av) {
 
   const float MUON_MASS = 0.1056583745;
   const float ELE_MASS  = 0.000511;
-  const float W_MASS = 80.385;
+  //const float W_MASS = 80.385;
   //const float Z_MASS = 91.1876;
+  const float V_MASS = 85.7863;
 
   //lepton cuts
   const float LEP_PT_VETO_CUT = 10;
@@ -57,20 +58,24 @@ int main (int ac, char** av) {
   const float AK8_MIN_PT = 200;
   const float AK8_MAX_ETA = 2.4;
   const float AK8_MIN_SDM = 40;
-  const float AK8_MAX_SDM = 150;
+  const float AK8_MAX_SDM = 250;
 
   //ak4 jet cuts
   //const float AK4_PT_VETO_CUT = 20;
   const float AK4_ETA_CUT = 2.4;
   const float AK4_PT_CUT = 30;
   const float AK4_JJ_MIN_M = 40.0;
-  const float AK4_JJ_MAX_M = 150.0;
-  const float VBF_MJJ_CUT= 500;
+  const float AK4_JJ_MAX_M = 250.0;
+  const float VBF_MJJ_CUT = 500;
 
   //cleaning cuts
   const float AK8_LEP_DR_CUT = 0.8;
   const float AK4_AK8_DR_CUT = 0.8;
   const float AK4_DR_CUT = 0.4;
+
+  // VBS Jet pt cut
+  const float LEADGING_VBS_JET_PT_CUT = 50;
+  const float TRAILING_VBS_JET_PT_CUT = 50;
 
   // btag deepCSV a.k.a. DeepB working points
   //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
@@ -153,17 +158,16 @@ int main (int ac, char** av) {
     std::stringstream ss(line);
     std::string filetoopen;
     ss >> filetoopen;
-    
+
     lineCount+=1;
 
-    f = TFile::Open(TString("root://cmseos.fnal.gov/")+TString(filetoopen),"read");
-    //f = TFile::Open(TString("root://xrootd-cms.infn.it/")+TString(filetoopen),"read");
+    f = TFile::Open(TString("root://cmseos.fnal.gov/") + TString(filetoopen), "read");
     t = (TTree *)f->Get("Events");
     r = (TTree *)f->Get("Runs");
     if (t==NULL) continue;
-    
+
     //std::cout << filetoopen << std::endl;
-    
+
     NanoReader nr = NanoReader(t);
 
     NanoReader NanoWeightReader = NanoReader(r);
@@ -300,32 +304,32 @@ int main (int ac, char** av) {
 
       // LEPTON SELECTION
 
-      int nTightEle=0;
-      int nTightMu=0;
-      int nVetoEle=0;
-      int nVetoMu=0;
+      int nTightEle = 0;
+      int nTightMu = 0;
+      int nVetoEle = 0;
+      int nVetoMu = 0;
       
       for (uint j=0; j < *nr.nMuon; j++) {
-        if ( abs(nr.Muon_eta[j]) > MU_ETA_CUT ) continue;
+
         //using conservative uncertainty value of 3%
         if ( 1.03*nr.Muon_pt[j] < LEP_PT_VETO_CUT ) continue;
+        if ( abs(nr.Muon_eta[j]) > MU_ETA_CUT ) continue;
 
-        if (!nr.Muon_looseId[j]) continue;
-        if (nr.Muon_pfRelIso04_all[j]>0.25) continue;
+        if ( ! nr.Muon_looseId[j] ) continue;
+        if ( nr.Muon_pfRelIso04_all[j] > 0.40 ) continue;
         nVetoMu++;
 
         //using conservative uncertainty value of 3%
         if ( 1.03*nr.Muon_pt[j] < MU_PT_CUT ) continue;
-        if (!nr.Muon_tightId[j]) continue;
-        if (nr.Muon_pt[j] > 20 && abs(nr.Muon_dxy[j])>0.01) continue;
-        if (nr.Muon_pt[j] < 20 && abs(nr.Muon_dxy[j])>0.02) continue;
-        if (abs(nr.Muon_dz[j])>0.1) continue;
-        if (nr.Muon_pfRelIso04_all[j]>0.15) continue;
-
+        if ( ! nr.Muon_tightId[j] ) continue;
+        if ( nr.Muon_pt[j] > 20 && abs(nr.Muon_dxy[j]) > 0.01 ) continue;
+        if ( nr.Muon_pt[j] < 20 && abs(nr.Muon_dxy[j]) > 0.02 ) continue;
+        if ( abs(nr.Muon_dz[j]) > 0.1 ) continue;
+        if ( nr.Muon_pfRelIso04_all[j] > 0.15 ) continue;
         nTightMu++;
+
         tightMuon.push_back(TLorentzVector(0,0,0,0));
-        tightMuon.back().SetPtEtaPhiM(nr.Muon_pt[j], nr.Muon_eta[j],
-                                      nr.Muon_phi[j], MUON_MASS);
+        tightMuon.back().SetPtEtaPhiM(nr.Muon_pt[j], nr.Muon_eta[j], nr.Muon_phi[j], MUON_MASS);
 
         if ( nr.Muon_pt[j] > WVJJTree->lep1_pt ) {
           WVJJTree->lep2_pt = WVJJTree->lep1_pt;
@@ -347,7 +351,9 @@ int main (int ac, char** av) {
           WVJJTree->lep1_q = nr.Muon_charge[j];
         }
         else if ( nr.Muon_pt[j] > WVJJTree->lep2_pt ) {
-        //if (WVJJTree->lep1_q*nr.Muon_charge[j]>0) continue;
+
+          // opposite sign
+          if ( WVJJTree->lep1_q*nr.Muon_charge[j] > 0 ) continue;
 
           WVJJTree->lep2_pt = nr.Muon_pt[j];
           WVJJTree->lep2_eta = nr.Muon_eta[j];
@@ -360,41 +366,67 @@ int main (int ac, char** av) {
         }
       }
 
-      for (uint j=0; j < *nr.nElectron; j++) {
-        if ( abs(nr.Electron_eta[j]) > EL_ETA_CUT ) continue;
-          //using conservative uncertainty value of 3%
-          if ( 1.03*nr.Electron_pt[j] < LEP_PT_VETO_CUT ) continue;
+      for ( uint j=0; j < *nr.nElectron; j++ ) {
 
-          //cut-based ID Fall17 V2 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)
-          if ( nr.Electron_cutBased[j]<2 ) continue;
-          if ( abs(nr.Electron_eta[j])>1.5) {
-          if (nr.Electron_sieie[j]>0.03) continue;
-          if (nr.Electron_eInvMinusPInv[j]>0.014) continue;
-          if (abs(nr.Electron_dxy[j])>0.1) continue;
-          if (abs(nr.Electron_dz[j])>0.2) continue;
+        //don't try to select electrons unless we don't already have muons
+        if ( WVJJTree->lep1_m == MUON_MASS ) continue;
+
+        if ( abs(nr.Electron_eta[j]) > EL_ETA_CUT ) continue;
+
+        // Veto pt cut, using conservative uncertainty value of 3%
+        if ( 1.03*nr.Electron_pt[j] < LEP_PT_VETO_CUT ) continue;
+
+        // cut-based ID (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)
+        // Veto, 2016 -> cutbased HLT safe
+        // 2017, 2018 -> cutbased loost Fall17V2
+        if ( era == 2016 ) {
+          if ( nr.Electron_cutBased_HLTPreSel[j] == 0 ) continue;
+          if ( nr.Electron_lostHits[j] >= 1 ) continue;
         }
         else {
-          if (abs(nr.Electron_dxy[j])>0.05) continue;
-          if (abs(nr.Electron_dz[j])>0.1) continue;
+          if ( nr.Electron_cutBased[j] < 2 ) continue;
+          if ( nr.Electron_convVeto[j] != 1) continue;
+          // for 2017, 2018
+          if ( abs(nr.Electron_eta[j]) > 1.479 ) {
+            if (abs(nr.Electron_sieie[j]) > 0.03 ) continue;
+            if (abs(nr.Electron_eInvMinusPInv[j]) > 0.014 ) continue;
+          }
         }
-
+        // for 2016, 2017, 2018
+        if ( abs(nr.Electron_eta[j]) > 1.479 ) {
+          if ( abs(nr.Electron_dxy[j]) > 0.1 ) continue;
+          if ( abs(nr.Electron_dz[j]) > 0.2 ) continue;        
+        }
+        else {
+          if ( abs(nr.Electron_dxy[j]) > 0.05 ) continue;
+          if ( abs(nr.Electron_dz[j]) > 0.1 ) continue;
+        }
         nVetoEle++;
 
-        //using conservative uncertainty value of 3%
+        //Tight pt cut, using conservative uncertainty value of 3%
         if ( 1.03*nr.Electron_pt[j] < EL_PT_CUT ) continue;
 
-        //if (nr.Electron_cutBased[j]<4) continue;
+        // Tight, 2016 -> cutbased + MVA + isolation
+        // Tight, 2017, 2018 -> MVAIso + isolation
 
-        if (!nr.Electron_mvaFall17V2Iso_WP90[j]) continue;
+        if ( era == 2016 ) {
+          if ( ! nr.Electron_mvaSpring16GP_WP90[j] ) continue;
+
+          if ( abs(nr.Electron_eta[j]) > 1.479 ) {
+            if ( nr.Electron_pfRelIso03_all[j] > 0.0571) continue;
+          }
+          else {
+            if ( nr.Electron_pfRelIso03_all[j] > 0.05880) continue;
+          }
+        }
+        else {
+          if ( ! nr.Electron_mvaFall17V2Iso_WP90[j] ) continue;
+          if ( nr.Electron_pfRelIso03_all[j] > 0.06) continue;
+        }
         nTightEle++;
 
         tightEle.push_back(TLorentzVector(0,0,0,0));
-        tightEle.back().SetPtEtaPhiM(nr.Electron_pt[j],nr.Electron_eta[j],
-				     nr.Electron_phi[j],ELE_MASS);
-
-        //don't try to select electrons unless we don't already
-        //have muons
-        if (WVJJTree->lep1_m == MUON_MASS) continue;
+        tightEle.back().SetPtEtaPhiM(nr.Electron_pt[j],nr.Electron_eta[j], nr.Electron_phi[j],ELE_MASS);
 
         if ( nr.Electron_pt[j] > WVJJTree->lep1_pt ) {
           WVJJTree->lep2_pt = WVJJTree->lep1_pt;
@@ -418,6 +450,10 @@ int main (int ac, char** av) {
           WVJJTree->lep1_q = nr.Electron_charge[j];
         }
         else if ( nr.Electron_pt[j] > WVJJTree->lep2_pt ) {
+
+          // opposite sign
+          if (WVJJTree->lep1_q*nr.Electron_charge[j]>0) continue;
+
           WVJJTree->lep2_pt = nr.Electron_pt[j];
           WVJJTree->lep2_eta = nr.Electron_eta[j];
           WVJJTree->lep2_phi = nr.Electron_phi[j];
@@ -431,17 +467,12 @@ int main (int ac, char** av) {
       }
 
       //check conditions
-
       bool passLepSel = true;
-      if(!(WVJJTree->lep1_pt>0)) passLepSel=false;
-      if ((nTightMu+nTightEle)==0) passLepSel=false; //no leptons with required ID
-      if((nVetoEle+nVetoMu)>2) passLepSel=false;
-      if(nTightMu>0 && nVetoEle>0) passLepSel=false;
-      if(nTightEle>0 && nVetoMu>0) passLepSel=false;
-      if(nTightMu==1 && nVetoMu>1) passLepSel=false;
-      if(nTightEle==1 && nVetoEle>1) passLepSel=false;
+      // only one tight and no vetoed lep -> WV
+      if ((nTightMu + nTightEle) == 1 && (nVetoEle + nVetoMu) > (nTightMu + nTightEle)) passLepSel = false;
+      // only two tight and no vetoed lep -> ZV
+      if ((nTightMu + nTightEle) == 2 && (nVetoEle + nVetoMu) > (nTightMu + nTightEle)) passLepSel = false;
 
-      //if (0) {
       if (passLepSel==false && (nTightMu+nTightEle)==0 && ((nVetoEle>0) ^ (nVetoMu>0))) {
         if (nVetoEle>0) {
 
@@ -491,8 +522,7 @@ int main (int ac, char** av) {
           }
 
           tightMuon.push_back(TLorentzVector(0,0,0,0));
-          tightMuon.back().SetPtEtaPhiM(WVJJTree->lep1_pt, WVJJTree->lep1_eta,
-                                        WVJJTree->lep1_phi,MUON_MASS);
+          tightMuon.back().SetPtEtaPhiM(WVJJTree->lep1_pt, WVJJTree->lep1_eta, WVJJTree->lep1_phi, MUON_MASS);
 
           WVJJTree->isAntiIso=true;
           WVJJTree->lepFakeRate = scaleFactor.GetLeptonFakeWeights(WVJJTree->lep1_pt, WVJJTree->lep1_eta, 13);
@@ -905,27 +935,24 @@ int main (int ac, char** av) {
       }
 
       // AK8
-
-      float dmW = 3000.0;
-      int nGoodFatJet=0;
+      float dmV = 0.0;
+      int nGoodFatJet = 0;
+      int fj_idx = -1;
 
       for (uint j=0; j<*nr.nFatJet; j++) {
 
         if ( fabs(nr.FatJet_eta[j]) > AK8_MAX_ETA ) continue;
 
         if ( isMC ) {
-          // maybe individuals?
           if ( ! (nr.FatJet_pt_nom[j]>AK8_MIN_PT ||
                   nr.FatJet_pt_jesTotalUp[j]>AK8_MIN_PT || nr.FatJet_pt_jesTotalDown[j]>AK8_MIN_PT) ) continue;
-
-          // soft drop mass: No JES variation
-          if ( nr.FatJet_msoftdrop[j]<AK8_MIN_SDM ) continue;
-          if ( nr.FatJet_msoftdrop[j]>AK8_MAX_SDM ) continue;
+          if ( nr.FatJet_msoftdrop_nom[j]<AK8_MIN_SDM ) continue;
+          if ( nr.FatJet_msoftdrop_nom[j]>AK8_MAX_SDM ) continue;
 
         } else {
           if ( nr.FatJet_pt_nom[j]<AK8_MIN_PT ) continue;
-          if ( nr.FatJet_msoftdrop[j]<AK8_MIN_SDM ) continue;
-          if ( nr.FatJet_msoftdrop[j]>AK8_MAX_SDM ) continue;
+          if ( nr.FatJet_msoftdrop_nom[j]<AK8_MIN_SDM ) continue;
+          if ( nr.FatJet_msoftdrop_nom[j]>AK8_MAX_SDM ) continue;
         }
 
         bool isClean=true;
@@ -941,74 +968,78 @@ int main (int ac, char** av) {
           isClean = false;
         }
 
+        if ( nr.FatJet_tau2[j]/nr.FatJet_tau1[j] > 0.45) isClean = false;
+
         if ( isClean == false ) continue;
 
-        if ( fabs(nr.FatJet_msoftdrop[j] - W_MASS) > dmW ) continue;
+        if ( nGoodFatJet == 0 ) dmV = fabs(nr.FatJet_msoftdrop_nom[j] - V_MASS);
+        if ( fabs(nr.FatJet_msoftdrop_nom[j] - V_MASS) > dmV ) continue;
+        dmV = fabs(nr.FatJet_msoftdrop_nom[j] - V_MASS);
+        fj_idx = j;
+        nGoodFatJet++;
+      }
 
-        WVJJTree->bos_PuppiAK8_m_sd0 = nr.FatJet_msoftdrop[j];
-        WVJJTree->bos_PuppiAK8_m_sd0_corr = nr.FatJet_msoftdrop[j];
-        WVJJTree->bos_PuppiAK8_tau2tau1 = nr.FatJet_tau2[j]/nr.FatJet_tau1[j];
-        WVJJTree->bos_PuppiAK8_pt = nr.FatJet_pt[j];
-        WVJJTree->bos_PuppiAK8_eta = nr.FatJet_eta[j];
-        WVJJTree->bos_PuppiAK8_phi = nr.FatJet_phi[j];
+      if (nGoodFatJet > 0) {
+        WVJJTree->bos_PuppiAK8_m_sd0 = nr.FatJet_msoftdrop[fj_idx];
+        WVJJTree->bos_PuppiAK8_m_sd0_corr = nr.FatJet_msoftdrop_nom[fj_idx];
+        WVJJTree->bos_PuppiAK8_tau2tau1 = nr.FatJet_tau2[fj_idx]/nr.FatJet_tau1[fj_idx];
+        WVJJTree->bos_PuppiAK8_pt = nr.FatJet_pt[fj_idx];
+        WVJJTree->bos_PuppiAK8_eta = nr.FatJet_eta[fj_idx];
+        WVJJTree->bos_PuppiAK8_phi = nr.FatJet_phi[fj_idx];
 
         if (isMC) {
-          WVJJTree->bos_PuppiAK8_pt_jesFlavorQCDUp = nr.FatJet_pt_jesFlavorQCDUp[j];
-          WVJJTree->bos_PuppiAK8_pt_jesFlavorQCDDown = nr.FatJet_pt_jesFlavorQCDDown[j];
-          WVJJTree->bos_PuppiAK8_pt_jesRelativeBalUp = nr.FatJet_pt_jesRelativeBalUp[j];
-          WVJJTree->bos_PuppiAK8_pt_jesRelativeBalDown = nr.FatJet_pt_jesRelativeBalDown[j];
-          WVJJTree->bos_PuppiAK8_pt_jesHFUp = nr.FatJet_pt_jesHFUp[j];
-          WVJJTree->bos_PuppiAK8_pt_jesHFDown = nr.FatJet_pt_jesHFDown[j];
-          WVJJTree->bos_PuppiAK8_pt_jesBBEC1Up = nr.FatJet_pt_jesBBEC1Up[j];
-          WVJJTree->bos_PuppiAK8_pt_jesBBEC1Down = nr.FatJet_pt_jesBBEC1Down[j];
-          WVJJTree->bos_PuppiAK8_pt_jesEC2Up = nr.FatJet_pt_jesEC2Up[j];
-          WVJJTree->bos_PuppiAK8_pt_jesEC2Down = nr.FatJet_pt_jesEC2Down[j];
-          WVJJTree->bos_PuppiAK8_pt_jesAbsoluteUp = nr.FatJet_pt_jesAbsoluteUp[j];
-          WVJJTree->bos_PuppiAK8_pt_jesAbsoluteDown = nr.FatJet_pt_jesAbsoluteDown[j];
+          WVJJTree->bos_PuppiAK8_pt_jesFlavorQCDUp = nr.FatJet_pt_jesFlavorQCDUp[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesFlavorQCDDown = nr.FatJet_pt_jesFlavorQCDDown[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesRelativeBalUp = nr.FatJet_pt_jesRelativeBalUp[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesRelativeBalDown = nr.FatJet_pt_jesRelativeBalDown[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesHFUp = nr.FatJet_pt_jesHFUp[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesHFDown = nr.FatJet_pt_jesHFDown[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesBBEC1Up = nr.FatJet_pt_jesBBEC1Up[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesBBEC1Down = nr.FatJet_pt_jesBBEC1Down[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesEC2Up = nr.FatJet_pt_jesEC2Up[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesEC2Down = nr.FatJet_pt_jesEC2Down[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesAbsoluteUp = nr.FatJet_pt_jesAbsoluteUp[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesAbsoluteDown = nr.FatJet_pt_jesAbsoluteDown[fj_idx];
 
           if (era==2016) {
-            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearUp = nr.FatJet_pt_jesBBEC1_2016Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearDown = nr.FatJet_pt_jesBBEC1_2016Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearUp = nr.FatJet_pt_jesEC2_2016Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearDown = nr.FatJet_pt_jesEC2_2016Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearUp = nr.FatJet_pt_jesAbsolute_2016Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearDown = nr.FatJet_pt_jesAbsolute_2016Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesHF_YearUp = nr.FatJet_pt_jesHF_2016Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesHF_YearDown = nr.FatJet_pt_jesHF_2016Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearUp = nr.FatJet_pt_jesRelativeSample_2016Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearDown = nr.FatJet_pt_jesRelativeSample_2016Down[j];
+            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearUp = nr.FatJet_pt_jesBBEC1_2016Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearDown = nr.FatJet_pt_jesBBEC1_2016Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearUp = nr.FatJet_pt_jesEC2_2016Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearDown = nr.FatJet_pt_jesEC2_2016Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearUp = nr.FatJet_pt_jesAbsolute_2016Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearDown = nr.FatJet_pt_jesAbsolute_2016Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesHF_YearUp = nr.FatJet_pt_jesHF_2016Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesHF_YearDown = nr.FatJet_pt_jesHF_2016Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearUp = nr.FatJet_pt_jesRelativeSample_2016Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearDown = nr.FatJet_pt_jesRelativeSample_2016Down[fj_idx];
           }
           if (era==2017) {
-            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearUp = nr.FatJet_pt_jesBBEC1_2017Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearDown = nr.FatJet_pt_jesBBEC1_2017Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearUp = nr.FatJet_pt_jesEC2_2017Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearDown = nr.FatJet_pt_jesEC2_2017Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearUp = nr.FatJet_pt_jesAbsolute_2017Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearDown = nr.FatJet_pt_jesAbsolute_2017Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesHF_YearUp = nr.FatJet_pt_jesHF_2017Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesHF_YearDown = nr.FatJet_pt_jesHF_2017Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearUp = nr.FatJet_pt_jesRelativeSample_2017Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearDown = nr.FatJet_pt_jesRelativeSample_2017Down[j];
+            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearUp = nr.FatJet_pt_jesBBEC1_2017Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearDown = nr.FatJet_pt_jesBBEC1_2017Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearUp = nr.FatJet_pt_jesEC2_2017Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearDown = nr.FatJet_pt_jesEC2_2017Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearUp = nr.FatJet_pt_jesAbsolute_2017Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearDown = nr.FatJet_pt_jesAbsolute_2017Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesHF_YearUp = nr.FatJet_pt_jesHF_2017Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesHF_YearDown = nr.FatJet_pt_jesHF_2017Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearUp = nr.FatJet_pt_jesRelativeSample_2017Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearDown = nr.FatJet_pt_jesRelativeSample_2017Down[fj_idx];
           }
           if (era==2018) {
-            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearUp = nr.FatJet_pt_jesBBEC1_2018Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearDown = nr.FatJet_pt_jesBBEC1_2018Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearUp = nr.FatJet_pt_jesEC2_2018Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearDown = nr.FatJet_pt_jesEC2_2018Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearUp = nr.FatJet_pt_jesAbsolute_2018Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearDown = nr.FatJet_pt_jesAbsolute_2018Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesHF_YearUp = nr.FatJet_pt_jesHF_2018Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesHF_YearDown = nr.FatJet_pt_jesHF_2018Down[j];
-            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearUp = nr.FatJet_pt_jesRelativeSample_2018Up[j];
-            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearDown = nr.FatJet_pt_jesRelativeSample_2018Down[j];
+            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearUp = nr.FatJet_pt_jesBBEC1_2018Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesBBEC1_YearDown = nr.FatJet_pt_jesBBEC1_2018Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearUp = nr.FatJet_pt_jesEC2_2018Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesEC2_YearDown = nr.FatJet_pt_jesEC2_2018Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearUp = nr.FatJet_pt_jesAbsolute_2018Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesAbsolute_YearDown = nr.FatJet_pt_jesAbsolute_2018Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesHF_YearUp = nr.FatJet_pt_jesHF_2018Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesHF_YearDown = nr.FatJet_pt_jesHF_2018Down[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearUp = nr.FatJet_pt_jesRelativeSample_2018Up[fj_idx];
+            WVJJTree->bos_PuppiAK8_pt_jesRelativeSample_YearDown = nr.FatJet_pt_jesRelativeSample_2018Down[fj_idx];
           }
-
-          WVJJTree->bos_PuppiAK8_pt_jesTotalUp = nr.FatJet_pt_jesTotalUp[j];
-          WVJJTree->bos_PuppiAK8_pt_jesTotalDown = nr.FatJet_pt_jesTotalDown[j];
+          WVJJTree->bos_PuppiAK8_pt_jesTotalUp = nr.FatJet_pt_jesTotalUp[fj_idx];
+          WVJJTree->bos_PuppiAK8_pt_jesTotalDown = nr.FatJet_pt_jesTotalDown[fj_idx];
         }
-
-        dmW = fabs(nr.FatJet_msoftdrop[j] - W_MASS);
-        nGoodFatJet++;
       }
 
       goodJetIndex.clear();
@@ -1018,7 +1049,12 @@ int main (int ac, char** av) {
         if ( isMC && ( nr.Jet_pt_nom[j] < AK4_PT_CUT && nr.Jet_pt_jesTotalUp[j] < AK4_PT_CUT &&
                       nr.Jet_pt_jesTotalDown[j] < AK4_PT_CUT ) ) continue;
         else if ( !isMC && nr.Jet_pt_nom[j] < AK4_PT_CUT ) continue;
-        //jet ID??
+        //jet ID
+        // https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookNanoAOD#Jets
+        // tight jet ID
+        if ( nr.Jet_jetId[j] < 2 ) continue;
+        // PU JET ID for jets pt > AK4_PT_CUT and < 50
+        if ( nr.Jet_pt_nom[j] < 50 && nr.Jet_puId[j] < 3 ) continue;
 
 
         //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagSFMethods#1a_Event_reweighting_using_scale
@@ -1026,7 +1062,43 @@ int main (int ac, char** av) {
         float btag_eff_medium = 1.0;
         float btag_eff_tight = 1.0;
 
-        if (fabs(nr.Jet_eta[j])<2.4 && nr.Jet_pt_nom[j]>30) {
+        bool isClean=true;
+
+        // object cleaning
+        if (nGoodFatJet > 0) {
+          if (deltaR(WVJJTree->bos_PuppiAK8_eta, WVJJTree->bos_PuppiAK8_phi,
+                     nr.Jet_eta[j], nr.Jet_phi[j]) < AK4_AK8_DR_CUT) {
+            isClean = false;
+          }
+        }
+
+        for ( std::size_t k=0; k<goodJetIndex.size(); k++) {
+          if (deltaR(nr.Jet_eta[goodJetIndex.at(k)], nr.Jet_phi[goodJetIndex.at(k)],
+                     nr.Jet_eta[j], nr.Jet_phi[j]) < AK4_DR_CUT) {
+            isClean = false;
+          }
+        }
+
+        for ( std::size_t k=0; k<tightEle.size(); k++) {
+          if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
+                     nr.Jet_eta[j], nr.Jet_phi[j]) < AK4_DR_CUT) {
+            isClean = false;
+          }
+        }
+
+        for ( std::size_t k=0; k<tightMuon.size(); k++) {
+          if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
+                     nr.Jet_eta[j], nr.Jet_phi[j]) < AK4_DR_CUT) {
+            isClean = false;
+          }
+        }
+
+
+        if ( isClean == false ) continue;
+        if (nr.Jet_pt_nom[j]>30) WVJJTree->nJet30++;
+        if (nr.Jet_pt_nom[j]>50) WVJJTree->nJet50++;
+
+        if (fabs(nr.Jet_eta[j]) < 2.5) {
 
           if (isMC) {
             btag_eff_loose = scaleFactor.GetBtagEff(nr.Jet_hadronFlavour[j], nr.Jet_pt_nom[j], nr.Jet_eta[j], "loose");
@@ -1102,308 +1174,339 @@ int main (int ac, char** av) {
           }
         }
 
-
-        bool isClean=true;
-
-        // object cleaning
-        if (nGoodFatJet>0) {
-          if (deltaR(WVJJTree->bos_PuppiAK8_eta, WVJJTree->bos_PuppiAK8_phi,
-                     nr.Jet_eta[j], nr.Jet_phi[j]) < AK4_AK8_DR_CUT) {
-            isClean = false;
-          }
-        }
-
-        for ( std::size_t k=0; k<goodJetIndex.size(); k++) {
-          if (deltaR(nr.Jet_eta[goodJetIndex.at(k)], nr.Jet_phi[goodJetIndex.at(k)],
-                     nr.Jet_eta[j], nr.Jet_phi[j]) < AK4_DR_CUT) {
-            isClean = false;
-          }
-        }
-
-        for ( std::size_t k=0; k<tightEle.size(); k++) {
-          if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
-                     nr.Jet_eta[j], nr.Jet_phi[j]) < AK4_DR_CUT) {
-            isClean = false;
-          }
-        }
-
-        for ( std::size_t k=0; k<tightMuon.size(); k++) {
-          if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
-                     nr.Jet_eta[j], nr.Jet_phi[j]) < AK4_DR_CUT) {
-            isClean = false;
-          }
-        }
-
-        if ( isClean == false ) continue;
-        if (nr.Jet_pt_nom[j]>30) WVJJTree->nJet30++;
-        if (nr.Jet_pt_nom[j]>50) WVJJTree->nJet50++;
-
         goodJetIndex.push_back(j);
       }
 
-      int nGoodDijet=0;
+      int nGoodDijet = 0;
+      int sel1 = -1; // V jet 1
+      int sel2 = -1; // V jet 2
+      float max_mjj = 0.0;
+      int vbf1 = -1; // VBS jet 1
+      int vbf2 = -1; // VBS jet 2
 
-      uint sel1=1000, sel2=1000;
-      if (nGoodFatJet==0) {
-        TLorentzVector tmpV1, tmpV2;
-        dmW=3000.0;
+      for (int j : goodJetIndex) {
 
-        for (uint j=0; j<goodJetIndex.size(); j++) {
-          if ( fabs( nr.Jet_eta[goodJetIndex.at(j)] ) > AK4_ETA_CUT ) continue;
+        if (j == sel1 || j == sel2) continue;
 
-          for(uint k=j+1; k<goodJetIndex.size(); k++) {
-            if ( fabs( nr.Jet_eta[goodJetIndex.at(k)] ) > AK4_ETA_CUT ) continue;
+        if (nr.Jet_pt_nom[j] < LEADGING_VBS_JET_PT_CUT) continue;
+
+        for(int k : goodJetIndex) {
+          
+          if (k <= j) continue;
+
+          if (k == sel1 || k == sel2) continue;
+
+          if (nr.Jet_pt_nom[k] < TRAILING_VBS_JET_PT_CUT) continue;
+
+          TLorentzVector tmp1(0,0,0,0);
+          tmp1.SetPtEtaPhiM( nr.Jet_pt_nom[j], nr.Jet_eta[j], nr.Jet_phi[j], nr.Jet_mass[j] );
+
+          TLorentzVector tmp2(0,0,0,0);
+          tmp2.SetPtEtaPhiM( nr.Jet_pt_nom[k], nr.Jet_eta[k], nr.Jet_phi[k], nr.Jet_mass[k] );
+
+          TLorentzVector tempVBF = tmp1 + tmp2;
+
+          if ( tempVBF.M() < VBF_MJJ_CUT ) continue;
+          if ( tempVBF.M() < max_mjj ) continue;
+          max_mjj = tempVBF.M();
+          // Tag VBS Jets
+          vbf1 = j;
+          vbf2 = k;
+        }
+      }
+
+      if (vbf1 == -1 && vbf2 == -1) continue;
+      if (passLepSel) totalCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodFatJet > 0) zvCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodDijet > 0) zjjCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodFatJet > 0) wvCutFlow->Fill("VBS Pair",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodDijet > 0) wjjCutFlow->Fill("VBS Pair",1);
+
+      // no good FatJet, find pair of jets near to V mass
+      if (nGoodFatJet == 0) {
+
+        dmV = 3000.0;
+
+        for (int j : goodJetIndex) {
+
+          if (j == vbf1 || j == vbf2) continue;
+
+          if ( fabs( nr.Jet_eta[j] ) > AK4_ETA_CUT ) continue;
+
+          for(int k : goodJetIndex) {
+
+            if (k <= j) continue;
+            if (k == vbf1 || k == vbf2) continue;
+
+            if ( nr.Jet_pt[j] < 50 || nr.Jet_pt[k] < 50 ) continue;
+
+            if ( fabs( nr.Jet_eta[k] ) > AK4_ETA_CUT ) continue;
 
             TLorentzVector tmp1(0,0,0,0);
-            tmp1.SetPtEtaPhiM( nr.Jet_pt_nom[goodJetIndex.at(j)], nr.Jet_eta[goodJetIndex.at(j)],
-                              nr.Jet_phi[goodJetIndex.at(j)], nr.Jet_mass[goodJetIndex.at(j)] );
+            tmp1.SetPtEtaPhiM( nr.Jet_pt_nom[j], nr.Jet_eta[j], nr.Jet_phi[j], nr.Jet_mass[j] );
 
             TLorentzVector tmp2(0,0,0,0);
-            tmp2.SetPtEtaPhiM( nr.Jet_pt_nom[goodJetIndex.at(k)], nr.Jet_eta[goodJetIndex.at(k)],
-                              nr.Jet_phi[goodJetIndex.at(k)], nr.Jet_mass[goodJetIndex.at(k)] );
+            tmp2.SetPtEtaPhiM( nr.Jet_pt_nom[k], nr.Jet_eta[k], nr.Jet_phi[k], nr.Jet_mass[k] );
 
-            TLorentzVector tmpV=tmp1+tmp2;
+            TLorentzVector tmpV = tmp1 + tmp2;
 
-            if (tmpV.M()<AK4_JJ_MIN_M || tmpV.M()>AK4_JJ_MAX_M) continue;
-
-            if (fabs(tmpV.M()-W_MASS)>dmW) continue;
-
-            WVJJTree->bos_j1_AK4_pt =  nr.Jet_pt_nom[goodJetIndex.at(j)];
-            WVJJTree->bos_j1_AK4_eta = nr.Jet_eta[goodJetIndex.at(j)];
-            WVJJTree->bos_j1_AK4_phi = nr.Jet_phi[goodJetIndex.at(j)];
-            WVJJTree->bos_j1_AK4_m =   nr.Jet_mass[goodJetIndex.at(j)];
-            WVJJTree->bos_j1_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(j)];
-            WVJJTree->bos_j1_AK4_puid_tight = nr.Jet_puId[goodJetIndex.at(j)] == 7 ? true : false;
-            if (isMC) {
-              WVJJTree->bos_j1_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[goodJetIndex.at(j)];
-              WVJJTree->bos_j1_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[goodJetIndex.at(j)];
-              WVJJTree->bos_j1_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[goodJetIndex.at(j)];
-            }
-
-            WVJJTree->bos_j2_AK4_pt =  nr.Jet_pt_nom[goodJetIndex.at(k)];
-            WVJJTree->bos_j2_AK4_eta = nr.Jet_eta[goodJetIndex.at(k)];
-            WVJJTree->bos_j2_AK4_phi = nr.Jet_phi[goodJetIndex.at(k)];
-            WVJJTree->bos_j2_AK4_m =   nr.Jet_mass[goodJetIndex.at(k)];
-            WVJJTree->bos_j2_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(k)];
-            WVJJTree->bos_j2_AK4_puid_tight = nr.Jet_puId[goodJetIndex.at(k)] == 7 ? true : false;
-            if (isMC) {
-              WVJJTree->bos_j2_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[goodJetIndex.at(k)];
-              WVJJTree->bos_j2_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[goodJetIndex.at(k)];
-              WVJJTree->bos_j2_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[goodJetIndex.at(k)];
-            }
-
-            WVJJTree->bos_AK4AK4_pt =  tmpV.Pt();
-            WVJJTree->bos_AK4AK4_eta = tmpV.Eta();
-            WVJJTree->bos_AK4AK4_phi = tmpV.Phi();
-            WVJJTree->bos_AK4AK4_m =   tmpV.M();
-
-            sel1=j; sel2=k;
-            dmW=fabs(tmpV.M()-W_MASS);
-            nGoodDijet=1;
+            if (tmpV.M() < AK4_JJ_MIN_M || tmpV.M() > AK4_JJ_MAX_M) continue;
+            if (fabs(tmpV.M() - V_MASS) >= dmV) continue;
+            dmV = fabs(tmpV.M() - V_MASS);
+            sel1 = j;
+            sel2 = k;
+            nGoodDijet = 1;
           }
         }
+      }
 
-        if (nGoodDijet==0) continue;
+      //check we have a hadronic boson candidate
+      if ( nGoodFatJet == 0 && nGoodDijet == 0 ) continue;
+      if (passLepSel) totalCutFlow->Fill("Hadronic V",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodFatJet > 0) zvCutFlow->Fill("Hadronic V",1);
+      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodDijet > 0) zjjCutFlow->Fill("Hadronic V",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodFatJet > 0) wvCutFlow->Fill("Hadronic V",1);
+      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodDijet > 0) wjjCutFlow->Fill("Hadronic V",1);
+
+      if (nGoodDijet == 1) {
+
+        WVJJTree->bos_j1_AK4_pt = nr.Jet_pt_nom[sel1];
+        WVJJTree->bos_j1_AK4_eta = nr.Jet_eta[sel1];
+        WVJJTree->bos_j1_AK4_phi = nr.Jet_phi[sel1];
+        WVJJTree->bos_j1_AK4_m = nr.Jet_mass[sel1];
+        WVJJTree->bos_j1_AK4_qgid = nr.Jet_qgl[sel1];
+        WVJJTree->bos_j1_AK4_puid_tight = nr.Jet_puId[sel1] == 7 ? true : false;
+        if (isMC) {
+          WVJJTree->bos_j1_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[sel1];
+          WVJJTree->bos_j1_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[sel1];
+          WVJJTree->bos_j1_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[sel1];
+        }
+
+        WVJJTree->bos_j2_AK4_pt =  nr.Jet_pt_nom[sel2];
+        WVJJTree->bos_j2_AK4_eta = nr.Jet_eta[sel2];
+        WVJJTree->bos_j2_AK4_phi = nr.Jet_phi[sel2];
+        WVJJTree->bos_j2_AK4_m =   nr.Jet_mass[sel2];
+        WVJJTree->bos_j2_AK4_qgid = nr.Jet_qgl[sel2];
+        WVJJTree->bos_j2_AK4_puid_tight = nr.Jet_puId[sel2] == 7 ? true : false;
+        if (isMC) {
+          WVJJTree->bos_j2_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[sel2];
+          WVJJTree->bos_j2_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[sel2];
+          WVJJTree->bos_j2_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[sel2];
+        }
+
+        TLorentzVector tmp1(0,0,0,0);
+        tmp1.SetPtEtaPhiM(WVJJTree->bos_j1_AK4_pt, WVJJTree->bos_j1_AK4_eta,
+                          WVJJTree->bos_j1_AK4_phi, WVJJTree->bos_j1_AK4_m);
+
+        TLorentzVector tmp2(0,0,0,0);
+        tmp2.SetPtEtaPhiM(WVJJTree->bos_j2_AK4_pt, WVJJTree->bos_j2_AK4_eta,
+                          WVJJTree->bos_j2_AK4_phi, WVJJTree->bos_j2_AK4_m);
+
+        TLorentzVector tmpV = tmp1 + tmp2;
+        WVJJTree->bos_AK4AK4_pt =  tmpV.Pt();
+        WVJJTree->bos_AK4AK4_eta = tmpV.Eta();
+        WVJJTree->bos_AK4AK4_phi = tmpV.Phi();
+        WVJJTree->bos_AK4AK4_m =   tmpV.M();
 
         if (isMC) {
           // resolved boson JES variation
-          WVJJTree->bos_j1_AK4_pt_jesFlavorQCDUp = nr.Jet_pt_jesFlavorQCDUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesFlavorQCDDown = nr.Jet_pt_jesFlavorQCDDown[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesRelativeBalUp = nr.Jet_pt_jesRelativeBalUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesRelativeBalDown = nr.Jet_pt_jesRelativeBalDown[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesHFUp = nr.Jet_pt_jesHFUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesHFDown = nr.Jet_pt_jesHFDown[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesBBEC1Up = nr.Jet_pt_jesBBEC1Up[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesBBEC1Down = nr.Jet_pt_jesBBEC1Down[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesEC2Up = nr.Jet_pt_jesEC2Up[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesEC2Down = nr.Jet_pt_jesEC2Down[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesAbsoluteUp = nr.Jet_pt_jesAbsoluteUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesAbsoluteDown = nr.Jet_pt_jesAbsoluteDown[goodJetIndex.at(sel1)];
+          WVJJTree->bos_j1_AK4_pt_jesFlavorQCDUp = nr.Jet_pt_jesFlavorQCDUp[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesFlavorQCDDown = nr.Jet_pt_jesFlavorQCDDown[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesRelativeBalUp = nr.Jet_pt_jesRelativeBalUp[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesRelativeBalDown = nr.Jet_pt_jesRelativeBalDown[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesHFUp = nr.Jet_pt_jesHFUp[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesHFDown = nr.Jet_pt_jesHFDown[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesBBEC1Up = nr.Jet_pt_jesBBEC1Up[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesBBEC1Down = nr.Jet_pt_jesBBEC1Down[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesEC2Up = nr.Jet_pt_jesEC2Up[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesEC2Down = nr.Jet_pt_jesEC2Down[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesAbsoluteUp = nr.Jet_pt_jesAbsoluteUp[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesAbsoluteDown = nr.Jet_pt_jesAbsoluteDown[sel1];
 
-          WVJJTree->bos_j1_AK4_m_jesFlavorQCDUp = nr.Jet_mass_jesFlavorQCDUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesFlavorQCDDown = nr.Jet_mass_jesFlavorQCDDown[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesRelativeBalUp = nr.Jet_mass_jesRelativeBalUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesRelativeBalDown = nr.Jet_mass_jesRelativeBalDown[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesHFUp = nr.Jet_mass_jesHFUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesHFDown = nr.Jet_mass_jesHFDown[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesBBEC1Up = nr.Jet_mass_jesBBEC1Up[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesBBEC1Down = nr.Jet_mass_jesBBEC1Down[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesEC2Up = nr.Jet_mass_jesEC2Up[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesEC2Down = nr.Jet_mass_jesEC2Down[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesAbsoluteUp = nr.Jet_mass_jesAbsoluteUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesAbsoluteDown = nr.Jet_mass_jesAbsoluteDown[goodJetIndex.at(sel1)];
+          WVJJTree->bos_j1_AK4_m_jesFlavorQCDUp = nr.Jet_mass_jesFlavorQCDUp[sel1];
+          WVJJTree->bos_j1_AK4_m_jesFlavorQCDDown = nr.Jet_mass_jesFlavorQCDDown[sel1];
+          WVJJTree->bos_j1_AK4_m_jesRelativeBalUp = nr.Jet_mass_jesRelativeBalUp[sel1];
+          WVJJTree->bos_j1_AK4_m_jesRelativeBalDown = nr.Jet_mass_jesRelativeBalDown[sel1];
+          WVJJTree->bos_j1_AK4_m_jesHFUp = nr.Jet_mass_jesHFUp[sel1];
+          WVJJTree->bos_j1_AK4_m_jesHFDown = nr.Jet_mass_jesHFDown[sel1];
+          WVJJTree->bos_j1_AK4_m_jesBBEC1Up = nr.Jet_mass_jesBBEC1Up[sel1];
+          WVJJTree->bos_j1_AK4_m_jesBBEC1Down = nr.Jet_mass_jesBBEC1Down[sel1];
+          WVJJTree->bos_j1_AK4_m_jesEC2Up = nr.Jet_mass_jesEC2Up[sel1];
+          WVJJTree->bos_j1_AK4_m_jesEC2Down = nr.Jet_mass_jesEC2Down[sel1];
+          WVJJTree->bos_j1_AK4_m_jesAbsoluteUp = nr.Jet_mass_jesAbsoluteUp[sel1];
+          WVJJTree->bos_j1_AK4_m_jesAbsoluteDown = nr.Jet_mass_jesAbsoluteDown[sel1];
 
-          WVJJTree->bos_j2_AK4_pt_jesFlavorQCDUp = nr.Jet_pt_jesFlavorQCDUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesFlavorQCDDown = nr.Jet_pt_jesFlavorQCDDown[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesRelativeBalUp = nr.Jet_pt_jesRelativeBalUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesRelativeBalDown = nr.Jet_pt_jesRelativeBalDown[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesHFUp = nr.Jet_pt_jesHFUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesHFDown = nr.Jet_pt_jesHFDown[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesBBEC1Up = nr.Jet_pt_jesBBEC1Up[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesBBEC1Down = nr.Jet_pt_jesBBEC1Down[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesEC2Up = nr.Jet_pt_jesEC2Up[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesEC2Down = nr.Jet_pt_jesEC2Down[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesAbsoluteUp = nr.Jet_pt_jesAbsoluteUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesAbsoluteDown = nr.Jet_pt_jesAbsoluteDown[goodJetIndex.at(sel2)];
+          WVJJTree->bos_j2_AK4_pt_jesFlavorQCDUp = nr.Jet_pt_jesFlavorQCDUp[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesFlavorQCDDown = nr.Jet_pt_jesFlavorQCDDown[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesRelativeBalUp = nr.Jet_pt_jesRelativeBalUp[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesRelativeBalDown = nr.Jet_pt_jesRelativeBalDown[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesHFUp = nr.Jet_pt_jesHFUp[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesHFDown = nr.Jet_pt_jesHFDown[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesBBEC1Up = nr.Jet_pt_jesBBEC1Up[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesBBEC1Down = nr.Jet_pt_jesBBEC1Down[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesEC2Up = nr.Jet_pt_jesEC2Up[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesEC2Down = nr.Jet_pt_jesEC2Down[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesAbsoluteUp = nr.Jet_pt_jesAbsoluteUp[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesAbsoluteDown = nr.Jet_pt_jesAbsoluteDown[sel2];
 
-          WVJJTree->bos_j2_AK4_m_jesFlavorQCDUp = nr.Jet_mass_jesFlavorQCDUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesFlavorQCDDown = nr.Jet_mass_jesFlavorQCDDown[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesRelativeBalUp = nr.Jet_mass_jesRelativeBalUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesRelativeBalDown = nr.Jet_mass_jesRelativeBalDown[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesHFUp = nr.Jet_mass_jesHFUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesHFDown = nr.Jet_mass_jesHFDown[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesBBEC1Up = nr.Jet_mass_jesBBEC1Up[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesBBEC1Down = nr.Jet_mass_jesBBEC1Down[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesEC2Up = nr.Jet_mass_jesEC2Up[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesEC2Down = nr.Jet_mass_jesEC2Down[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesAbsoluteUp = nr.Jet_mass_jesAbsoluteUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesAbsoluteDown = nr.Jet_mass_jesAbsoluteDown[goodJetIndex.at(sel2)];
+          WVJJTree->bos_j2_AK4_m_jesFlavorQCDUp = nr.Jet_mass_jesFlavorQCDUp[sel2];
+          WVJJTree->bos_j2_AK4_m_jesFlavorQCDDown = nr.Jet_mass_jesFlavorQCDDown[sel2];
+          WVJJTree->bos_j2_AK4_m_jesRelativeBalUp = nr.Jet_mass_jesRelativeBalUp[sel2];
+          WVJJTree->bos_j2_AK4_m_jesRelativeBalDown = nr.Jet_mass_jesRelativeBalDown[sel2];
+          WVJJTree->bos_j2_AK4_m_jesHFUp = nr.Jet_mass_jesHFUp[sel2];
+          WVJJTree->bos_j2_AK4_m_jesHFDown = nr.Jet_mass_jesHFDown[sel2];
+          WVJJTree->bos_j2_AK4_m_jesBBEC1Up = nr.Jet_mass_jesBBEC1Up[sel2];
+          WVJJTree->bos_j2_AK4_m_jesBBEC1Down = nr.Jet_mass_jesBBEC1Down[sel2];
+          WVJJTree->bos_j2_AK4_m_jesEC2Up = nr.Jet_mass_jesEC2Up[sel2];
+          WVJJTree->bos_j2_AK4_m_jesEC2Down = nr.Jet_mass_jesEC2Down[sel2];
+          WVJJTree->bos_j2_AK4_m_jesAbsoluteUp = nr.Jet_mass_jesAbsoluteUp[sel2];
+          WVJJTree->bos_j2_AK4_m_jesAbsoluteDown = nr.Jet_mass_jesAbsoluteDown[sel2];
 
           if (era==2016) {
-            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2016Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2016Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2016Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2016Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2016Down[goodJetIndex.at(sel1)];
+            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2016Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2016Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2016Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2016Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2016Down[sel1];
 
-            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2016Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2016Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2016Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2016Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2016Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2016Down[goodJetIndex.at(sel1)];
+            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2016Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2016Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2016Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2016Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2016Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2016Down[sel1];
 
-            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2016Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2016Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2016Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2016Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2016Down[goodJetIndex.at(sel2)];
+            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2016Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2016Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2016Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2016Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2016Down[sel2];
 
-            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2016Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2016Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2016Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2016Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2016Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2016Down[goodJetIndex.at(sel2)];
+            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2016Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2016Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2016Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2016Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2016Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2016Down[sel2];
           }
           if (era==2017) {
-            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2017Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2017Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2017Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2017Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2017Down[goodJetIndex.at(sel1)];
+            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2017Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2017Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2017Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2017Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2017Down[sel1];
 
-            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2017Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2017Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2017Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2017Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2017Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2017Down[goodJetIndex.at(sel1)];
+            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2017Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2017Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2017Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2017Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2017Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2017Down[sel1];
 
-            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2017Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2017Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2017Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2017Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2017Down[goodJetIndex.at(sel2)];
+            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2017Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2017Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2017Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2017Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2017Down[sel2];
 
-            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2017Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2017Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2017Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2017Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2017Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2017Down[goodJetIndex.at(sel2)];
+            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2017Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2017Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2017Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2017Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2017Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2017Down[sel2];
           }
           if (era==2018) {
-            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2018Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2018Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2018Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2018Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2018Down[goodJetIndex.at(sel1)];
+            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2018Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2018Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2018Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2018Down[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2018Down[sel1];
 
-            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2018Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2018Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2018Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2018Down[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2018Up[goodJetIndex.at(sel1)];
-            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2018Down[goodJetIndex.at(sel1)];
+            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2018Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2018Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2018Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2018Down[sel1];
+            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2018Up[sel1];
+            WVJJTree->bos_j1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2018Down[sel1];
 
-            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2018Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2018Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2018Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2018Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2018Down[goodJetIndex.at(sel2)];
+            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2018Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2018Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2018Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2018Down[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2018Down[sel2];
 
-            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2018Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2018Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2018Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2018Down[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2018Up[goodJetIndex.at(sel2)];
-            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2018Down[goodJetIndex.at(sel2)];
+            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2018Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2018Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2018Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2018Down[sel2];
+            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2018Up[sel2];
+            WVJJTree->bos_j2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2018Down[sel2];
           }
 
-          WVJJTree->bos_j1_AK4_pt_jesTotalUp = nr.Jet_pt_jesTotalUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_pt_jesTotalDown = nr.Jet_pt_jesTotalDown[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesTotalUp = nr.Jet_mass_jesTotalUp[goodJetIndex.at(sel1)];
-          WVJJTree->bos_j1_AK4_m_jesTotalDown = nr.Jet_mass_jesTotalDown[goodJetIndex.at(sel1)];
+          WVJJTree->bos_j1_AK4_pt_jesTotalUp = nr.Jet_pt_jesTotalUp[sel1];
+          WVJJTree->bos_j1_AK4_pt_jesTotalDown = nr.Jet_pt_jesTotalDown[sel1];
+          WVJJTree->bos_j1_AK4_m_jesTotalUp = nr.Jet_mass_jesTotalUp[sel1];
+          WVJJTree->bos_j1_AK4_m_jesTotalDown = nr.Jet_mass_jesTotalDown[sel1];
 
-          WVJJTree->bos_j2_AK4_pt_jesTotalUp = nr.Jet_pt_jesTotalUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_pt_jesTotalDown = nr.Jet_pt_jesTotalDown[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesTotalUp = nr.Jet_mass_jesTotalUp[goodJetIndex.at(sel2)];
-          WVJJTree->bos_j2_AK4_m_jesTotalDown = nr.Jet_mass_jesTotalDown[goodJetIndex.at(sel2)];
+          WVJJTree->bos_j2_AK4_pt_jesTotalUp = nr.Jet_pt_jesTotalUp[sel2];
+          WVJJTree->bos_j2_AK4_pt_jesTotalDown = nr.Jet_pt_jesTotalDown[sel2];
+          WVJJTree->bos_j2_AK4_m_jesTotalUp = nr.Jet_mass_jesTotalUp[sel2];
+          WVJJTree->bos_j2_AK4_m_jesTotalDown = nr.Jet_mass_jesTotalDown[sel2];
 
           // resolved boson candidate JES variation
           TLorentzVector tempBos1(0,0,0,0);
@@ -1601,71 +1704,29 @@ int main (int ac, char** av) {
           WVJJTree->bos_AK4AK4_pt_jesTotalDown = (tempBos1+tempBos2).Pt();
           WVJJTree->bos_AK4AK4_m_jesTotalDown = (tempBos1+tempBos2).M();
         }
-      } //if (nGoodFatJet==0)
-
-      //check we have a hadronic boson candidate
-      if ( nGoodFatJet == 0 && nGoodDijet == 0 ) continue;
-      if (passLepSel) totalCutFlow->Fill("Hadronic V",1);
-      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodFatJet > 0) zvCutFlow->Fill("Hadronic V",1);
-      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodDijet > 0) zjjCutFlow->Fill("Hadronic V",1);
-      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodFatJet > 0) wvCutFlow->Fill("Hadronic V",1);
-      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodDijet > 0) wjjCutFlow->Fill("Hadronic V",1);
-
-      float tmpMassMax = 0.0;
-      int vbf1=-1, vbf2=-1;
-
-      for (uint j=0; j<goodJetIndex.size(); j++) {
-        if (j==sel1 || j==sel2) continue;
-        for(uint k=j+1; k<goodJetIndex.size(); k++) {
-          if (k==sel1 || k==sel2) continue;
-
-          TLorentzVector tmp1(0,0,0,0);
-          tmp1.SetPtEtaPhiM( nr.Jet_pt_nom[goodJetIndex.at(j)], nr.Jet_eta[goodJetIndex.at(j)],
-                            nr.Jet_phi[goodJetIndex.at(j)], nr.Jet_mass[goodJetIndex.at(j)] );
-
-          TLorentzVector tmp2(0,0,0,0);
-          tmp2.SetPtEtaPhiM( nr.Jet_pt_nom[goodJetIndex.at(k)], nr.Jet_eta[goodJetIndex.at(k)],
-                            nr.Jet_phi[goodJetIndex.at(k)], nr.Jet_mass[goodJetIndex.at(k)] );
-
-          TLorentzVector tempVBF=tmp1+tmp2;
-
-          //require 2 jets be in opposite hemispheres
-          if ( nr.Jet_eta[goodJetIndex.at(j)] * nr.Jet_eta[goodJetIndex.at(k)] > 0 ) continue; 
-          if ( tempVBF.M() < VBF_MJJ_CUT ) continue;
-          if ( tempVBF.M() < tmpMassMax ) continue;
-          tmpMassMax = tempVBF.M();
-          vbf1=j; vbf2=k;
-        }
       }
 
-      if (vbf1==-1 && vbf2==-1) continue;
-      if (passLepSel) totalCutFlow->Fill("VBS Pair",1);
-      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodFatJet > 0) zvCutFlow->Fill("VBS Pair",1);
-      if (passLepSel && WVJJTree->lep2_pt > 0 && nGoodDijet > 0) zjjCutFlow->Fill("VBS Pair",1);
-      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodFatJet > 0) wvCutFlow->Fill("VBS Pair",1);
-      if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodDijet > 0) wjjCutFlow->Fill("VBS Pair",1);
-
-      WVJJTree->vbf1_AK4_pt = nr.Jet_pt_nom[goodJetIndex.at(vbf1)];
-      WVJJTree->vbf1_AK4_eta = nr.Jet_eta[goodJetIndex.at(vbf1)];
-      WVJJTree->vbf1_AK4_phi = nr.Jet_phi[goodJetIndex.at(vbf1)];
-      WVJJTree->vbf1_AK4_m = nr.Jet_mass[goodJetIndex.at(vbf1)];
-      WVJJTree->vbf1_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(vbf1)];
-      WVJJTree->vbf1_AK4_puid_tight = nr.Jet_puId[goodJetIndex.at(vbf1)] == 7 ? true : false;
+      WVJJTree->vbf1_AK4_pt = nr.Jet_pt_nom[vbf1];
+      WVJJTree->vbf1_AK4_eta = nr.Jet_eta[vbf1];
+      WVJJTree->vbf1_AK4_phi = nr.Jet_phi[vbf1];
+      WVJJTree->vbf1_AK4_m = nr.Jet_mass[vbf1];
+      WVJJTree->vbf1_AK4_qgid = nr.Jet_qgl[vbf1];
+      WVJJTree->vbf1_AK4_puid_tight = nr.Jet_puId[vbf1] == 7 ? true : false;
       if (isMC) {
-        WVJJTree->vbf1_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[goodJetIndex.at(vbf1)];
+        WVJJTree->vbf1_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[vbf1];
+        WVJJTree->vbf1_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[vbf1];
+        WVJJTree->vbf1_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[vbf1];
       }
-      WVJJTree->vbf2_AK4_pt = nr.Jet_pt_nom[goodJetIndex.at(vbf2)];
-      WVJJTree->vbf2_AK4_eta = nr.Jet_eta[goodJetIndex.at(vbf2)];
-      WVJJTree->vbf2_AK4_phi = nr.Jet_phi[goodJetIndex.at(vbf2)];
-      WVJJTree->vbf2_AK4_m = nr.Jet_mass[goodJetIndex.at(vbf2)];
-      WVJJTree->vbf2_AK4_qgid = nr.Jet_qgl[goodJetIndex.at(vbf2)];
-      WVJJTree->vbf2_AK4_puid_tight = nr.Jet_puId[goodJetIndex.at(vbf2)] == 7 ? true : false;
+      WVJJTree->vbf2_AK4_pt = nr.Jet_pt_nom[vbf2];
+      WVJJTree->vbf2_AK4_eta = nr.Jet_eta[vbf2];
+      WVJJTree->vbf2_AK4_phi = nr.Jet_phi[vbf2];
+      WVJJTree->vbf2_AK4_m = nr.Jet_mass[vbf2];
+      WVJJTree->vbf2_AK4_qgid = nr.Jet_qgl[vbf2];
+      WVJJTree->vbf2_AK4_puid_tight = nr.Jet_puId[vbf2] == 7 ? true : false;
       if (isMC) {
-        WVJJTree->vbf2_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[goodJetIndex.at(vbf2)];
+        WVJJTree->vbf2_AK4_puidSF_tight = nr.Jet_PUIDSF_tight[vbf2];
+        WVJJTree->vbf2_AK4_puidSF_tight_Up = nr.Jet_PUIDSF_tight_up[vbf2];
+        WVJJTree->vbf2_AK4_puidSF_tight_Down = nr.Jet_PUIDSF_tight_down[vbf2];
       }
       TLorentzVector tempVBF1(0,0,0,0);
       TLorentzVector tempVBF2(0,0,0,0);
@@ -1684,203 +1745,203 @@ int main (int ac, char** av) {
 
       if (isMC) {
 
-        WVJJTree->vbf1_AK4_pt_jesFlavorQCDUp = nr.Jet_pt_jesFlavorQCDUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesFlavorQCDDown = nr.Jet_pt_jesFlavorQCDDown[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesRelativeBalUp = nr.Jet_pt_jesRelativeBalUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesRelativeBalDown = nr.Jet_pt_jesRelativeBalDown[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesHFUp = nr.Jet_pt_jesHFUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesHFDown = nr.Jet_pt_jesHFDown[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesBBEC1Up = nr.Jet_pt_jesBBEC1Up[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesBBEC1Down = nr.Jet_pt_jesBBEC1Down[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesEC2Up = nr.Jet_pt_jesEC2Up[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesEC2Down = nr.Jet_pt_jesEC2Down[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesAbsoluteUp = nr.Jet_pt_jesAbsoluteUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesAbsoluteDown = nr.Jet_pt_jesAbsoluteDown[goodJetIndex.at(vbf1)];
+        WVJJTree->vbf1_AK4_pt_jesFlavorQCDUp = nr.Jet_pt_jesFlavorQCDUp[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesFlavorQCDDown = nr.Jet_pt_jesFlavorQCDDown[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesRelativeBalUp = nr.Jet_pt_jesRelativeBalUp[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesRelativeBalDown = nr.Jet_pt_jesRelativeBalDown[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesHFUp = nr.Jet_pt_jesHFUp[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesHFDown = nr.Jet_pt_jesHFDown[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesBBEC1Up = nr.Jet_pt_jesBBEC1Up[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesBBEC1Down = nr.Jet_pt_jesBBEC1Down[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesEC2Up = nr.Jet_pt_jesEC2Up[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesEC2Down = nr.Jet_pt_jesEC2Down[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesAbsoluteUp = nr.Jet_pt_jesAbsoluteUp[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesAbsoluteDown = nr.Jet_pt_jesAbsoluteDown[vbf1];
 
-        WVJJTree->vbf1_AK4_m_jesFlavorQCDUp = nr.Jet_mass_jesFlavorQCDUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesFlavorQCDDown = nr.Jet_mass_jesFlavorQCDDown[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesRelativeBalUp = nr.Jet_mass_jesRelativeBalUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesRelativeBalDown = nr.Jet_mass_jesRelativeBalDown[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesHFUp = nr.Jet_mass_jesHFUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesHFDown = nr.Jet_mass_jesHFDown[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesBBEC1Up = nr.Jet_mass_jesBBEC1Up[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesBBEC1Down = nr.Jet_mass_jesBBEC1Down[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesEC2Up = nr.Jet_mass_jesEC2Up[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesEC2Down = nr.Jet_mass_jesEC2Down[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesAbsoluteUp = nr.Jet_mass_jesAbsoluteUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesAbsoluteDown = nr.Jet_mass_jesAbsoluteDown[goodJetIndex.at(vbf1)];
+        WVJJTree->vbf1_AK4_m_jesFlavorQCDUp = nr.Jet_mass_jesFlavorQCDUp[vbf1];
+        WVJJTree->vbf1_AK4_m_jesFlavorQCDDown = nr.Jet_mass_jesFlavorQCDDown[vbf1];
+        WVJJTree->vbf1_AK4_m_jesRelativeBalUp = nr.Jet_mass_jesRelativeBalUp[vbf1];
+        WVJJTree->vbf1_AK4_m_jesRelativeBalDown = nr.Jet_mass_jesRelativeBalDown[vbf1];
+        WVJJTree->vbf1_AK4_m_jesHFUp = nr.Jet_mass_jesHFUp[vbf1];
+        WVJJTree->vbf1_AK4_m_jesHFDown = nr.Jet_mass_jesHFDown[vbf1];
+        WVJJTree->vbf1_AK4_m_jesBBEC1Up = nr.Jet_mass_jesBBEC1Up[vbf1];
+        WVJJTree->vbf1_AK4_m_jesBBEC1Down = nr.Jet_mass_jesBBEC1Down[vbf1];
+        WVJJTree->vbf1_AK4_m_jesEC2Up = nr.Jet_mass_jesEC2Up[vbf1];
+        WVJJTree->vbf1_AK4_m_jesEC2Down = nr.Jet_mass_jesEC2Down[vbf1];
+        WVJJTree->vbf1_AK4_m_jesAbsoluteUp = nr.Jet_mass_jesAbsoluteUp[vbf1];
+        WVJJTree->vbf1_AK4_m_jesAbsoluteDown = nr.Jet_mass_jesAbsoluteDown[vbf1];
 
-        WVJJTree->vbf2_AK4_pt_jesFlavorQCDUp = nr.Jet_pt_jesFlavorQCDUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesFlavorQCDDown = nr.Jet_pt_jesFlavorQCDDown[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesRelativeBalUp = nr.Jet_pt_jesRelativeBalUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesRelativeBalDown = nr.Jet_pt_jesRelativeBalDown[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesHFUp = nr.Jet_pt_jesHFUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesHFDown = nr.Jet_pt_jesHFDown[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesBBEC1Up = nr.Jet_pt_jesBBEC1Up[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesBBEC1Down = nr.Jet_pt_jesBBEC1Down[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesEC2Up = nr.Jet_pt_jesEC2Up[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesEC2Down = nr.Jet_pt_jesEC2Down[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesAbsoluteUp = nr.Jet_pt_jesAbsoluteUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesAbsoluteDown = nr.Jet_pt_jesAbsoluteDown[goodJetIndex.at(vbf2)];
+        WVJJTree->vbf2_AK4_pt_jesFlavorQCDUp = nr.Jet_pt_jesFlavorQCDUp[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesFlavorQCDDown = nr.Jet_pt_jesFlavorQCDDown[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesRelativeBalUp = nr.Jet_pt_jesRelativeBalUp[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesRelativeBalDown = nr.Jet_pt_jesRelativeBalDown[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesHFUp = nr.Jet_pt_jesHFUp[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesHFDown = nr.Jet_pt_jesHFDown[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesBBEC1Up = nr.Jet_pt_jesBBEC1Up[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesBBEC1Down = nr.Jet_pt_jesBBEC1Down[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesEC2Up = nr.Jet_pt_jesEC2Up[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesEC2Down = nr.Jet_pt_jesEC2Down[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesAbsoluteUp = nr.Jet_pt_jesAbsoluteUp[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesAbsoluteDown = nr.Jet_pt_jesAbsoluteDown[vbf2];
 
-        WVJJTree->vbf2_AK4_m_jesFlavorQCDUp = nr.Jet_mass_jesFlavorQCDUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesFlavorQCDDown = nr.Jet_mass_jesFlavorQCDDown[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesRelativeBalUp = nr.Jet_mass_jesRelativeBalUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesRelativeBalDown = nr.Jet_mass_jesRelativeBalDown[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesHFUp = nr.Jet_mass_jesHFUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesHFDown = nr.Jet_mass_jesHFDown[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesBBEC1Up = nr.Jet_mass_jesBBEC1Up[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesBBEC1Down = nr.Jet_mass_jesBBEC1Down[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesEC2Up = nr.Jet_mass_jesEC2Up[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesEC2Down = nr.Jet_mass_jesEC2Down[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesAbsoluteUp = nr.Jet_mass_jesAbsoluteUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesAbsoluteDown = nr.Jet_mass_jesAbsoluteDown[goodJetIndex.at(vbf2)];
+        WVJJTree->vbf2_AK4_m_jesFlavorQCDUp = nr.Jet_mass_jesFlavorQCDUp[vbf2];
+        WVJJTree->vbf2_AK4_m_jesFlavorQCDDown = nr.Jet_mass_jesFlavorQCDDown[vbf2];
+        WVJJTree->vbf2_AK4_m_jesRelativeBalUp = nr.Jet_mass_jesRelativeBalUp[vbf2];
+        WVJJTree->vbf2_AK4_m_jesRelativeBalDown = nr.Jet_mass_jesRelativeBalDown[vbf2];
+        WVJJTree->vbf2_AK4_m_jesHFUp = nr.Jet_mass_jesHFUp[vbf2];
+        WVJJTree->vbf2_AK4_m_jesHFDown = nr.Jet_mass_jesHFDown[vbf2];
+        WVJJTree->vbf2_AK4_m_jesBBEC1Up = nr.Jet_mass_jesBBEC1Up[vbf2];
+        WVJJTree->vbf2_AK4_m_jesBBEC1Down = nr.Jet_mass_jesBBEC1Down[vbf2];
+        WVJJTree->vbf2_AK4_m_jesEC2Up = nr.Jet_mass_jesEC2Up[vbf2];
+        WVJJTree->vbf2_AK4_m_jesEC2Down = nr.Jet_mass_jesEC2Down[vbf2];
+        WVJJTree->vbf2_AK4_m_jesAbsoluteUp = nr.Jet_mass_jesAbsoluteUp[vbf2];
+        WVJJTree->vbf2_AK4_m_jesAbsoluteDown = nr.Jet_mass_jesAbsoluteDown[vbf2];
 
         if (era==2016) {
-          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2016Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2016Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2016Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2016Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2016Down[goodJetIndex.at(vbf1)];
+          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2016Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2016Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2016Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2016Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2016Down[vbf1];
 
-          WVJJTree->vbf1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2016Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2016Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2016Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2016Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2016Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2016Down[goodJetIndex.at(vbf1)];
+          WVJJTree->vbf1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2016Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2016Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2016Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2016Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2016Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2016Down[vbf1];
 
-          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2016Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2016Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2016Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2016Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2016Down[goodJetIndex.at(vbf2)];
+          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2016Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2016Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2016Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2016Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2016Down[vbf2];
 
-          WVJJTree->vbf2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2016Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2016Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2016Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2016Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2016Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2016Down[goodJetIndex.at(vbf2)];
+          WVJJTree->vbf2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2016Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2016Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2016Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2016Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2016Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2016Down[vbf2];
         }
         if (era==2017) {
-          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2017Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2017Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2017Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2017Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2017Down[goodJetIndex.at(vbf1)];
+          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2017Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2017Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2017Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2017Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2017Down[vbf1];
 
-          WVJJTree->vbf1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2017Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2017Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2017Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2017Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2017Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2017Down[goodJetIndex.at(vbf1)];
+          WVJJTree->vbf1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2017Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2017Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2017Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2017Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2017Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2017Down[vbf1];
 
-          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2017Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2017Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2017Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2017Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2017Down[goodJetIndex.at(vbf2)];
+          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2017Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2017Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2017Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2017Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2017Down[vbf2];
 
-          WVJJTree->vbf2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2017Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2017Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2017Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2017Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2017Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2017Down[goodJetIndex.at(vbf2)];
+          WVJJTree->vbf2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2017Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2017Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2017Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2017Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2017Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2017Down[vbf2];
         }
         if (era==2018) {
-          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2018Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2018Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2018Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2018Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2018Down[goodJetIndex.at(vbf1)];
+          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2018Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2018Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2018Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2018Down[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2018Down[vbf1];
 
-          WVJJTree->vbf1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2018Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2018Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2018Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2018Down[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2018Up[goodJetIndex.at(vbf1)];
-          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2018Down[goodJetIndex.at(vbf1)];
+          WVJJTree->vbf1_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2018Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2018Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2018Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2018Down[vbf1];
+          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2018Up[vbf1];
+          WVJJTree->vbf1_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2018Down[vbf1];
 
-          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2018Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2018Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2018Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2018Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2018Down[goodJetIndex.at(vbf2)];
+          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearUp = nr.Jet_pt_jesBBEC1_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesBBEC1_YearDown = nr.Jet_pt_jesBBEC1_2018Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesEC2_YearUp = nr.Jet_pt_jesEC2_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesEC2_YearDown = nr.Jet_pt_jesEC2_2018Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearUp = nr.Jet_pt_jesAbsolute_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesAbsolute_YearDown = nr.Jet_pt_jesAbsolute_2018Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesHF_YearUp = nr.Jet_pt_jesHF_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesHF_YearDown = nr.Jet_pt_jesHF_2018Down[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearUp = nr.Jet_pt_jesRelativeSample_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_pt_jesRelativeSample_YearDown = nr.Jet_pt_jesRelativeSample_2018Down[vbf2];
 
-          WVJJTree->vbf2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2018Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2018Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2018Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2018Down[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2018Up[goodJetIndex.at(vbf2)];
-          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2018Down[goodJetIndex.at(vbf2)];
+          WVJJTree->vbf2_AK4_m_jesBBEC1_YearUp = nr.Jet_mass_jesBBEC1_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesBBEC1_YearDown = nr.Jet_mass_jesBBEC1_2018Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesEC2_YearUp = nr.Jet_mass_jesEC2_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesEC2_YearDown = nr.Jet_mass_jesEC2_2018Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesAbsolute_YearUp = nr.Jet_mass_jesAbsolute_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesAbsolute_YearDown = nr.Jet_mass_jesAbsolute_2018Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesHF_YearUp = nr.Jet_mass_jesHF_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesHF_YearDown = nr.Jet_mass_jesHF_2018Down[vbf2];
+          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearUp = nr.Jet_mass_jesRelativeSample_2018Up[vbf2];
+          WVJJTree->vbf2_AK4_m_jesRelativeSample_YearDown = nr.Jet_mass_jesRelativeSample_2018Down[vbf2];
         }
 
-        WVJJTree->vbf1_AK4_pt_jesTotalUp = nr.Jet_pt_jesTotalUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_pt_jesTotalDown = nr.Jet_pt_jesTotalDown[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesTotalUp = nr.Jet_mass_jesTotalUp[goodJetIndex.at(vbf1)];
-        WVJJTree->vbf1_AK4_m_jesTotalDown = nr.Jet_mass_jesTotalDown[goodJetIndex.at(vbf1)];
+        WVJJTree->vbf1_AK4_pt_jesTotalUp = nr.Jet_pt_jesTotalUp[vbf1];
+        WVJJTree->vbf1_AK4_pt_jesTotalDown = nr.Jet_pt_jesTotalDown[vbf1];
+        WVJJTree->vbf1_AK4_m_jesTotalUp = nr.Jet_mass_jesTotalUp[vbf1];
+        WVJJTree->vbf1_AK4_m_jesTotalDown = nr.Jet_mass_jesTotalDown[vbf1];
 
-        WVJJTree->vbf2_AK4_pt_jesTotalUp = nr.Jet_pt_jesTotalUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_pt_jesTotalDown = nr.Jet_pt_jesTotalDown[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesTotalUp = nr.Jet_mass_jesTotalUp[goodJetIndex.at(vbf2)];
-        WVJJTree->vbf2_AK4_m_jesTotalDown = nr.Jet_mass_jesTotalDown[goodJetIndex.at(vbf2)];
+        WVJJTree->vbf2_AK4_pt_jesTotalUp = nr.Jet_pt_jesTotalUp[vbf2];
+        WVJJTree->vbf2_AK4_pt_jesTotalDown = nr.Jet_pt_jesTotalDown[vbf2];
+        WVJJTree->vbf2_AK4_m_jesTotalUp = nr.Jet_mass_jesTotalUp[vbf2];
+        WVJJTree->vbf2_AK4_m_jesTotalDown = nr.Jet_mass_jesTotalDown[vbf2];
 
         tempVBF1.SetPtEtaPhiM(WVJJTree->vbf1_AK4_pt_jesFlavorQCDUp, WVJJTree->vbf1_AK4_eta,
                               WVJJTree->vbf1_AK4_phi, WVJJTree->vbf1_AK4_m_jesFlavorQCDUp);

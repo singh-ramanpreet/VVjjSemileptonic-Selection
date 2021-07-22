@@ -23,8 +23,6 @@ for era in ${eras}
     transfer_input=True \
     transfer_output=True \
     log="/dev/null" \
-    output="A" \
-    error="B" \
     transfer_input_files="${cmssw_tar}" \
     transfer_output_files="\"\"" \
     -append "arguments=${cmssw_tar} ${era} ${ntuples} ${files}" \

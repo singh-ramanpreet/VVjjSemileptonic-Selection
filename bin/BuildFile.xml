@@ -1,5 +1,5 @@
 <use name="VVjjSemileptonic/Selection"/>
 <use name="root"/>
-<flags CXXFLAGS="-g -Wall"/>
+<flags CXXFLAGS="-g -Wall -Wno-unused-variable"/>
 <bin file="Selection.cc" name="Selection"> </bin>
 <bin file="RemoveDuplicateEvents.cc" name="RemoveDuplicateEvents"> </bin>
