@@ -74,8 +74,8 @@ int main (int ac, char** av) {
   const float AK4_DR_CUT = 0.4;
 
   // VBS Jet pt cut
-  const float LEADGING_VBS_JET_PT_CUT = 50;
-  const float TRAILING_VBS_JET_PT_CUT = 50;
+  const float LEADING_VBS_JET_PT_CUT = 30;
+  const float TRAILING_VBS_JET_PT_CUT = 30;
 
   // btag deepCSV a.k.a. DeepB working points
   //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
@@ -505,7 +505,7 @@ int main (int ac, char** av) {
 
           for (uint j=0; j < *nr.nMuon; j++) {
             if ( abs(nr.Muon_eta[j]) > MU_ETA_CUT ) continue;
-            if (nr.Muon_pfRelIso04_all[j]>0.25) continue;
+            if (nr.Muon_pfRelIso04_all[j]>0.40) continue;
             if ( 1.03*nr.Muon_pt[j] < MU_PT_CUT ) continue;
             if (!nr.Muon_tightId[j]) continue;
 
@@ -1188,7 +1188,7 @@ int main (int ac, char** av) {
 
         if (j == sel1 || j == sel2) continue;
 
-        if (nr.Jet_pt_nom[j] < LEADGING_VBS_JET_PT_CUT) continue;
+        if (nr.Jet_pt_nom[j] < LEADING_VBS_JET_PT_CUT) continue;
 
         for(int k : goodJetIndex) {
           
@@ -1223,7 +1223,7 @@ int main (int ac, char** av) {
       if (passLepSel && WVJJTree->lep2_pt < 0 && nGoodDijet > 0) wjjCutFlow->Fill("VBS Pair",1);
 
       // no good FatJet, find pair of jets near to V mass
-      if (nGoodFatJet == 0) {
+      if (nGoodFatJet != 1) {
 
         dmV = 3000.0;
 
@@ -1231,16 +1231,14 @@ int main (int ac, char** av) {
 
           if (j == vbf1 || j == vbf2) continue;
 
-          if ( fabs( nr.Jet_eta[j] ) > AK4_ETA_CUT ) continue;
+          //if ( fabs( nr.Jet_eta[j] ) > AK4_ETA_CUT ) continue;
 
           for(int k : goodJetIndex) {
 
             if (k <= j) continue;
             if (k == vbf1 || k == vbf2) continue;
 
-            if ( nr.Jet_pt[j] < 50 || nr.Jet_pt[k] < 50 ) continue;
-
-            if ( fabs( nr.Jet_eta[k] ) > AK4_ETA_CUT ) continue;
+            //if ( fabs( nr.Jet_eta[k] ) > AK4_ETA_CUT ) continue;
 
             TLorentzVector tmp1(0,0,0,0);
             tmp1.SetPtEtaPhiM( nr.Jet_pt_nom[j], nr.Jet_eta[j], nr.Jet_phi[j], nr.Jet_mass[j] );
