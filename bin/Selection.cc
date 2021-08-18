@@ -241,6 +241,12 @@ int main (int ac, char** av) {
         WVJJTree->genWeight=*nr.Generator_weight;
       }
 
+      // filtering out particular event for sync
+      //if (!(*nr.event==3073090041)) {
+      //  continue;
+      //}
+      //std::cout << *nr.run << " " << *nr.event << std::endl;
+
       WVJJTree->trigger_1Mu = ((has_HLT_IsoMu22 ? *nr.HLT_IsoMu22 : 0) ||
                                (has_HLT_IsoTkMu22 ? *nr.HLT_IsoTkMu22 : 0) ||
                                (has_HLT_IsoMu24 ? *nr.HLT_IsoMu24 : 0) ||
@@ -983,6 +989,11 @@ int main (int ac, char** av) {
         WVJJTree->bos_PuppiAK8_m_sd0 = nr.FatJet_msoftdrop[fj_idx];
         WVJJTree->bos_PuppiAK8_m_sd0_corr = nr.FatJet_msoftdrop_nom[fj_idx];
         WVJJTree->bos_PuppiAK8_tau2tau1 = nr.FatJet_tau2[fj_idx]/nr.FatJet_tau1[fj_idx];
+        WVJJTree->bos_PuppiAK8_deepTag_WvsQCD = nr.FatJet_deepTag_WvsQCD[fj_idx];
+        WVJJTree->bos_PuppiAK8_deepTag_ZvsQCD = nr.FatJet_deepTag_ZvsQCD[fj_idx];
+        WVJJTree->bos_PuppiAK8_deepTagMD_WvsQCD = nr.FatJet_deepTagMD_WvsQCD[fj_idx];
+        WVJJTree->bos_PuppiAK8_deepTagMD_ZvsQCD = nr.FatJet_deepTagMD_ZvsQCD[fj_idx];
+        WVJJTree->bos_PuppiAK8_deepTagMD_ZbbvsQCD = nr.FatJet_deepTagMD_ZbbvsQCD[fj_idx];
         WVJJTree->bos_PuppiAK8_pt = nr.FatJet_pt[fj_idx];
         WVJJTree->bos_PuppiAK8_eta = nr.FatJet_eta[fj_idx];
         WVJJTree->bos_PuppiAK8_phi = nr.FatJet_phi[fj_idx];

@@ -403,6 +403,11 @@ void WVJJData::init() {
   fTree->Branch("bos_PuppiAK8_eta",&bos_PuppiAK8_eta,"bos_PuppiAK8_eta/F");
   fTree->Branch("bos_PuppiAK8_phi",&bos_PuppiAK8_phi,"bos_PuppiAK8_phi/F");
   fTree->Branch("bos_PuppiAK8_tau2tau1",&bos_PuppiAK8_tau2tau1,"bos_PuppiAK8_tau2tau1/F");
+  fTree->Branch("bos_PuppiAK8_deepTag_WvsQCD",&bos_PuppiAK8_deepTag_WvsQCD,"bos_PuppiAK8_deepTag_WvsQCD/F");
+  fTree->Branch("bos_PuppiAK8_deepTag_ZvsQCD",&bos_PuppiAK8_deepTag_ZvsQCD,"bos_PuppiAK8_deepTag_ZvsQCD/F");
+  fTree->Branch("bos_PuppiAK8_deepTagMD_WvsQCD",&bos_PuppiAK8_deepTagMD_WvsQCD,"bos_PuppiAK8_deepTagMD_WvsQCD/F");
+  fTree->Branch("bos_PuppiAK8_deepTagMD_ZvsQCD",&bos_PuppiAK8_deepTagMD_ZvsQCD,"bos_PuppiAK8_deepTagMD_ZvsQCD/F");
+  fTree->Branch("bos_PuppiAK8_deepTagMD_ZbbvsQCD",&bos_PuppiAK8_deepTagMD_ZbbvsQCD,"bos_PuppiAK8_deepTagMD_ZbbvsQCD/F");
   //Boson AK8 jet variations
   fTree->Branch("bos_PuppiAK8_pt_jesFlavorQCDUp",&bos_PuppiAK8_pt_jesFlavorQCDUp,"bos_PuppiAK8_pt_jesFlavorQCDUp/F");
   fTree->Branch("bos_PuppiAK8_pt_jesFlavorQCDDown",&bos_PuppiAK8_pt_jesFlavorQCDDown,"bos_PuppiAK8_pt_jesFlavorQCDDown/F");
@@ -1152,6 +1157,11 @@ void WVJJData::clearVars() {
   bos_PuppiAK8_eta = -999.0;
   bos_PuppiAK8_phi = -999.0;
   bos_PuppiAK8_tau2tau1 = -999.0;
+  bos_PuppiAK8_deepTag_WvsQCD = -999.0;
+  bos_PuppiAK8_deepTag_ZvsQCD = -999.0;
+  bos_PuppiAK8_deepTagMD_WvsQCD = -999.0;
+  bos_PuppiAK8_deepTagMD_ZvsQCD = -999.0;
+  bos_PuppiAK8_deepTagMD_ZbbvsQCD = -999.0;
 
   //Boson AK8 jet variations
   //bos_PuppiAK8_m_sd0_corr_scaleUp = -999.0;

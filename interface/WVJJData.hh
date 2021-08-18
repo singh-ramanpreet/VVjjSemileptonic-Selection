@@ -472,6 +472,11 @@ public:
   float bos_PuppiAK8_eta;
   float bos_PuppiAK8_phi;
   float bos_PuppiAK8_tau2tau1;
+  float bos_PuppiAK8_deepTag_WvsQCD;
+  float bos_PuppiAK8_deepTag_ZvsQCD;
+  float bos_PuppiAK8_deepTagMD_WvsQCD;
+  float bos_PuppiAK8_deepTagMD_ZvsQCD;
+  float bos_PuppiAK8_deepTagMD_ZbbvsQCD;
 
   //Boson AK8 jet variations
   float bos_PuppiAK8_pt_jesFlavorQCDUp;
