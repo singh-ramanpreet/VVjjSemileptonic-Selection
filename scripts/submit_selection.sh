@@ -3,7 +3,8 @@
 input_list_dir=${1}
 year=${2}
 output_eos_dir=${3}
-nano_ver=${4:-"7"}
+resubmit=${4:-"no"}
+nano_ver=${5:-"7"}
 
 # Logs dir
 mkdir -p condor_logs
@@ -14,6 +15,15 @@ cmssw_tar=$(basename ${CMSSW_BASE}).tgz
 
 for dataset_txt in $(ls ${input_list_dir}/*.txt)
 do
+
+  if [[ "$resubmit" == "yes" ]]
+  then
+    check_file_exists=$(eos root://cmseos.fnal.gov ls ${output_eos_dir}/${year}/$(basename ${dataset_txt%.txt}).root &> /dev/null && echo true || echo false)
+  else
+    check_file_exists=false 
+  fi
+  $check_file_exists && continue
+
   condor_submit \
     universe=vanilla \
     executable="$(which run_selection.sh)" \

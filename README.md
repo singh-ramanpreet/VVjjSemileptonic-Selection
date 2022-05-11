@@ -57,7 +57,7 @@ cd $CMSSW_BASE/src/VVjjSemileptonic/Selection/submit
 Code: Submits over all `.txt` files in `dir`, output will be sub `dir` of `<eos dir>`.
 
 ```bash
-submit_selection.sh <input list dir> <year> <eos dir> <nano version>
+submit_selection.sh <input list dir> <year> <eos dir> <resubmit> <nano version>
 ```
 
 Quick use:
