@@ -991,9 +991,10 @@ int main (int ac, char** av) {
           isClean = false;
         }
 
-        //if ( nr.FatJet_tau2[j]/nr.FatJet_tau1[j] > 0.45) isClean = false;
+        if ( nr.FatJet_tau2[j]/nr.FatJet_tau1[j] > 0.45) isClean = false;
 
         // deepTag WvsQCD https://twiki.cern.ch/twiki/bin/view/CMS/DeepAK8Tagging2018WPsSFs
+        /*
         if (era == 2016) {
           if ( nr.FatJet_deepTagMD_WvsQCD[j] <= 0.506) isClean = false;
         }
@@ -1003,6 +1004,7 @@ int main (int ac, char** av) {
         else if (era == 2018) {
           if ( nr.FatJet_deepTagMD_WvsQCD[j] <= 0.479) isClean = false;
         }
+        */
 
         if ( isClean == false ) continue;
 
